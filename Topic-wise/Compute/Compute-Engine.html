@@ -9,7 +9,74 @@
 </head>
 
 <body class="stackedit">
-  <div class="stackedit__html"><h1 id="compute-engine-gce-—-deep-operational-ace-coverage">Compute Engine (GCE) — Deep, Operational ACE Coverage</h1>
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#compute-engine-gce-—-deep-operational-ace-coverage">Compute Engine (GCE) — Deep, Operational ACE Coverage</a></li>
+<li><a href="#compute-engine-—-ace-depth-anchor">Compute Engine — ACE Depth Anchor</a></li>
+<li><a href="#gce-lifecycle-how-ace-thinks">GCE Lifecycle (how ACE thinks)</a></li>
+<li><a href="#🟦-step-1-set-up-solution-environment-depth">🟦 Step 1: Set Up Solution Environment (Depth)</a></li>
+<li><a href="#ace-critical-facts">ACE-critical facts</a></li>
+<li><a href="#what-must-be-true-before-creating-a-vm">What must be true before creating a VM</a></li>
+<li><a href="#very-common-ace-trap-⚠️">Very common ACE trap ⚠️</a></li>
+<li><a href="#one-line-memory-hook-🧠">One-line memory hook 🧠</a></li>
+<li><a href="#now-we-start-planning-the-vm-this-is-where-depth-begins">Now we start planning the VM (this is where depth begins)</a></li>
+<li><a href="#compute-engine-planning-has-three-cost-drivers">Compute Engine planning has three cost drivers:</a></li>
+<li><a href="#compute-engine-gce-—-deep-operational-ace-coverage-1">Compute Engine (GCE) — Deep, Operational ACE Coverage</a></li>
+<li><a href="#step-2-plan--configure-the-vm-real-depth-starts-here">Step 2: Plan &amp; Configure the VM (REAL depth starts here)</a></li>
+<li><a href="#️⃣-machine-types-ace-depth-boundary">1️⃣ Machine Types (ACE depth boundary)</a></li>
+<li><a href="#what-machine-type-controls">What machine type controls</a></li>
+<li><a href="#ace-relevant-machine-families-don’t-overlearn">ACE-relevant machine families (don’t overlearn)</a></li>
+<li><a href="#spot--preemptible-vms-very-testable">Spot / Preemptible VMs (very testable)</a></li>
+<li><a href="#key-properties">Key properties</a></li>
+<li><a href="#when-ace-expects-spot-vms">When ACE expects Spot VMs</a></li>
+<li><a href="#one-line-memory-hook-🧠-1">One-line memory hook 🧠</a></li>
+<li><a href="#️⃣-disks-second-biggest-cost-driver">2️⃣ Disks (second biggest cost driver)</a></li>
+<li><a href="#disk-types-ace-cares-about">Disk types ACE cares about</a></li>
+<li><a href="#very-important-ace-rule-⚠️">Very important ACE rule ⚠️</a></li>
+<li><a href="#disk-size--cost-exam-logic">Disk size &amp; cost (exam logic)</a></li>
+<li><a href="#one-line-memory-hook-🧠-2">One-line memory hook 🧠</a></li>
+<li><a href="#guided-depth-check-important">Guided depth check (important)</a></li>
+<li><a href="#scenario">Scenario:</a></li>
+<li><a href="#common-ace-trap-⚠️">Common ACE trap ⚠️</a></li>
+<li><a href="#one-line-memory-hook-🧠-3">One-line memory hook 🧠</a></li>
+<li><a href="#section">section</a></li>
+<li><a href="#compute-engine-—-step-3-deploy--connect-operational-depth">Compute Engine — Step 3: Deploy &amp; Connect (Operational Depth)</a></li>
+<li><a href="#compute-engine-—-step-4-access--security-very-testable">Compute Engine — Step 4: Access &amp; Security (VERY testable)</a></li>
+<li><a href="#ssh-access-—-two-models-must-know">SSH access — two models (must know)</a></li>
+<li><a href="#️⃣-ssh-keys-in-metadata-legacy">1️⃣ SSH keys in metadata (legacy)</a></li>
+<li><a href="#️⃣-os-login-ace-preferred">2️⃣ OS Login (ACE-preferred)</a></li>
+<li><a href="#what-os-login-does">What OS Login does</a></li>
+<li><a href="#one-line-memory-hook-🧠-4">One-line memory hook 🧠</a></li>
+<li><a href="#os-login-roles-must-memorize">OS Login roles (must memorize)</a></li>
+<li><a href="#compute-engine-—-step-5-operations-final-depth-block">Compute Engine — Step 5: Operations (Final Depth Block)</a></li>
+<li><a href="#️⃣-snapshots--disk-resizing-operational-reality">1️⃣ Snapshots &amp; Disk Resizing (Operational Reality)</a></li>
+<li><a href="#snapshots-quick-recap">Snapshots (quick recap)</a></li>
+<li><a href="#disk-resizing-very-testable">Disk resizing (very testable)</a></li>
+<li><a href="#one-line-memory-hook-🧠-5">One-line memory hook 🧠</a></li>
+<li><a href="#️⃣-managed-instance-groups-migs-—-huge-ace-topic">2️⃣ Managed Instance Groups (MIGs) — huge ACE topic</a></li>
+<li><a href="#what-a-mig-is">What a MIG is</a></li>
+<li><a href="#instance-template-must-know">Instance Template (must know)</a></li>
+<li><a href="#one-line-memory-hook-🧠-6">One-line memory hook 🧠</a></li>
+<li><a href="#very-common-ace-scenario">Very common ACE scenario</a></li>
+<li><a href="#️⃣-autoscaling-ace-scope">3️⃣ Autoscaling (ACE scope)</a></li>
+<li><a href="#guided-depth-check-important-1">Guided depth check (important)</a></li>
+<li><a href="#scenario-1">Scenario:</a></li>
+<li><a href="#✅-compute-engine-gce-—-officially-completed-ace-level">✅ Compute Engine (GCE) — officially completed (ACE level)</a></li>
+<li><a href="#you-can-now-reason-correctly-about">You can now reason correctly about:</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+<h1 id="compute-engine-gce-—-deep-operational-ace-coverage">Compute Engine (GCE) — Deep, Operational ACE Coverage</h1>
 <hr>
 <h2 id="compute-engine-—-ace-depth-anchor">Compute Engine — ACE Depth Anchor</h2>
 <blockquote>
@@ -470,7 +537,9 @@ Exactly right ✅ — <strong>Managed Instance Group (MIG)</strong>.</p>
 </ul>
 </li>
 </ul>
-</div>
+
+    </div>
+  </div>
 </body>
 
 </html>
