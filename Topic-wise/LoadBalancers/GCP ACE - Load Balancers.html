@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GCP ACE - Load Balancers</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li><a href="#final-mental-lock-in-ace-level">Final Mental Lock-In (ACE Level)</a>
+<ul>
+<li></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>Yes. ✅</p>
+<p>More precisely:</p>
+<p>👉 <strong>Internal HTTP(S) Load Balancer (Regional)</strong></p>
+<p>That is exactly right.</p>
+<p>Let’s validate your reasoning like an engineer, not a guesser:</p>
+<p>Clues:</p>
+<ul>
+<li>Internal only → must be <strong>internal</strong></li>
+<li>HTTP → must be <strong>Layer 7</strong></li>
+<li>Path-based routing → only <strong>Application LB type</strong></li>
+<li>Single region → internal LBs are regional</li>
+</ul>
+<p>So that maps perfectly to:</p>
+<p>✅ Internal HTTP(S) Load Balancer</p>
+<hr>
+<p>Notice what you’re doing better now:</p>
+<p>You’re no longer mixing:</p>
+<ul>
+<li>Proxy vs Application</li>
+<li>Internal vs External</li>
+<li>Global vs Regional</li>
+<li>Layer 4 vs Layer 7</li>
+</ul>
+<p>That confusion earlier with SSL Proxy? Gone.</p>
+<p>That’s growth.</p>
+<hr>
+<h1 id="final-mental-lock-in-ace-level">Final Mental Lock-In (ACE Level)</h1>
+<p>If you remember nothing else, remember this structure:</p>
+<h3 id="step-1-—-protocol">Step 1 — Protocol?</h3>
+<ul>
+<li>HTTP/HTTPS → Application LB</li>
+<li>TCP/UDP → Network LB</li>
+</ul>
+<h3 id="step-2-—-exposure">Step 2 — Exposure?</h3>
+<ul>
+<li>Internet → External</li>
+<li>VPC only → Internal</li>
+</ul>
+<h3 id="step-3-—-scope">Step 3 — Scope?</h3>
+<ul>
+<li>Global web app → Global HTTP(S)</li>
+<li>Single region TCP → Regional Network LB</li>
+</ul>
+<hr>
+
+    </div>
+  </div>
+</body>
+
+</html>
