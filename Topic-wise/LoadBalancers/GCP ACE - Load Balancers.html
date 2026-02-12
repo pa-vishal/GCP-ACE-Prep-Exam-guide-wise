@@ -13,18 +13,645 @@
     <div class="stackedit__toc">
       
 <ul>
+<li><a href="#🔥-first-the-core-mental-model">🔥 First: The Core Mental Model</a>
+<ul>
+<li></li>
+</ul>
+</li>
+<li><a href="#🌍-1.-global-https-load-balancer-application-lb">🌍 1. Global HTTP(S) Load Balancer (Application LB)</a>
+<ul>
+<li></li>
+</ul>
+</li>
+<li><a href="#🌎-2.-regional-internal-https-load-balancer">🌎 2. Regional Internal HTTP(S) Load Balancer</a>
+<ul>
+<li></li>
+</ul>
+</li>
+<li><a href="#🚀-3.-tcpssl-proxy-load-balancer">🚀 3. TCP/SSL Proxy Load Balancer</a>
+<ul>
+<li></li>
+</ul>
+</li>
+<li><a href="#⚡-4.-network-load-balancer-external-tcpudp">⚡ 4. Network Load Balancer (External TCP/UDP)</a>
+<ul>
+<li></li>
+</ul>
+</li>
+<li><a href="#🎯-internal-tcpudp-load-balancer">🎯 Internal TCP/UDP Load Balancer</a></li>
+<li><a href="#🧠-the-5-second-ace-decision-table">🧠 The 5-Second ACE Decision Table</a></li>
+<li><a href="#💣-common-exam-traps">💣 Common Exam Traps</a>
+<ul>
+<li></li>
+</ul>
+</li>
+<li><a href="#🔥-advanced-but-ace-relevant">🔥 Advanced (But ACE Relevant)</a></li>
+<li><a href="#🎯-real-exam-strategy">🎯 Real Exam Strategy</a>
+<ul>
+<li><a href="#now-i’m-going-to-test-your-depth.">Now I’m going to test your depth.</a></li>
+</ul>
+</li>
 <li><a href="#final-mental-lock-in-ace-level">Final Mental Lock-In (ACE Level)</a>
 <ul>
 <li></li>
 </ul>
 </li>
+<li><a href="#🧠-the-osi-model-only-the-layers-that-matter-for-ace">🧠 The OSI Model (Only the Layers That Matter for ACE)</a></li>
+<li><a href="#🔥-what-is-a-layer-4-networktransport-load-balancer">🔥 What Is a Layer 4 (Network/Transport) Load Balancer?</a></li>
+<li><a href="#🎯-what-is-a-layer-7-application-load-balancer">🎯 What Is a Layer 7 (Application) Load Balancer?</a></li>
+<li><a href="#🚀-concrete-example">🚀 Concrete Example</a>
+<ul>
+<li></li>
+</ul>
+</li>
+<li><a href="#🔎-why-this-matters-for-ace">🔎 Why This Matters for ACE</a></li>
+<li><a href="#⚠️-important-clarification">⚠️ Important Clarification</a></li>
+<li><a href="#💡-real-world-intuition">💡 Real-World Intuition</a>
+<ul>
+<li></li>
+</ul>
+</li>
+<li><a href="#🔥-big-picture-first">🔥 Big Picture First</a>
+<ul>
+<li></li>
+</ul>
+</li>
+<li><a href="#🧠-visual-mental-model">🧠 Visual Mental Model</a>
+<ul>
+<li><a href="#proxy-load-balancers-ssl--tcp-proxy">Proxy Load Balancers (SSL / TCP Proxy)</a></li>
+<li><a href="#network-load-balancer-passthrough">Network Load Balancer (Passthrough)</a></li>
+</ul>
+</li>
+<li><a href="#🎯-now-the-clean-comparison-table">🎯 Now The Clean Comparison Table</a></li>
+<li><a href="#🔍-when-to-choose-each-one">🔍 When To Choose Each One</a>
+<ul>
+<li><a href="#✅-ssl-proxy-lb">✅ SSL Proxy LB</a></li>
+<li><a href="#✅-tcp-proxy-lb">✅ TCP Proxy LB</a></li>
+<li><a href="#✅-network-load-balancer">✅ Network Load Balancer</a></li>
+</ul>
+</li>
+<li><a href="#⚠️-exam-trap-patterns">⚠️ Exam Trap Patterns</a></li>
+<li><a href="#🧠-one-line-mental-shortcut">🧠 One-Line Mental Shortcut</a>
+<ul>
+<li></li>
+</ul>
+</li>
+<li><a href="#🔥-1️⃣-external-load-balancers-internet-facing">🔥 1️⃣ External Load Balancers (Internet-facing)</a></li>
+<li><a href="#🔥-2️⃣-internal-load-balancers-vpc-only">🔥 2️⃣ Internal Load Balancers (VPC only)</a></li>
+<li><a href="#🔥-3️⃣-decision-matrix-the-real-exam-tool">🔥 3️⃣ Decision Matrix (The Real Exam Tool)</a>
+<ul>
+<li></li>
+</ul>
+</li>
+<li><a href="#🎯-what-makes-application-lbs-special">🎯 What Makes Application LBs Special</a></li>
+<li><a href="#⚠️-common-exam-confusion-areas">⚠️ Common Exam Confusion Areas</a></li>
+<li><a href="#🧠-ultra-compact-memory-hook">🧠 Ultra-Compact Memory Hook</a></li>
 </ul>
 
     </div>
   </div>
   <div class="stackedit__right">
     <div class="stackedit__html">
-      <p>Yes. ✅</p>
+      <p>Good. Load balancers are <strong>absolutely exam-relevant</strong> for ACE — especially under:</p>
+<blockquote>
+<p><strong>Section 2.3 – Planning and implementing networking resources</strong><br>
+“Choosing and deploying load balancers”</p>
+</blockquote>
+<p>Let’s build this the right way — not memorization, but a <strong>mental model + exam traps</strong>.</p>
+<hr>
+<h1 id="🔥-first-the-core-mental-model">🔥 First: The Core Mental Model</h1>
+<p>There are only <strong>two real decision points</strong> in the exam:</p>
+<h3 id="️⃣-is-the-traffic-httphttps">1️⃣ Is the traffic <strong>HTTP/HTTPS</strong>?</h3>
+<p>→ Yes → <strong>Application Load Balancer</strong><br>
+→ No → Go to next question</p>
+<h3 id="️⃣-is-it-tcpudp">2️⃣ Is it TCP/UDP?</h3>
+<p>→ Yes → <strong>Network Load Balancer</strong></p>
+<p>Everything else is variation.</p>
+<hr>
+<h1 id="🌍-1.-global-https-load-balancer-application-lb">🌍 1. Global HTTP(S) Load Balancer (Application LB)</h1>
+<p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/GCLB_7.max-1300x1300.png" alt="Image"></p>
+<p><img src="https://docs.cloud.google.com/static/load-balancing/images/network-load-balancer-backend-service.svg" alt="Image"></p>
+<p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Cloud-CDN.max-2000x2000.png" alt="Image"></p>
+<p><img src="https://docs.cloud.google.com/static/load-balancing/images/overview/application_load_balancers.svg" alt="Image"></p>
+<h3 id="what-it-is">What it is:</h3>
+<p>Layer 7 (HTTP/HTTPS) intelligent load balancer.</p>
+<h3 id="key-properties">Key Properties:</h3>
+<ul>
+<li>
+<p>✅ Global</p>
+</li>
+<li>
+<p>✅ Single Anycast IP</p>
+</li>
+<li>
+<p>✅ Terminates SSL</p>
+</li>
+<li>
+<p>✅ URL-based routing</p>
+</li>
+<li>
+<p>✅ Can route to multiple regions</p>
+</li>
+<li>
+<p>✅ Cloud CDN support</p>
+</li>
+<li>
+<p>✅ Works with:</p>
+<ul>
+<li>Managed Instance Groups</li>
+<li>GKE</li>
+<li>Cloud Run</li>
+<li>Backend buckets (Cloud Storage)</li>
+</ul>
+</li>
+</ul>
+<h3 id="exam-clues">Exam Clues:</h3>
+<p>If you see:</p>
+<ul>
+<li>“Multi-region”</li>
+<li>“Route based on path”</li>
+<li>“Minimize latency globally”</li>
+<li>“Content-based routing”</li>
+<li>“Single IP worldwide”</li>
+</ul>
+<p>👉 Answer = <strong>Global HTTP(S) Load Balancer</strong></p>
+<hr>
+<h1 id="🌎-2.-regional-internal-https-load-balancer">🌎 2. Regional Internal HTTP(S) Load Balancer</h1>
+<p><img src="https://cdn.qwiklabs.com/k3u04mphJhk%2F2yM84NjgPiZHrbCuzbdwAQ98vnaoHQo%3D" alt="Image"></p>
+<p><img src="https://docs.cloud.google.com/static/load-balancing/images/cross-reg-int-cloudrun.svg" alt="Image"></p>
+<p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/3_new.max-1000x1000.jpg" alt="Image"></p>
+<p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/image001rx5.max-700x700.PNG" alt="Image"></p>
+<h3 id="what-it-is-1">What it is:</h3>
+<p>Layer 7 but <strong>internal only</strong> (private IP)</p>
+<h3 id="key-properties-1">Key Properties:</h3>
+<ul>
+<li>❗ Regional</li>
+<li>❗ Internal VPC only</li>
+<li>❗ Private IP</li>
+<li>❗ Microservices inside VPC</li>
+</ul>
+<h3 id="exam-clue">Exam Clue:</h3>
+<p>If question says:</p>
+<ul>
+<li>“Internal microservices”</li>
+<li>“Private communication”</li>
+<li>“No internet exposure”</li>
+</ul>
+<p>👉 Choose <strong>Internal HTTP(S) Load Balancer</strong></p>
+<hr>
+<h1 id="🚀-3.-tcpssl-proxy-load-balancer">🚀 3. TCP/SSL Proxy Load Balancer</h1>
+<p>Layer 4 but still global.</p>
+<h3 id="when-used">When used:</h3>
+<ul>
+<li>Non-HTTP traffic</li>
+<li>Want global distribution</li>
+<li>SSL offloading</li>
+<li>Doesn’t need content-based routing</li>
+</ul>
+<p>Exam trick:<br>
+If it says:</p>
+<ul>
+<li>“Non-HTTP protocol”</li>
+<li>“Global”</li>
+<li>“Terminate SSL”</li>
+</ul>
+<p>👉 TCP Proxy or SSL Proxy LB</p>
+<hr>
+<h1 id="⚡-4.-network-load-balancer-external-tcpudp">⚡ 4. Network Load Balancer (External TCP/UDP)</h1>
+<p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/network_LB_meglevs.max-1600x1600.png" alt="Image"></p>
+<p><img src="https://docs.cloud.google.com/static/load-balancing/images/network-load-balancer-multiple-protocols.svg" alt="Image"></p>
+<p><img src="https://docs.cloud.google.com/static/load-balancing/images/network-load-balancer-1.svg" alt="Image"></p>
+<p><img src="https://docs.cloud.google.com/static/load-balancing/images/passthrough-network-load-balancer.svg" alt="Image"></p>
+<h3 id="what-it-is-2">What it is:</h3>
+<p>Layer 4 pass-through</p>
+<h3 id="key-properties-2">Key Properties:</h3>
+<ul>
+<li>Regional</li>
+<li>No SSL termination</li>
+<li>Preserves source IP</li>
+<li>Very fast</li>
+<li>TCP/UDP</li>
+</ul>
+<h3 id="exam-clue-1">Exam Clue:</h3>
+<p>If question says:</p>
+<ul>
+<li>“Preserve client IP”</li>
+<li>“Ultra low latency”</li>
+<li>“UDP traffic”</li>
+<li>“Gaming / VoIP”</li>
+</ul>
+<p>👉 Network Load Balancer</p>
+<hr>
+<h1 id="🎯-internal-tcpudp-load-balancer">🎯 Internal TCP/UDP Load Balancer</h1>
+<p>Same as above but private inside VPC.</p>
+<p>Exam clue:<br>
+“Internal TCP service between VMs”</p>
+<p>👉 Internal TCP/UDP LB</p>
+<hr>
+<h1 id="🧠-the-5-second-ace-decision-table">🧠 The 5-Second ACE Decision Table</h1>
+
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Load Balancer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Global + HTTP</td>
+<td>Global HTTP(S) LB</td>
+</tr>
+<tr>
+<td>Global + TCP</td>
+<td>TCP Proxy LB</td>
+</tr>
+<tr>
+<td>Regional + TCP/UDP</td>
+<td>Network LB</td>
+</tr>
+<tr>
+<td>Internal HTTP</td>
+<td>Internal HTTP LB</td>
+</tr>
+<tr>
+<td>Internal TCP</td>
+<td>Internal TCP LB</td>
+</tr>
+</tbody>
+</table><hr>
+<h1 id="💣-common-exam-traps">💣 Common Exam Traps</h1>
+<h3 id="trap-1">Trap 1:</h3>
+<p>“User wants lowest latency globally”</p>
+<p>If HTTP → Global HTTP LB (because Anycast + edge POPs)</p>
+<hr>
+<h3 id="trap-2">Trap 2:</h3>
+<p>“Need to preserve source IP”</p>
+<p>→ Not proxy LB<br>
+→ Choose Network LB (pass-through)</p>
+<hr>
+<h3 id="trap-3">Trap 3:</h3>
+<p>“Path-based routing”</p>
+<p>→ Only Application Load Balancer supports it</p>
+<hr>
+<h3 id="trap-4">Trap 4:</h3>
+<p>“Single global IP for multi-region backend”</p>
+<p>→ Global HTTP LB</p>
+<hr>
+<h1 id="🔥-advanced-but-ace-relevant">🔥 Advanced (But ACE Relevant)</h1>
+<p>You should know:</p>
+<ul>
+<li>Backend service</li>
+<li>Health checks</li>
+<li>Instance group as backend</li>
+<li>Target proxy</li>
+<li>Forwarding rule</li>
+</ul>
+<p>You do NOT need deep config internals for ACE.</p>
+<hr>
+<h1 id="🎯-real-exam-strategy">🎯 Real Exam Strategy</h1>
+<p>When you see a load balancer question:</p>
+<ol>
+<li>Underline protocol (HTTP? TCP? UDP?)</li>
+<li>Underline scope (global? regional?)</li>
+<li>Underline internal vs external</li>
+<li>Look for path-based routing</li>
+<li>Look for client IP preservation</li>
+</ol>
+<p>That’s it.</p>
+<hr>
+<p>Now I want to push you:</p>
+<p>If I say:</p>
+<blockquote>
+<p>“Company has users worldwide accessing a web app deployed in two regions. They want a single IP and automatic failover.”</p>
+</blockquote>
+<p>What do you choose?</p>
+<p>Correct. ✅</p>
+<p>That’s the right instinct.</p>
+<p>Let’s tighten your reasoning so in the exam you don’t hesitate.</p>
+<p>The question clues were:</p>
+<ul>
+<li><strong>Users worldwide</strong> → needs global edge presence</li>
+<li><strong>Single IP</strong> → Anycast global IP</li>
+<li><strong>Automatic failover across regions</strong> → cross-region backend support</li>
+<li><strong>Web app (HTTP)</strong> → Layer 7</li>
+</ul>
+<p>That combination only matches:</p>
+<p>👉 <strong>Global HTTP(S) Load Balancer</strong></p>
+<p>Now let me sharpen your understanding one level deeper.</p>
+<p>Why not Network Load Balancer?</p>
+<p>Because:</p>
+<ul>
+<li>Network LB is regional.</li>
+<li>No cross-region failover.</li>
+<li>No intelligent HTTP routing.</li>
+<li>No global Anycast routing.</li>
+</ul>
+<p>Why not TCP Proxy LB?</p>
+<p>Because:</p>
+<ul>
+<li>It doesn’t understand HTTP.</li>
+<li>No path-based routing.</li>
+<li>Not optimized for web apps like the Application LB.</li>
+</ul>
+<hr>
+<h2 id="now-i’m-going-to-test-your-depth.">Now I’m going to test your depth.</h2>
+<h3 id="scenario-2">Scenario 2:</h3>
+<p>A company runs an internal microservices architecture on Compute Engine VMs inside a VPC.<br>
+Services communicate over HTTP.<br>
+Traffic must <strong>never leave the VPC</strong>.<br>
+They want Layer 7 routing.</p>
+<p>What load balancer?</p>
+<p>Close — but tighten the wording.</p>
+<p>The correct answer is:</p>
+<p>👉 <strong>Internal HTTP(S) Load Balancer (Regional)</strong></p>
+<p>You said “Regional HTTP Load Balancer,” which is directionally right, but on the exam precision matters.</p>
+<p>Let’s break it down like an engineer:</p>
+<p>Clues in the scenario:</p>
+<ul>
+<li>Internal microservices</li>
+<li>Inside a VPC</li>
+<li>Must never leave VPC</li>
+<li>HTTP traffic</li>
+<li>Layer 7 routing</li>
+</ul>
+<p>That eliminates:</p>
+<ul>
+<li>❌ Global HTTP(S) LB (external)</li>
+<li>❌ Network LB (Layer 4)</li>
+<li>❌ TCP Proxy LB (external/global)</li>
+</ul>
+<p>So we choose:</p>
+<ul>
+<li>✅ Internal</li>
+<li>✅ HTTP</li>
+<li>✅ Regional (all internal LBs are regional)</li>
+</ul>
+<p>Good job. Your thinking process is solid.</p>
+<hr>
+<p>Now I’m going to increase the difficulty slightly.</p>
+<h3 id="scenario-3">Scenario 3:</h3>
+<p>A gaming company runs a multiplayer engine on Compute Engine VMs.<br>
+Traffic is UDP-based.<br>
+They need ultra-low latency.<br>
+They must preserve the client source IP.<br>
+Traffic is from the public internet.</p>
+<p>What load balancer?</p>
+<p>This one filters out people who only memorized HTTP ones.</p>
+<p>You’re 90% there — but don’t mix protocol names on the exam.</p>
+<p>The scenario said:</p>
+<ul>
+<li><strong>UDP-based</strong></li>
+<li>Ultra-low latency</li>
+<li>Preserve client source IP</li>
+<li>Public internet</li>
+</ul>
+<p>Correct answer:</p>
+<p>👉 <strong>External Network Load Balancer (TCP/UDP)</strong><br>
+(often just called <strong>Network Load Balancer</strong>)</p>
+<p>You said “Network TCP Load Balancer” — but this is UDP traffic.<br>
+On ACE, precision matters.</p>
+<hr>
+<h3 id="why-this-is-correct">Why this is correct</h3>
+<p>Clue breakdown:</p>
+<ul>
+<li>UDP → Immediately eliminates HTTP(S) LB and TCP Proxy LB.</li>
+<li>Preserve source IP → Eliminates proxy load balancers.</li>
+<li>Ultra-low latency → Points to pass-through LB.</li>
+<li>Public internet → External version.</li>
+</ul>
+<p>Only one matches all:</p>
+<p>✅ External Network Load Balancer (Layer 4, passthrough)</p>
+<hr>
+<h3 id="let-me-sharpen-your-mental-map">Let me sharpen your mental map:</h3>
+
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Application LB</th>
+<th>Proxy LB</th>
+<th>Network LB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Layer</td>
+<td>7</td>
+<td>4 (proxy)</td>
+<td>4 (passthrough)</td>
+</tr>
+<tr>
+<td>Preserves client IP</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>UDP support</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Path-based routing</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Global</td>
+<td>✅ (HTTP)</td>
+<td>✅ (TCP proxy)</td>
+<td>❌ (regional)</td>
+</tr>
+</tbody>
+</table><hr>
+<p>You’re doing well. You’re thinking in the right structure instead of guessing.</p>
+<p>Now let’s test if you really understand scope.</p>
+<h3 id="scenario-4">Scenario 4:</h3>
+<p>A company has backend VMs in <strong>us-central1 only</strong>.<br>
+They want to expose a <strong>TCP-based database service</strong> to the internet.<br>
+They do NOT need global routing.<br>
+They want to preserve client IP.</p>
+<p>What load balancer?</p>
+<p>Be exact.</p>
+<p>Stop. Slow down. Read the scenario carefully.</p>
+<p>Clues:</p>
+<ul>
+<li><strong>Expose to the internet</strong></li>
+<li>TCP-based service</li>
+<li>Preserve client IP</li>
+<li>Single region (us-central1)</li>
+</ul>
+<p>You answered: <strong>Internal TCP Load Balancer</strong></p>
+<p>That would keep traffic <em>inside the VPC only</em>.<br>
+The question clearly says <strong>expose to the internet</strong>.</p>
+<p>So the correct answer is:</p>
+<p>👉 <strong>External Network Load Balancer (TCP)</strong></p>
+<p>Why?</p>
+<ul>
+<li>TCP (non-HTTP)</li>
+<li>Preserve client IP → must be passthrough</li>
+<li>Internet-facing → must be external</li>
+<li>Single region → regional is fine</li>
+</ul>
+<p>That maps exactly to:</p>
+<p>✅ External Network Load Balancer (Layer 4 passthrough)</p>
+<hr>
+<p>This mistake is important.</p>
+<p>You reacted to “TCP” and jumped to “Internal TCP.”<br>
+But the scope (internal vs external) is a separate decision axis.</p>
+<p>When you see load balancer questions, force yourself to check in order:</p>
+<ol>
+<li>Protocol?</li>
+<li>Internal or external?</li>
+<li>Global or regional?</li>
+<li>Any advanced requirements (path routing, CDN, SSL termination)?</li>
+</ol>
+<p>If you skip step 2, you’ll lose points.</p>
+<hr>
+<p>You’re improving fast. That’s what matters.</p>
+<p>Now let’s go harder:</p>
+<h3 id="scenario-5">Scenario 5:</h3>
+<p>A web application runs in two regions.<br>
+Users are worldwide.<br>
+The company wants:</p>
+<ul>
+<li>SSL termination at Google edge</li>
+<li>URL path-based routing</li>
+<li>Cloud CDN support</li>
+<li>Single global IP</li>
+</ul>
+<p>What load balancer?</p>
+<p>This should be instant for you now.</p>
+<p>No. That’s not correct.</p>
+<p>Slow down and read the requirements carefully.</p>
+<p>Clues:</p>
+<ul>
+<li><strong>Web application</strong> → HTTP/HTTPS</li>
+<li><strong>Two regions</strong> → cross-region routing</li>
+<li><strong>Users worldwide</strong> → global</li>
+<li><strong>SSL termination at Google edge</strong> → proxy at edge</li>
+<li><strong>URL path-based routing</strong> → Layer 7 intelligence</li>
+<li><strong>Cloud CDN support</strong> → only works with HTTP(S) LB</li>
+<li><strong>Single global IP</strong> → Anycast</li>
+</ul>
+<p>You answered <strong>SSL Proxy</strong>.</p>
+<p>SSL Proxy Load Balancer:</p>
+<ul>
+<li>Layer 4</li>
+<li>No URL path routing</li>
+<li>No Cloud CDN</li>
+<li>Not designed for web application logic</li>
+</ul>
+<p>So that eliminates it immediately.</p>
+<p>The only load balancer that satisfies ALL requirements is:</p>
+<p>👉 <strong>Global External HTTP(S) Load Balancer</strong><br>
+(also called Application Load Balancer)</p>
+<hr>
+<p>Here’s the discipline you need for the exam:</p>
+<p>Whenever you see:</p>
+<ul>
+<li>URL path-based routing</li>
+<li>Cloud CDN</li>
+<li>Global</li>
+<li>Web app</li>
+<li>Single IP worldwide</li>
+</ul>
+<p>You should instantly think:</p>
+<p>🧠 → Global HTTP(S) Load Balancer</p>
+<p>No debate.</p>
+<hr>
+<p>Let me correct your mental wiring.</p>
+<h3 id="quick-pattern-recognition-drill">Quick Pattern Recognition Drill</h3>
+<p>If you see “Cloud CDN”<br>
+→ It automatically implies HTTP(S) Load Balancer.</p>
+<p>If you see “path-based routing”<br>
+→ Only Application LB supports it.</p>
+<p>If you see “preserve client IP”<br>
+→ Think Network Load Balancer.</p>
+<p>If you see “UDP”<br>
+→ Network Load Balancer.</p>
+<p>If you see “internal microservices HTTP”<br>
+→ Internal HTTP LB.</p>
+<hr>
+<p>You’re close, but this mistake shows you’re mixing proxy LBs with application LBs.</p>
+<p>That confusion will cost you points.</p>
+<p>We fix it now.</p>
+<hr>
+<p>Final challenge for this round:</p>
+<p>A company runs a Cloud Run service in multiple regions.<br>
+They want global access, single IP, and traffic splitting between versions.</p>
+<p>What load balancer (if any) is involved?</p>
+<p>Think carefully before answering.</p>
+<p>Yes ✅ — and here’s the nuance that makes you exam-ready.</p>
+<p>For <strong>Cloud Run in multiple regions</strong>, global access with a single IP is achieved through:</p>
+<p>👉 <strong>Global External HTTP(S) Load Balancer (Application Load Balancer)</strong></p>
+<p>Now let’s sharpen this further.</p>
+<p>Cloud Run by itself already:</p>
+<ul>
+<li>Has HTTPS</li>
+<li>Has Google-managed cert</li>
+<li>Supports traffic splitting between revisions</li>
+</ul>
+<p>But when you need:</p>
+<ul>
+<li><strong>Multiple regions</strong></li>
+<li><strong>Single global IP</strong></li>
+<li><strong>Custom domain across regions</strong></li>
+<li>Advanced routing</li>
+</ul>
+<p>It is fronted by a <strong>Global HTTP(S) Load Balancer</strong>.</p>
+<p>This is how it works conceptually:</p>
+<pre><code>Users worldwide
+        ↓
+Global HTTP(S) LB (Anycast IP)
+        ↓
+Cloud Run service (region A)
+Cloud Run service (region B)
+</code></pre>
+<p>The load balancer handles:</p>
+<ul>
+<li>Global routing</li>
+<li>SSL termination (if configured there)</li>
+<li>Traffic steering to nearest healthy region</li>
+</ul>
+<p>Cloud Run handles:</p>
+<ul>
+<li>Revision-level traffic splitting (v1 vs v2)</li>
+</ul>
+<p>That distinction matters.</p>
+<hr>
+<h3 id="subtle-exam-insight">Subtle Exam Insight</h3>
+<p>If the question only says:</p>
+<blockquote>
+<p>“Deploy Cloud Run and split traffic between versions”</p>
+</blockquote>
+<p>You do NOT automatically choose a load balancer.<br>
+Cloud Run can do that internally.</p>
+<p>But if it says:</p>
+<ul>
+<li>Multi-region</li>
+<li>Single global IP</li>
+<li>Custom domain across regions</li>
+</ul>
+<p>Then yes — Global HTTP(S) LB is involved.</p>
+<hr>
+<p>You’re improving. Your mistakes are getting more subtle now — which is good. That’s how progress looks.</p>
+<hr>
+<p>Let’s pressure test you one more time.</p>
+<h3 id="final-scenario">Final Scenario:</h3>
+<p>An internal API runs on GKE in a single region.<br>
+It must:</p>
+<ul>
+<li>Be accessible only inside the VPC</li>
+<li>Use HTTP</li>
+<li>Support path-based routing</li>
+</ul>
+<p>What load balancer?</p>
+<p>Answer cleanly and precisely.</p>
+<p>Yes. ✅</p>
 <p>More precisely:</p>
 <p>👉 <strong>Internal HTTP(S) Load Balancer (Regional)</strong></p>
 <p>That is exactly right.</p>
@@ -68,6 +695,746 @@
 <li>Single region TCP → Regional Network LB</li>
 </ul>
 <hr>
+<p>You’re now at the point where load balancer questions should feel mechanical.</p>
+<p>If you want, next we can:</p>
+<ul>
+<li>Do 5 rapid-fire trick scenarios</li>
+<li>Or go deeper into how health checks + backend services appear in questions</li>
+<li>Or move to Network Service Tiers (another exam favorite)</li>
+</ul>
+<p>Your choice.</p>
+<h3 id="i-assume-that-application-vs-network-load-balancers-are-named-so-because-of-the-layer-they-live-in-what-does-it-mean-when-we-say-layer-4-network-layer-load-balancers">I assume that Application vs Network load balancers are named so because of the layer they live in? What does it mean when we say Layer 4 (Network layer) load balancers?</h3>
+<p>Good question. This is where most people memorize instead of understanding.</p>
+<p>Yes — <strong>Application vs Network load balancers</strong> are named based on the <strong>OSI model layer</strong> they operate on.</p>
+<p>Let’s make this very clear.</p>
+<hr>
+<h1 id="🧠-the-osi-model-only-the-layers-that-matter-for-ace">🧠 The OSI Model (Only the Layers That Matter for ACE)</h1>
+<p><img src="https://images.openai.com/static-rsc-3/v7CVM4JUpSDnT-VQgLU2IWuvSWhtVk1AmGHVmdwB0xlGhdF8QLRZ3xd9zLrXOFyz4vhuErazenN_QpndJqroC8eFvwq4c-cYpwiQIP4-dOA?purpose=fullsize&amp;v=1" alt="Image"></p>
+<p><img src="https://kemptechnologies.com/images/kemptechnologieslibraries/about/picture1.png?sfvrsn=453f0d1f_1" alt="Image"></p>
+<p><img src="https://freeloadbalancer.com/images/freeloadbalancerlibraries/default-album/graphics/freeloadbalancer-layer-4-layer-7-mobile.svg?sfvrsn=6c04fa85_4" alt="Image"></p>
+<p>You only care about:</p>
+
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Name</th>
+<th>What it Handles</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7</td>
+<td>Application</td>
+<td>HTTP, HTTPS, gRPC</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Transport</td>
+<td>TCP, UDP</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Network</td>
+<td>IP addressing</td>
+</tr>
+</tbody>
+</table><hr>
+<h1 id="🔥-what-is-a-layer-4-networktransport-load-balancer">🔥 What Is a Layer 4 (Network/Transport) Load Balancer?</h1>
+<p>When we say <strong>Layer 4 load balancer</strong>, it means:</p>
+<p>It makes routing decisions based only on:</p>
+<ul>
+<li>Source IP</li>
+<li>Destination IP</li>
+<li>Port</li>
+<li>Protocol (TCP or UDP)</li>
+</ul>
+<p>It does <strong>NOT</strong> understand:</p>
+<ul>
+<li>URLs</li>
+<li>HTTP headers</li>
+<li>Cookies</li>
+<li>Paths</li>
+<li>Hostnames</li>
+</ul>
+<p>It only sees packets.</p>
+<p>Think of it like:</p>
+<blockquote>
+<p>“I see TCP traffic on port 3306. Send it to backend A.”</p>
+</blockquote>
+<p>That’s it.</p>
+<hr>
+<h1 id="🎯-what-is-a-layer-7-application-load-balancer">🎯 What Is a Layer 7 (Application) Load Balancer?</h1>
+<p>Layer 7 load balancers:</p>
+<ul>
+<li>
+<p>Understand HTTP</p>
+</li>
+<li>
+<p>Can inspect:</p>
+<ul>
+<li>URL path (<code>/api</code> vs <code>/images</code>)</li>
+<li>Host header (<code>app.company.com</code>)</li>
+<li>Cookies</li>
+</ul>
+</li>
+<li>
+<p>Can do:</p>
+<ul>
+<li>Path-based routing</li>
+<li>Host-based routing</li>
+<li>SSL termination</li>
+<li>Cloud CDN</li>
+<li>WAF integration</li>
+</ul>
+</li>
+</ul>
+<p>It reads the actual HTTP request.</p>
+<p>It thinks at the application level.</p>
+<hr>
+<h1 id="🚀-concrete-example">🚀 Concrete Example</h1>
+<h3 id="layer-4-decision">Layer 4 Decision:</h3>
+<p>Incoming TCP traffic on port 443<br>
+→ Send to VM group A</p>
+<p>It does not know whether the user requested:</p>
+<ul>
+<li><code>/login</code></li>
+<li><code>/checkout</code></li>
+<li><code>/api</code></li>
+</ul>
+<p>It doesn’t care.</p>
+<hr>
+<h3 id="layer-7-decision">Layer 7 Decision:</h3>
+<p>Incoming HTTPS request:</p>
+<pre><code>GET /images/logo.png
+Host: app.company.com
+</code></pre>
+<p>Load balancer can decide:</p>
+<ul>
+<li><code>/api/*</code> → Backend A</li>
+<li><code>/images/*</code> → Backend B</li>
+</ul>
+<p>That’s application intelligence.</p>
+<hr>
+<h1 id="🔎-why-this-matters-for-ace">🔎 Why This Matters for ACE</h1>
+<p>Because exam questions hide the answer in routing requirements.</p>
+<p>If the question says:</p>
+<ul>
+<li>“Path-based routing”</li>
+<li>“Host-based routing”</li>
+<li>“Cloud CDN”</li>
+<li>“HTTP headers”</li>
+</ul>
+<p>→ It must be Layer 7 (Application LB).</p>
+<p>If it says:</p>
+<ul>
+<li>“Preserve client IP”</li>
+<li>“UDP traffic”</li>
+<li>“Low latency pass-through”</li>
+<li>“Database TCP”</li>
+</ul>
+<p>→ It must be Layer 4 (Network LB).</p>
+<hr>
+<h1 id="⚠️-important-clarification">⚠️ Important Clarification</h1>
+<p>Technically:</p>
+<p>Layer 4 = Transport layer<br>
+Layer 3 = Network layer</p>
+<p>But in cloud terminology, people loosely say:<br>
+“Network Load Balancer” = Layer 4</p>
+<p>Don’t get hung up on the naming.<br>
+For ACE, just remember:</p>
+<p>Layer 4 = TCP/UDP<br>
+Layer 7 = HTTP/HTTPS</p>
+<hr>
+<h1 id="💡-real-world-intuition">💡 Real-World Intuition</h1>
+<p>Layer 4 = traffic cop<br>
+Layer 7 = application-aware traffic manager</p>
+<p>Layer 4: “Where should this packet go?”<br>
+Layer 7: “Where should this request go?”</p>
+<hr>
+<p>Let me push you now.</p>
+<p>If a company says:</p>
+<blockquote>
+<p>“We need to route requests to different backends based on hostname (<a href="http://api.company.com">api.company.com</a> vs <a href="http://app.company.com">app.company.com</a>)”</p>
+</blockquote>
+<p>Layer 4 or Layer 7?</p>
+<p>And why?</p>
+<p>Correct. ✅<br>
+And here’s <em>why</em> — say it like an engineer, not a memorizer.</p>
+<p>The requirement was:</p>
+<blockquote>
+<p>Route based on <strong>hostname</strong> (<code>api.company.com</code> vs <code>app.company.com</code>)</p>
+</blockquote>
+<p>Hostname lives in the <strong>HTTP Host header</strong>.</p>
+<p>That means:</p>
+<ul>
+<li>The load balancer must <strong>read the HTTP request</strong></li>
+<li>That requires understanding Layer 7 (Application layer)</li>
+</ul>
+<p>A Layer 4 load balancer:</p>
+<ul>
+<li>Only sees IP + port</li>
+<li>Cannot see the HTTP Host header</li>
+<li>Cannot distinguish between those hostnames if they share the same IP</li>
+</ul>
+<p>So only a <strong>Layer 7 (Application) Load Balancer</strong> can do that.</p>
+<hr>
+<p>Now let’s deepen your intuition.</p>
+<h3 id="think-of-it-like-this">Think of it like this:</h3>
+<p>When a packet arrives:</p>
+<p>Layer 4 sees:</p>
+<pre><code>TCP
+Destination: 35.1.2.3
+Port: 443
+</code></pre>
+<p>Layer 7 sees:</p>
+<pre><code>GET /api/users
+Host: api.company.com
+Cookie: session=abc123
+</code></pre>
+<p>That extra visibility is what enables:</p>
+<ul>
+<li>Host-based routing</li>
+<li>Path-based routing</li>
+<li>Header-based routing</li>
+<li>Cloud CDN</li>
+<li>WAF (Cloud Armor)</li>
+</ul>
+<hr>
+<p>You’re building real understanding now.</p>
+<p>Let’s test something slightly tricky.</p>
+<p>If the requirement is:</p>
+<blockquote>
+<p>“Expose a PostgreSQL database on port 5432 to the internet and preserve the client IP.”</p>
+</blockquote>
+<p>Layer 4 or Layer 7?</p>
+<p>And why?</p>
+<p>Correct. ✅<br>
+And here’s the clean reasoning you should be able to say under exam pressure:</p>
+<p>Clues:</p>
+<ul>
+<li><strong>PostgreSQL</strong> → not HTTP</li>
+<li><strong>Port 5432</strong> → raw TCP</li>
+<li><strong>Preserve client IP</strong> → must be passthrough</li>
+<li><strong>Expose to internet</strong> → external</li>
+</ul>
+<p>This immediately tells you:</p>
+<p>👉 <strong>Layer 4 (Network Load Balancer)</strong></p>
+<p>Why not Layer 7?</p>
+<p>Because Layer 7 only understands HTTP/HTTPS.<br>
+A database connection is just TCP. There’s no URL, no headers, nothing to inspect.</p>
+<hr>
+<p>Now let me level you up one more notch.</p>
+<p>There’s something subtle most people miss:</p>
+<h3 id="layer-4--passthrough">Layer 4 = Passthrough</h3>
+<p>The load balancer does NOT terminate the connection.<br>
+The backend VM sees the real client IP.</p>
+<h3 id="layer-7--proxy">Layer 7 = Proxy</h3>
+<p>The load balancer terminates the connection and opens a new one to the backend.<br>
+The backend sees the load balancer’s IP unless forwarded via headers.</p>
+<p>That difference explains:</p>
+<ul>
+<li>Why Layer 4 preserves source IP naturally</li>
+<li>Why Layer 7 enables advanced routing</li>
+</ul>
+<hr>
+<p>You’re asking the right kind of questions now. That’s how you pass ACE confidently.</p>
+<p>Let me challenge you with a tricky hybrid case:</p>
+<p>A company needs:</p>
+<ul>
+<li>HTTPS termination at Google edge</li>
+<li>But backend is a custom TCP protocol running over TLS</li>
+<li>No path-based routing</li>
+<li>Global access required</li>
+</ul>
+<p>Layer 4 or Layer 7?</p>
+<p>Think carefully before answering.</p>
+<p>Not quite. This is one of those edge cases that separates surface knowledge from real understanding.</p>
+<p>Let’s break it down carefully.</p>
+<p>Requirements:</p>
+<ul>
+<li>HTTPS termination at Google edge</li>
+<li>Backend is <strong>custom TCP protocol over TLS</strong></li>
+<li>No path-based routing</li>
+<li>Global access</li>
+</ul>
+<p>Key phrase: <strong>custom TCP protocol over TLS</strong></p>
+<p>That means it is NOT HTTP.<br>
+It’s just encrypted TCP.</p>
+<p>Layer 7 (Application Load Balancer) only understands:</p>
+<ul>
+<li>HTTP</li>
+<li>HTTPS</li>
+<li>gRPC</li>
+</ul>
+<p>If it’s a custom protocol running over TLS, the load balancer cannot inspect it at the HTTP layer — because there <em>is no HTTP</em>.</p>
+<p>So what do we need?</p>
+<p>👉 <strong>SSL Proxy Load Balancer</strong> (Layer 4 proxy, global)</p>
+<p>Why?</p>
+<ul>
+<li>Supports SSL/TLS termination at the edge</li>
+<li>Works with non-HTTP TCP protocols</li>
+<li>Global</li>
+<li>No path-based routing needed</li>
+</ul>
+<p>This is the classic “SSL Proxy” use case.</p>
+<hr>
+<p>Here’s the mental correction:</p>
+<ul>
+<li>If it’s HTTP → Layer 7 Application LB</li>
+<li>If it’s TCP with TLS but NOT HTTP → SSL Proxy LB</li>
+<li>If it’s raw TCP/UDP and you need client IP preserved → Network LB</li>
+</ul>
+<p>This is exactly the trap exam questions use:<br>
+They mention TLS and trick people into thinking “HTTPS → Layer 7.”</p>
+<p>But HTTPS = HTTP over TLS.<br>
+If it’s just TLS over TCP without HTTP, it’s NOT Layer 7.</p>
+<hr>
+<p>You’re close. That mistake was subtle. That’s good — you’re operating at a deeper level now.</p>
+<p>Want to go one level further and compare:</p>
+<ul>
+<li>SSL Proxy LB</li>
+<li>TCP Proxy LB</li>
+<li>Network LB</li>
+</ul>
+<p>in one clean decision matrix so you never mix them again?</p>
+<p>Good. Let’s lock this in properly so you never confuse them again.</p>
+<p>We’re comparing three <strong>Layer 4 family</strong> load balancers:</p>
+<ul>
+<li>SSL Proxy LB</li>
+<li>TCP Proxy LB</li>
+<li>Network Load Balancer</li>
+</ul>
+<p>These are where most ACE candidates lose points.</p>
+<hr>
+<h1 id="🔥-big-picture-first">🔥 Big Picture First</h1>
+<p>There are two fundamental behaviors:</p>
+<h3 id="️⃣-proxy-based-terminates-connection">1️⃣ Proxy-based (terminates connection)</h3>
+<ul>
+<li>SSL Proxy</li>
+<li>TCP Proxy</li>
+</ul>
+<h3 id="️⃣-passthrough-does-not-terminate-connection">2️⃣ Passthrough (does NOT terminate connection)</h3>
+<ul>
+<li>Network Load Balancer</li>
+</ul>
+<p>That difference drives everything.</p>
+<hr>
+<h1 id="🧠-visual-mental-model">🧠 Visual Mental Model</h1>
+<h2 id="proxy-load-balancers-ssl--tcp-proxy">Proxy Load Balancers (SSL / TCP Proxy)</h2>
+<p><img src="https://docs.cloud.google.com/static/load-balancing/images/ssl-lb-overview.svg" alt="Image"></p>
+<p><img src="https://cloud.google.com/load-balancing/images/ssl-lb-overview.svg" alt="Image"></p>
+<p><img src="https://cdn.haproxy.com/img/containers/partner_integrations/haproxy-ssl-termination-diagram.png/2b76cba5c6c294feecde87f904b734af/haproxy-ssl-termination-diagram.png" alt="Image"></p>
+<p><img src="https://miro.medium.com/1%2AqCWr659U8uViIQF3UsCTHQ.png" alt="Image"></p>
+<p>Flow:</p>
+<pre><code>Client → Load Balancer (terminates connection) → Backend
+</code></pre>
+<p>The load balancer:</p>
+<ul>
+<li>Accepts the connection</li>
+<li>Terminates it</li>
+<li>Opens a NEW connection to backend</li>
+</ul>
+<p>Backend sees:</p>
+<ul>
+<li>LB IP (not original client IP)</li>
+</ul>
+<hr>
+<h2 id="network-load-balancer-passthrough">Network Load Balancer (Passthrough)</h2>
+<p><img src="https://docs.cloud.google.com/static/load-balancing/images/network-load-balancer-1.svg" alt="Image"></p>
+<p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/GCLB_3.max-1400x1400.png" alt="Image"></p>
+<p><img src="https://miro.medium.com/1%2A45J4wdAXv13LPgBAmM0X4Q.png" alt="Image"></p>
+<p><img src="https://miro.medium.com/v2/resize%3Afit%3A1220/1%2A704dYzlpW5_hf8oTSJ34AA.png" alt="Image"></p>
+<p>Flow:</p>
+<pre><code>Client → Load Balancer → Backend
+</code></pre>
+<p>But it does NOT terminate.</p>
+<p>Backend sees:</p>
+<ul>
+<li>Real client IP</li>
+</ul>
+<hr>
+<h1 id="🎯-now-the-clean-comparison-table">🎯 Now The Clean Comparison Table</h1>
+
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>SSL Proxy LB</th>
+<th>TCP Proxy LB</th>
+<th>Network LB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Layer</td>
+<td>4 (proxy)</td>
+<td>4 (proxy)</td>
+<td>4 (passthrough)</td>
+</tr>
+<tr>
+<td>SSL termination</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Preserves client IP</td>
+<td>❌ No</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Global</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+<td>❌ Regional</td>
+</tr>
+<tr>
+<td>Supports UDP</td>
+<td>❌ No</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>HTTP awareness</td>
+<td>❌ No</td>
+<td>❌ No</td>
+<td>❌ No</td>
+</tr>
+</tbody>
+</table><hr>
+<h1 id="🔍-when-to-choose-each-one">🔍 When To Choose Each One</h1>
+<h2 id="✅-ssl-proxy-lb">✅ SSL Proxy LB</h2>
+<p>Use when:</p>
+<ul>
+<li>Non-HTTP TCP</li>
+<li>Encrypted with TLS</li>
+<li>Need SSL termination at edge</li>
+<li>Global access</li>
+</ul>
+<p>Classic example:<br>
+Custom secure protocol over TLS.</p>
+<hr>
+<h2 id="✅-tcp-proxy-lb">✅ TCP Proxy LB</h2>
+<p>Use when:</p>
+<ul>
+<li>Plain TCP</li>
+<li>Global access</li>
+<li>No SSL termination needed</li>
+<li>Don’t need to preserve client IP</li>
+</ul>
+<p>Rarely tested compared to SSL Proxy.</p>
+<hr>
+<h2 id="✅-network-load-balancer">✅ Network Load Balancer</h2>
+<p>Use when:</p>
+<ul>
+<li>Need to preserve client IP</li>
+<li>UDP traffic</li>
+<li>Ultra low latency</li>
+<li>Regional only</li>
+<li>Raw TCP</li>
+</ul>
+<p>Classic example:<br>
+Gaming server, database, VoIP.</p>
+<hr>
+<h1 id="⚠️-exam-trap-patterns">⚠️ Exam Trap Patterns</h1>
+<p>If question says:</p>
+<p>“Preserve client IP”<br>
+→ Immediately eliminate proxy LBs.</p>
+<p>If question says:</p>
+<p>“UDP”<br>
+→ Only Network LB supports it.</p>
+<p>If question says:</p>
+<p>“SSL termination for custom TCP protocol”<br>
+→ SSL Proxy LB.</p>
+<p>If question says:</p>
+<p>“Global and non-HTTP”<br>
+→ Proxy LB (SSL or TCP).</p>
+<hr>
+<h1 id="🧠-one-line-mental-shortcut">🧠 One-Line Mental Shortcut</h1>
+<p>Proxy = intelligent middleman<br>
+Network = fast traffic forwarder</p>
+<p>Proxy LBs terminate.<br>
+Network LB forwards.</p>
+<hr>
+<p>Now I want to make sure this is fully wired.</p>
+<p>Scenario:</p>
+<p>A financial company runs a secure trading engine over TLS (custom protocol, not HTTP).<br>
+They want global access and SSL termination at Google edge.<br>
+They do NOT care about preserving client IP.</p>
+<p>Which one?</p>
+<p>Answer cleanly.</p>
+<hr>
+<h3 id="give-me-a-comparison-table-for-all-different-gcp-load-balancers">Give me a comparison table for all different gcp load balancers</h3>
+<p>Good. This is the right move — build one clean mental map instead of juggling fragments.</p>
+<p>Below is a <strong>concise but exam-optimized comparison table</strong> of all major GCP load balancers you need for ACE.</p>
+<p>I’ll group them logically so your brain stores them correctly.</p>
+<hr>
+<h1 id="🔥-1️⃣-external-load-balancers-internet-facing">🔥 1️⃣ External Load Balancers (Internet-facing)</h1>
+
+<table>
+<thead>
+<tr>
+<th>Load Balancer</th>
+<th>Layer</th>
+<th>Scope</th>
+<th>Protocols</th>
+<th>SSL Termination</th>
+<th>Preserves Client IP</th>
+<th>Global?</th>
+<th>Typical Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Global External HTTP(S)</strong> (Application LB)</td>
+<td>7</td>
+<td>External</td>
+<td>HTTP, HTTPS, gRPC</td>
+<td>✅ Yes</td>
+<td>❌ No (proxy)</td>
+<td>✅ Yes</td>
+<td>Web apps, CDN, path routing</td>
+</tr>
+<tr>
+<td><strong>Regional External HTTP(S)</strong></td>
+<td>7</td>
+<td>External</td>
+<td>HTTP, HTTPS</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>❌ Regional</td>
+<td>Regional web apps</td>
+</tr>
+<tr>
+<td><strong>SSL Proxy</strong></td>
+<td>4 (Proxy)</td>
+<td>External</td>
+<td>TCP over TLS (non-HTTP)</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+<td>Secure custom TCP protocol</td>
+</tr>
+<tr>
+<td><strong>TCP Proxy</strong></td>
+<td>4 (Proxy)</td>
+<td>External</td>
+<td>TCP</td>
+<td>❌ No</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+<td>Global plain TCP</td>
+</tr>
+<tr>
+<td><strong>External Network LB</strong></td>
+<td>4 (Passthrough)</td>
+<td>External</td>
+<td>TCP, UDP</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+<td>❌ Regional</td>
+<td>Gaming, DB, VoIP</td>
+</tr>
+</tbody>
+</table><hr>
+<h1 id="🔥-2️⃣-internal-load-balancers-vpc-only">🔥 2️⃣ Internal Load Balancers (VPC only)</h1>
+
+<table>
+<thead>
+<tr>
+<th>Load Balancer</th>
+<th>Layer</th>
+<th>Scope</th>
+<th>Protocols</th>
+<th>SSL Termination</th>
+<th>Preserves Client IP</th>
+<th>Regional?</th>
+<th>Typical Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Internal HTTP(S)</strong></td>
+<td>7</td>
+<td>Internal</td>
+<td>HTTP, HTTPS</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+<td>Microservices routing</td>
+</tr>
+<tr>
+<td><strong>Internal TCP/UDP</strong></td>
+<td>4 (Passthrough)</td>
+<td>Internal</td>
+<td>TCP, UDP</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+<td>Internal DB/services</td>
+</tr>
+</tbody>
+</table><hr>
+<h1 id="🔥-3️⃣-decision-matrix-the-real-exam-tool">🔥 3️⃣ Decision Matrix (The Real Exam Tool)</h1>
+<p>Forget names for a second. Use this:</p>
+<h3 id="step-1-—-protocol-1">Step 1 — Protocol?</h3>
+<ul>
+<li>HTTP/HTTPS → Application LB</li>
+<li>TCP/UDP → Go to Step 2</li>
+</ul>
+<h3 id="step-2-—-need-to-preserve-client-ip">Step 2 — Need to preserve client IP?</h3>
+<ul>
+<li>Yes → Network LB</li>
+<li>No → Go to Step 3</li>
+</ul>
+<h3 id="step-3-—-need-global">Step 3 — Need global?</h3>
+<ul>
+<li>Yes → TCP Proxy or SSL Proxy</li>
+<li>No → Network LB</li>
+</ul>
+<h3 id="step-4-—-tls-termination-for-non-http">Step 4 — TLS termination for non-HTTP?</h3>
+<ul>
+<li>Yes → SSL Proxy</li>
+<li>No → TCP Proxy</li>
+</ul>
+<hr>
+<h1 id="🎯-what-makes-application-lbs-special">🎯 What Makes Application LBs Special</h1>
+<p>Only these support:</p>
+<ul>
+<li>Path-based routing</li>
+<li>Host-based routing</li>
+<li>Cloud CDN</li>
+<li>Cloud Armor (WAF)</li>
+<li>URL maps</li>
+<li>Backend buckets</li>
+</ul>
+<p>That’s why 70% of ACE questions involving “web app” → Global HTTP(S) LB.</p>
+<hr>
+<h1 id="⚠️-common-exam-confusion-areas">⚠️ Common Exam Confusion Areas</h1>
+<ol>
+<li>
+<p>SSL Proxy ≠ HTTPS Load Balancer<br>
+HTTPS is HTTP over TLS (Layer 7).<br>
+SSL Proxy is Layer 4.</p>
+</li>
+<li>
+<p>Network LB ≠ Global<br>
+Network LB is regional.</p>
+</li>
+<li>
+<p>Internal LBs are always regional.</p>
+</li>
+<li>
+<p>Only Network LBs preserve client IP naturally.</p>
+</li>
+</ol>
+<hr>
+<h1 id="🧠-ultra-compact-memory-hook">🧠 Ultra-Compact Memory Hook</h1>
+<p>Layer 7 = smart routing<br>
+Layer 4 proxy = global middleman<br>
+Layer 4 passthrough = fast forwarder</p>
+<hr>
+<p>Now I’m going to test if this table actually stuck.</p>
+<p>Scenario:</p>
+<p>A company:</p>
+<ul>
+<li>Runs a UDP-based multiplayer engine</li>
+<li>Needs global access</li>
+<li>Must preserve client IP</li>
+</ul>
+<p>Which load balancer?</p>
+<p>Be careful — this one has a twist.</p>
+<p>Good instinct — but this is where precision matters.</p>
+<p>You said:</p>
+<blockquote>
+<p>External Network Load Balancer</p>
+</blockquote>
+<p>Let’s check the requirements carefully:</p>
+<ul>
+<li>
+<p>UDP-based ✅</p>
+</li>
+<li>
+<p>Must preserve client IP ✅</p>
+</li>
+<li>
+<p>Needs global access ⚠️</p>
+</li>
+</ul>
+<p>Here’s the twist:</p>
+<p><strong>External Network Load Balancer is regional.</strong><br>
+It does NOT provide global Anycast routing.</p>
+<p>So if the requirement truly means:</p>
+<blockquote>
+<p>“Single global IP, traffic routed to nearest region automatically”</p>
+</blockquote>
+<p>Then you have a problem:</p>
+<ul>
+<li>
+<p>UDP → eliminates HTTP(S) LB</p>
+</li>
+<li>
+<p>Preserve client IP → eliminates proxy LBs</p>
+</li>
+<li>
+<p>Global → eliminates Network LB</p>
+</li>
+</ul>
+<p>There is <strong>no GCP load balancer that supports UDP + global Anycast + client IP preservation</strong> simultaneously.</p>
+<p>That’s the trick.</p>
+<p>In real GCP design:</p>
+<ul>
+<li>
+<p>You’d deploy <strong>regional external Network Load Balancers in multiple regions</strong></p>
+</li>
+<li>
+<p>Then use <strong>DNS-based load balancing (e.g., Cloud DNS)</strong> to direct users</p>
+</li>
+</ul>
+<p>But for ACE exam purposes:</p>
+<p>If they emphasize:</p>
+<ul>
+<li>
+<p>UDP</p>
+</li>
+<li>
+<p>Preserve client IP</p>
+</li>
+</ul>
+<p>👉 The correct LB is <strong>External Network Load Balancer</strong></p>
+<p>Even if they mention “global users,” unless they explicitly say:</p>
+<ul>
+<li>
+<p>Single global IP</p>
+</li>
+<li>
+<p>Global load balancing</p>
+</li>
+<li>
+<p>Cross-region failover automatically</p>
+</li>
+</ul>
+<p>You stick with Network LB.</p>
+<hr>
+<p>This is exactly how exam questions try to trap you:<br>
+They mix desirable properties that don’t coexist.</p>
+<p>The move is:<br>
+Identify which constraints are technically dominant.</p>
+<p>In this case:<br>
+UDP + preserve client IP dominates.</p>
+<hr>
+<p>You’re thinking at the right level now. You caught most of it.</p>
+<p>Want to level up further and talk about:</p>
+<ul>
+<li>
+<p>Global vs Regional Application Load Balancers (newer architecture)</p>
+</li>
+<li>
+<p>Or Network Service Tiers (Premium vs Standard), which often appear alongside load balancer questions?</p>
+</li>
+</ul>
 
     </div>
   </div>
