@@ -13,17 +13,251 @@
     <div class="stackedit__toc">
       
 <ul>
+<li>
+<ul>
 <li></li>
+<li><a href="#2.1-planning-and-implementing-compute-resources">2.1 Planning and implementing compute resources</a></li>
+</ul>
+</li>
 </ul>
 
     </div>
   </div>
   <div class="stackedit__right">
     <div class="stackedit__html">
-      <p>﻿</p>
+      <p>﻿Good catch. Missing bullets are how people lose points. Let’s lock this in properly.</p>
+<hr />
+<h1 id="section-2--planning-and-implementing-a-cloud-solution-30"><strong>Section 2 – Planning and implementing a cloud solution (~30%)</strong></h1>
+<h2 id="2.1-planning-and-implementing-compute-resources"><strong>2.1 Planning and implementing compute resources</strong></h2>
+<h3 id="deploying-a-containerized-application-to-gke"><strong>Deploying a containerized application to GKE</strong></h3>
+<p>This is a <strong>core deployment workflow question</strong>. Expect at least one scenario involving GKE deployment steps, permissions, or image issues.</p>
+<hr />
+<h1 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h1>
+<p>You should be able to:</p>
+<ul>
+<li>Deploy a container image to a GKE cluster</li>
+<li>
+<p>Understand:</p>
+</li>
+<li>
+<p>Cluster</p>
+</li>
+<li>Node pools</li>
+<li>Deployment</li>
+<li>Service</li>
+<li>
+<p>Diagnose:</p>
+</li>
+<li>
+<p>Image pull failures</p>
+</li>
+<li>Pending Pods</li>
+<li>Service exposure issues</li>
+</ul>
 <blockquote>
-<p>Written with <a href="https://stackedit.io/">StackEdit</a>.</p>
+<p><strong>Exam mindset:</strong><br />
+<em>“Given a container image, how do I run it on GKE?”</em></p>
 </blockquote>
+<hr />
+<h1 id="2-high-level-deployment-flow">2️⃣ High-Level Deployment Flow</h1>
+<p>The full deployment pipeline:</p>
+<pre><code>Build container image
+↓
+Push to Artifact Registry
+↓
+Create GKE cluster
+↓
+Deploy via Kubernetes Deployment
+↓
+Expose using Service (LoadBalancer/ClusterIP)
+</code></pre>
+<hr />
+<h1 id="3-step-1--push-image-to-artifact-registry">3️⃣ Step 1 – Push Image to Artifact Registry</h1>
+<p>Example:</p>
+<pre><code class="language-bash">docker build -t us-central1-docker.pkg.dev/PROJECT_ID/repo/app:v1 .
+docker push us-central1-docker.pkg.dev/PROJECT_ID/repo/app:v1
+</code></pre>
+<blockquote>
+<p>Exam signal:<br />
+If image is private → ensure node service account has <code>artifactregistry.reader</code>.</p>
+</blockquote>
+<hr />
+<h1 id="4-step-2--create-gke-cluster">4️⃣ Step 2 – Create GKE Cluster</h1>
+<p>Standard cluster example:</p>
+<pre><code class="language-bash">gcloud container clusters create my-cluster \
+  --zone=us-central1-a
+</code></pre>
+<p>Autopilot example:</p>
+<pre><code class="language-bash">gcloud container clusters create-auto my-cluster \
+  --region=us-central1
+</code></pre>
+<hr />
+<h1 id="5-step-3--connect-to-cluster">5️⃣ Step 3 – Connect to Cluster</h1>
+<pre><code class="language-bash">gcloud container clusters get-credentials my-cluster
+</code></pre>
+<hr />
+<h1 id="6-step-4--create-deployment">6️⃣ Step 4 – Create Deployment</h1>
+<p>Basic Deployment YAML:</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: app
+        image: us-central1-docker.pkg.dev/PROJECT_ID/repo/app:v1
+</code></pre>
+<p>Apply it:</p>
+<pre><code class="language-bash">kubectl apply -f deployment.yaml
+</code></pre>
+<hr />
+<h1 id="7-step-5--expose-application">7️⃣ Step 5 – Expose Application</h1>
+<p>Internal access:</p>
+<pre><code class="language-bash">kubectl expose deployment my-app --type=ClusterIP --port=80
+</code></pre>
+<p>External access:</p>
+<pre><code class="language-bash">kubectl expose deployment my-app --type=LoadBalancer --port=80
+</code></pre>
+<blockquote>
+<p>Exam rule:<br />
+LoadBalancer → external IP<br />
+ClusterIP → internal only</p>
+</blockquote>
+<hr />
+<h1 id="8-standard-vs-autopilot-exam-favorite">8️⃣ Standard vs Autopilot (EXAM FAVORITE)</h1>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Standard</th>
+<th>Autopilot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node management</td>
+<td>You manage</td>
+<td>Google manages</td>
+</tr>
+<tr>
+<td>Resource limits required</td>
+<td>Optional</td>
+<td>Mandatory</td>
+</tr>
+<tr>
+<td>Operational overhead</td>
+<td>Higher</td>
+<td>Lower</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>If question says “reduce operational overhead” → Autopilot.</p>
+</blockquote>
+<hr />
+<h1 id="9-common-deployment-failures-very-tested">9️⃣ Common Deployment Failures (VERY TESTED)</h1>
+<hr />
+<h3 id="-imagepullbackoff">❌ ImagePullBackOff</h3>
+<p>Cause:</p>
+<ul>
+<li>Wrong image path</li>
+<li>No permission to Artifact Registry</li>
+</ul>
+<p>Fix:</p>
+<ul>
+<li>Grant node SA <code>roles/artifactregistry.reader</code></li>
+</ul>
+<hr />
+<h3 id="-pod-pending">❌ Pod Pending</h3>
+<p>Cause:</p>
+<ul>
+<li>Not enough CPU/memory</li>
+<li>No available nodes</li>
+<li>Wrong region constraints</li>
+</ul>
+<p>Fix:</p>
+<ul>
+<li>Increase node pool</li>
+<li>Enable autoscaling</li>
+</ul>
+<hr />
+<h3 id="-service-has-no-external-ip">❌ Service has no external IP</h3>
+<p>Cause:</p>
+<ul>
+<li>Using ClusterIP instead of LoadBalancer</li>
+</ul>
+<hr />
+<h3 id="-cannot-access-app-externally">❌ Cannot access app externally</h3>
+<p>Check:</p>
+<ul>
+<li>Service type</li>
+<li>Firewall rules</li>
+<li>Ingress configuration</li>
+</ul>
+<hr />
+<h1 id="-iam-considerations">🔟 IAM Considerations</h1>
+<p>For image pulling:</p>
+<p>Node service account needs:</p>
+<pre><code>roles/artifactregistry.reader
+</code></pre>
+<p>If app needs API access:</p>
+<ul>
+<li>Use Workload Identity</li>
+<li>Assign GSA with required roles</li>
+</ul>
+<hr />
+<h1 id="11-exam-scenario-patterns">11️⃣ Exam Scenario Patterns</h1>
+<hr />
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Deploy containerized web app with external access”</p>
+</blockquote>
+<p>Steps:</p>
+<ul>
+<li>Deployment</li>
+<li>Service type LoadBalancer</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Pods failing to start due to image access”</p>
+</blockquote>
+<p>Fix:</p>
+<ul>
+<li>Grant Artifact Registry Reader to node SA</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Minimize cluster management overhead”</p>
+</blockquote>
+<p>Answer:</p>
+<ul>
+<li>Use Autopilot</li>
+</ul>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“App needs access to Cloud Storage”</p>
+</blockquote>
+<p>Answer:</p>
+<ul>
+<li>Use Workload Identity</li>
+<li>Assign GSA role</li>
+</ul>
+<hr />
+<h1 id="-one-line-ace-memory-hooks">🔑 One-line ACE Memory Hooks</h1>
+<ul>
+<li><strong>Build → Push → Deploy → Expose</strong></li>
+<li><strong>LoadBalancer = external</strong></li>
+<li><strong>ImagePullBackOff = permissions</strong></li>
+<li><strong>Autopilot = low ops</strong></li>
+<li><strong>Pods need image access via node SA</strong></li>
+</ul>
+<hr />
     </div>
   </div>
 </body>

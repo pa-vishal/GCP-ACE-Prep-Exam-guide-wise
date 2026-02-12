@@ -13,17 +13,284 @@
     <div class="stackedit__toc">
       
 <ul>
+<li>
+<ul>
 <li></li>
+<li><a href="#2.1-planning-and-implementing-compute-resources">2.1 Planning and implementing compute resources</a></li>
+<li><a href="#step-1--build-and-push-image">Step 1 – Build and push image</a></li>
+<li><a href="#step-2--deploy">Step 2 – Deploy</a></li>
+</ul>
+</li>
 </ul>
 
     </div>
   </div>
   <div class="stackedit__right">
     <div class="stackedit__html">
-      <p>﻿</p>
+      <p>﻿Good catch again. This one is <strong>extremely high-yield</strong> on the ACE exam.</p>
+<hr />
+<h1 id="section-2--planning-and-implementing-a-cloud-solution-30"><strong>Section 2 – Planning and implementing a cloud solution (~30%)</strong></h1>
+<h2 id="2.1-planning-and-implementing-compute-resources"><strong>2.1 Planning and implementing compute resources</strong></h2>
+<h3 id="deploying-an-application-to-serverless-compute-platforms"><strong>Deploying an application to serverless compute platforms</strong></h3>
+<p>This bullet is about deploying workloads to:</p>
+<ul>
+<li><strong>Cloud Run</strong></li>
+<li><strong>Cloud Run functions (Cloud Functions Gen 2)</strong></li>
+<li>(Recognition-level) App Engine</li>
+</ul>
+<p>The exam tests whether you know:</p>
+<ul>
+<li>When to choose serverless</li>
+<li>How deployment works</li>
+<li>How scaling behaves</li>
+<li>IAM + access configuration</li>
+</ul>
+<hr />
+<h1 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h1>
+<p>You should be able to:</p>
+<ul>
+<li>Deploy a container to Cloud Run</li>
+<li>Deploy function code to Cloud Run functions</li>
+<li>
+<p>Configure:</p>
+</li>
+<li>
+<p>IAM</p>
+</li>
+<li>Region</li>
+<li>Scaling</li>
+<li>Choose serverless over VM/GKE when appropriate</li>
+</ul>
 <blockquote>
-<p>Written with <a href="https://stackedit.io/">StackEdit</a>.</p>
+<p><strong>Exam mindset:</strong><br />
+<em>“We want minimal infrastructure management — what’s the fastest way to deploy this app?”</em></p>
 </blockquote>
+<hr />
+<h1 id="2-what-counts-as-serverless-compute">2️⃣ What Counts as Serverless Compute</h1>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cloud Run</td>
+<td>Containerized HTTP workloads</td>
+</tr>
+<tr>
+<td>Cloud Run functions</td>
+<td>Event-driven functions</td>
+</tr>
+<tr>
+<td>App Engine</td>
+<td>PaaS apps (recognition-level)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="3-deploying-to-cloud-run-container-based">3️⃣ Deploying to Cloud Run (Container-based)</h1>
+<p>Cloud Run runs containers.</p>
+<hr />
+<h2 id="step-1--build-and-push-image">Step 1 – Build and push image</h2>
+<pre><code class="language-bash">docker build -t us-central1-docker.pkg.dev/PROJECT_ID/repo/app:v1 .
+docker push us-central1-docker.pkg.dev/PROJECT_ID/repo/app:v1
+</code></pre>
+<hr />
+<h2 id="step-2--deploy">Step 2 – Deploy</h2>
+<pre><code class="language-bash">gcloud run deploy my-service \
+  --image=us-central1-docker.pkg.dev/PROJECT_ID/repo/app:v1 \
+  --region=us-central1 \
+  --platform=managed
+</code></pre>
+<p>You can configure:</p>
+<ul>
+<li>Memory</li>
+<li>CPU</li>
+<li>Min instances</li>
+<li>Max instances</li>
+<li>Service account</li>
+</ul>
+<hr />
+<h1 id="4-deploying-to-cloud-run-functions-event-driven">4️⃣ Deploying to Cloud Run functions (Event-driven)</h1>
+<p>Used when:</p>
+<ul>
+<li>
+<p>Triggered by:</p>
+</li>
+<li>
+<p>Pub/Sub</p>
+</li>
+<li>Cloud Storage</li>
+<li>HTTP</li>
+<li>Firestore</li>
+<li>Small logic units</li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-bash">gcloud functions deploy my-function \
+  --runtime=python311 \
+  --trigger-http \
+  --region=us-central1
+</code></pre>
+<hr />
+<h1 id="5-cloud-run-vs-cloud-run-functions-must-know">5️⃣ Cloud Run vs Cloud Run functions (MUST KNOW)</h1>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Cloud Run</th>
+<th>Cloud Run functions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input</td>
+<td>Container</td>
+<td>Source code</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Web APIs</td>
+<td>Event-driven</td>
+</tr>
+<tr>
+<td>Scaling</td>
+<td>Per request</td>
+<td>Per event</td>
+</tr>
+<tr>
+<td>Flexibility</td>
+<td>Higher</td>
+<td>Simpler</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Containerized microservice → Cloud Run<br />
+Simple event trigger → Cloud Run functions</p>
+</blockquote>
+<hr />
+<h1 id="6-iam-for-serverless-very-tested">6️⃣ IAM for Serverless (VERY TESTED)</h1>
+<p>Two identities involved:</p>
+<h3 id="1-service-identity-outbound-access">1️⃣ Service Identity (Outbound access)</h3>
+<ul>
+<li>Assigned service account</li>
+<li>Used to access other GCP APIs</li>
+</ul>
+<h3 id="2-invoker-permission-inbound-access">2️⃣ Invoker Permission (Inbound access)</h3>
+<p>Role:</p>
+<pre><code>roles/run.invoker
+</code></pre>
+<p>If public:</p>
+<pre><code>allUsers
+</code></pre>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Forgetting invoker role = 403 error.</p>
+</blockquote>
+<hr />
+<h1 id="7-scaling-behavior-exam-favorite">7️⃣ Scaling Behavior (EXAM FAVORITE)</h1>
+<p>Cloud Run:</p>
+<ul>
+<li>Scales to zero</li>
+<li>Scales based on request count</li>
+<li>Configurable concurrency</li>
+</ul>
+<p>Cloud Run functions:</p>
+<ul>
+<li>Auto-scales based on events</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Traffic spikes unpredictably” → serverless good fit.</p>
+</blockquote>
+<hr />
+<h1 id="8-serverless-vs-gke-vs-vm-decision-logic">8️⃣ Serverless vs GKE vs VM (Decision Logic)</h1>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Best Option</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full control over OS</td>
+<td>VM</td>
+</tr>
+<tr>
+<td>Complex orchestration</td>
+<td>GKE</td>
+</tr>
+<tr>
+<td>Minimal ops</td>
+<td>Cloud Run</td>
+</tr>
+<tr>
+<td>Event-driven</td>
+<td>Cloud Run functions</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Lowest operational overhead wins if requirements allow.</p>
+</blockquote>
+<hr />
+<h1 id="9-common-ace-exam-scenarios">9️⃣ Common ACE Exam Scenarios</h1>
+<hr />
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Deploy REST API with minimal infrastructure”</p>
+</blockquote>
+<p>✅ Cloud Run</p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Trigger processing when file uploaded to Cloud Storage”</p>
+</blockquote>
+<p>✅ Cloud Run functions</p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Application must scale to zero”</p>
+</blockquote>
+<p>✅ Serverless</p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Users get 403 when calling Cloud Run”</p>
+</blockquote>
+<p>✅ Grant <code>roles/run.invoker</code></p>
+<hr />
+<h3 id="scenario-5">Scenario 5</h3>
+<blockquote>
+<p>“Cloud Run app cannot access Pub/Sub”</p>
+</blockquote>
+<p>Check:</p>
+<ul>
+<li>Assigned service account</li>
+<li>IAM role granted</li>
+</ul>
+<hr />
+<h1 id="-common-ace-exam-traps">🔟 Common ACE Exam Traps</h1>
+<p>❌ Using GKE for simple HTTP API<br />
+❌ Forgetting region selection<br />
+❌ Forgetting invoker role<br />
+❌ Confusing scaling model with VM autoscaling<br />
+❌ Assigning overly broad service account roles</p>
+<hr />
+<h1 id="-one-line-ace-memory-hooks">🔑 One-line ACE Memory Hooks</h1>
+<ul>
+<li><strong>Serverless = minimal ops</strong></li>
+<li><strong>Cloud Run = containers</strong></li>
+<li><strong>Functions = events</strong></li>
+<li><strong>Invoker role controls access</strong></li>
+<li><strong>Scales to zero</strong></li>
+</ul>
+<hr />
     </div>
   </div>
 </body>
