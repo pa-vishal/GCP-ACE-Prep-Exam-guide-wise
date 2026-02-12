@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E. Configuring GKE to access Artifact Registry</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#configuring-gke-to-access-artifact-registry">Configuring GKE to access Artifact Registry</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-how-gke-pulls-images-mental-model">2️⃣ How GKE pulls images (MENTAL MODEL)</a></li>
+<li><a href="#3-default-identities-used-by-gke-must-know">3️⃣ Default identities used by GKE (MUST KNOW)</a></li>
+<li><a href="#4-required-iam-role-exam-favorite">4️⃣ Required IAM role (EXAM FAVORITE)</a></li>
+<li><a href="#5-granting-access-cli--exam-relevant">5️⃣ Granting access (CLI – exam-relevant)</a></li>
+<li><a href="#6-artifact-registry-location-awareness-exam-trap">6️⃣ Artifact Registry location awareness (EXAM TRAP)</a></li>
+<li><a href="#7-kubernetes-manifests-exam-awareness">7️⃣ Kubernetes manifests (exam awareness)</a></li>
+<li><a href="#8-common-failure-symptoms--causes-very-exam-relevant">8️⃣ Common failure symptoms &amp; causes (VERY EXAM-RELEVANT)</a></li>
+<li><a href="#9-real-ace-exam-scenarios">9️⃣ Real ACE exam scenarios</a></li>
+<li><a href="#10-common-ace-exam-traps">10️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.1 – Managing compute resources</strong></p>
+<h4 id="configuring-gke-to-access-artifact-registry"><strong>Configuring GKE to access Artifact Registry</strong></h4>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A1200/1%2AjKIugGMgZAnd7mC7ufnAMg.png" /></p>
+<p><img alt="Image" src="https://media2.dev.to/dynamic/image/width%3D1000%2Cheight%3D420%2Cfit%3Dcover%2Cgravity%3Dauto%2Cformat%3Dauto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F9f85c6ib39lxovz81uax.png" /></p>
+<p><img alt="Image" src="https://i.sstatic.net/2mAk2.png" /></p>
+<p>This bullet tests whether you understand <strong>how GKE authenticates to pull container images</strong> and <strong>where permissions must be granted</strong>. On the ACE exam, failures here usually show up as <strong>Pods stuck in <code>ImagePullBackOff</code></strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Explain <strong>how GKE pulls images</strong> from Artifact Registry</li>
+<li>Identify <strong>which service account needs access</strong></li>
+<li>Grant the <strong>correct IAM role</strong></li>
+<li>Diagnose <strong>image pull failures</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Which identity is pulling the image, and does it have permission?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-how-gke-pulls-images-mental-model">2️⃣ How GKE pulls images (MENTAL MODEL)</h2>
+<pre><code>Pod → Node → Node Service Account → Artifact Registry
+</code></pre>
+<p>Key points:</p>
+<ul>
+<li><strong>Pods do NOT authenticate directly</strong></li>
+<li><strong>Nodes pull images</strong></li>
+<li>Permissions must be on the <strong>node’s service account</strong></li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Image pull permissions belong to the <strong>node</strong>, not the developer.</p>
+</blockquote>
+<hr />
+<h2 id="3-default-identities-used-by-gke-must-know">3️⃣ Default identities used by GKE (MUST KNOW)</h2>
+<h3 id="gke-standard-most-common">GKE Standard (most common)</h3>
+<ul>
+<li>Uses a <strong>node service account</strong></li>
+<li>Default:</li>
+</ul>
+<p><code>PROJECT_NUMBER-compute@developer.gserviceaccount.com</code></p>
+<h3 id="gke-autopilot">GKE Autopilot</h3>
+<ul>
+<li>Google-managed</li>
+<li>Permissions are still enforced via IAM</li>
+<li>Same <strong>Artifact Registry roles</strong> apply</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Cluster can’t pull images” → check <strong>node service account IAM</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-required-iam-role-exam-favorite">4️⃣ Required IAM role (EXAM FAVORITE)</h2>
+<p>To pull images from Artifact Registry, grant <strong>one of these</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>roles/artifactregistry.reader</code></td>
+<td>Pull images (most common)</td>
+</tr>
+<tr>
+<td><code>roles/artifactregistry.writer</code></td>
+<td>Push + pull (CI/CD)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+<strong>Reader is sufficient for GKE runtime</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-granting-access-cli--exam-relevant">5️⃣ Granting access (CLI – exam-relevant)</h2>
+<h3 id="grant-artifact-registry-read-access-to-the-node-service-account">Grant Artifact Registry read access to the node service account</h3>
+<pre><code class="language-bash">gcloud projects add-iam-policy-binding my-project \
+  --member=&quot;serviceAccount:PROJECT_NUMBER-compute@developer.gserviceaccount.com&quot; \
+  --role=&quot;roles/artifactregistry.reader&quot;
+</code></pre>
+<blockquote>
+<p>Replace <code>PROJECT_NUMBER</code> with the numeric project ID.</p>
+</blockquote>
+<hr />
+<h2 id="6-artifact-registry-location-awareness-exam-trap">6️⃣ Artifact Registry location awareness (EXAM TRAP)</h2>
+<ul>
+<li>Artifact Registry is <strong>regional</strong></li>
+<li>
+<p>GKE cluster <strong>can pull cross-region</strong>, but:</p>
+</li>
+<li>
+<p>Latency may increase</p>
+</li>
+<li>Best practice: <strong>same region</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Reduce latency / best practice” → same-region registry</p>
+</blockquote>
+<hr />
+<h2 id="7-kubernetes-manifests-exam-awareness">7️⃣ Kubernetes manifests (exam awareness)</h2>
+<p>When referencing an image:</p>
+<pre><code class="language-yaml">image: us-central1-docker.pkg.dev/my-project/my-repo/my-app:latest
+</code></pre>
+<p>Common mistake:</p>
+<ul>
+<li>Wrong registry hostname</li>
+<li>Wrong project or repo name</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Typo in image path ≠ IAM issue</p>
+</blockquote>
+<hr />
+<h2 id="8-common-failure-symptoms--causes-very-exam-relevant">8️⃣ Common failure symptoms &amp; causes (VERY EXAM-RELEVANT)</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ImagePullBackOff</code></td>
+<td>Missing IAM permission</td>
+</tr>
+<tr>
+<td><code>ErrImagePull</code></td>
+<td>Wrong image path</td>
+</tr>
+<tr>
+<td>Works locally, fails in GKE</td>
+<td>Node SA lacks access</td>
+</tr>
+<tr>
+<td>CI works, runtime fails</td>
+<td>Writer role given to CI, not nodes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-real-ace-exam-scenarios">9️⃣ Real ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Pods fail with ImagePullBackOff”</p>
+</blockquote>
+<p>✅ Fix:</p>
+<ul>
+<li>Grant <code>artifactregistry.reader</code> to <strong>node service account</strong></li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Cluster uses custom node service account”</p>
+</blockquote>
+<p>✅ Fix:</p>
+<ul>
+<li>Grant role to <strong>that service account</strong>, not default</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Secure image access, no hardcoded credentials”</p>
+</blockquote>
+<p>✅ Correct approach:</p>
+<ul>
+<li><strong>IAM-based access via node service account</strong></li>
+</ul>
+<hr />
+<h2 id="10-common-ace-exam-traps">10️⃣ Common ACE exam traps</h2>
+<p>❌ Granting role to user instead of node SA<br />
+❌ Granting writer when reader is sufficient<br />
+❌ Forgetting custom node service account<br />
+❌ Debugging Pods before checking IAM</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Nodes pull images</strong></li>
+<li><strong>Grant IAM to node service account</strong></li>
+<li><strong>ImagePullBackOff = IAM or image path</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

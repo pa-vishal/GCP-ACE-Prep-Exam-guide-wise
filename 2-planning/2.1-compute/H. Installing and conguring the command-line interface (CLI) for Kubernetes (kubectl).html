@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H. Installing and conguring the command-line interface (CLI) for Kubernetes (kubectl)</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-what-kubectl-is-exam-framing">2️⃣ What kubectl is (exam framing)</a></li>
+<li><a href="#3-installing-kubectl-exam-level">3️⃣ Installing kubectl (exam-level)</a></li>
+<li><a href="#4-configuring-kubectl-for-a-gke-cluster-very-exam-relevant">4️⃣ Configuring kubectl for a GKE cluster (VERY exam-relevant)</a></li>
+<li><a href="#5-kubeconfig--context-mental-model">5️⃣ kubeconfig &amp; context (mental model)</a></li>
+<li><a href="#6-authentication-flow-gke-specific">6️⃣ Authentication flow (GKE-specific)</a></li>
+<li><a href="#7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#8-kubectl-vs-gcloud-exam-clarity">8️⃣ kubectl vs gcloud (exam clarity)</a></li>
+<li><a href="#9-common-ace-exam-traps">9️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hook">🔑 One-line ACE memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.1 – Installing and configuring the command-line interface (CLI) for Kubernetes (kubectl)</strong></p>
+<p><img alt="Image" src="https://media.licdn.com/dms/image/v2/D5612AQEISdk5LH2iuA/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1703629194162?e=2147483647\&amp;t=GClLzd68uFbvpKqIOaThzKblZIbqN_Zkv5Cy3Zb41Vk\&amp;v=beta" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/kubernetes-engine/images/gke-architecture.svg" /></p>
+<p><img alt="Image" src="https://devopscube.com/content/images/2025/05/image-55.png" /></p>
+<p>This bullet checks whether you understand <strong>how administrators and CI/CD systems talk to Kubernetes</strong>. The ACE exam is not about advanced Kubernetes usage—it’s about <strong>installing kubectl, authenticating correctly, and pointing it at the right cluster</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Install <code>kubectl</code></li>
+<li>Configure it to talk to a <strong>GKE cluster</strong></li>
+<li>Understand <strong>authentication and context</strong></li>
+<li>Recognize common misconfigurations</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Why does kubectl say it can’t connect to the cluster?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-what-kubectl-is-exam-framing">2️⃣ What <code>kubectl</code> is (exam framing)</h2>
+<p><code>kubectl</code> is:</p>
+<ul>
+<li>The <strong>official Kubernetes CLI</strong></li>
+<li>
+<p>Used to:</p>
+</li>
+<li>
+<p>Deploy workloads</p>
+</li>
+<li>Inspect cluster state</li>
+<li>Manage Kubernetes resources (Pods, Services, Deployments)</li>
+</ul>
+<p>In GKE:</p>
+<ul>
+<li><code>kubectl</code> uses <strong>Google Cloud authentication</strong></li>
+<li>Cluster credentials are stored in a <strong>kubeconfig file</strong></li>
+</ul>
+<hr />
+<h2 id="3-installing-kubectl-exam-level">3️⃣ Installing kubectl (exam-level)</h2>
+<h3 id="option-a-install-via-gcloud-most-common--recommended">Option A: Install via gcloud (MOST COMMON &amp; recommended)</h3>
+<pre><code class="language-bash">gcloud components install kubectl
+</code></pre>
+<p>Why the exam likes this:</p>
+<ul>
+<li>Simple</li>
+<li>Version-compatible with GKE</li>
+<li>Integrated with Google authentication</li>
+</ul>
+<hr />
+<h3 id="option-b-standalone-install-exam-awareness-only">Option B: Standalone install (exam awareness only)</h3>
+<ul>
+<li>Download from Kubernetes release site</li>
+<li>Used in restricted or custom environments</li>
+</ul>
+<blockquote>
+<p>ACE exam usually assumes <strong>gcloud-based install</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-configuring-kubectl-for-a-gke-cluster-very-exam-relevant">4️⃣ Configuring kubectl for a GKE cluster (VERY exam-relevant)</h2>
+<p>After kubectl is installed, it <strong>does nothing</strong> until configured.</p>
+<h3 id="get-cluster-credentials-this-is-the-key-command">Get cluster credentials (THIS IS THE KEY COMMAND)</h3>
+<pre><code class="language-bash">gcloud container clusters get-credentials my-cluster \
+  --region=us-central1
+</code></pre>
+<p>What this does:</p>
+<ul>
+<li>Fetches cluster endpoint and certs</li>
+<li>Updates <code>~/.kube/config</code></li>
+<li>Sets the <strong>current context</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+kubectl installed ≠ kubectl configured</p>
+</blockquote>
+<hr />
+<h2 id="5-kubeconfig--context-mental-model">5️⃣ kubeconfig &amp; context (mental model)</h2>
+<p><code>kubectl</code> relies on:</p>
+<ul>
+<li><strong>kubeconfig file</strong> (<code>~/.kube/config</code>)</li>
+<li><strong>context</strong> (which cluster + user you’re talking to)</li>
+</ul>
+<h3 id="view-current-context">View current context</h3>
+<pre><code class="language-bash">kubectl config current-context
+</code></pre>
+<h3 id="list-all-contexts">List all contexts</h3>
+<pre><code class="language-bash">kubectl config get-contexts
+</code></pre>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“kubectl talks to the wrong cluster” → context issue</p>
+</blockquote>
+<hr />
+<h2 id="6-authentication-flow-gke-specific">6️⃣ Authentication flow (GKE-specific)</h2>
+<pre><code>kubectl → kubeconfig → gcloud auth → GKE API
+</code></pre>
+<ul>
+<li>Uses your <strong>Google identity</strong></li>
+<li>
+<p>Enforced by:</p>
+</li>
+<li>
+<p>IAM</p>
+</li>
+<li>Kubernetes RBAC (out of scope for ACE depth)</li>
+</ul>
+<blockquote>
+<p><strong>Exam note:</strong><br />
+You are <strong>not</strong> expected to configure Kubernetes RBAC in detail.</p>
+</blockquote>
+<hr />
+<h2 id="7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“kubectl returns connection refused”</p>
+</blockquote>
+<p>✅ Likely cause:</p>
+<ul>
+<li>Cluster credentials not fetched</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“kubectl works for one cluster but not another”</p>
+</blockquote>
+<p>✅ Likely cause:</p>
+<ul>
+<li>Wrong context</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“User has GKE permissions but kubectl still fails”</p>
+</blockquote>
+<p>✅ Likely cause:</p>
+<ul>
+<li>Missing <code>get-credentials</code> step</li>
+</ul>
+<hr />
+<h2 id="8-kubectl-vs-gcloud-exam-clarity">8️⃣ kubectl vs gcloud (exam clarity)</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>gcloud</td>
+<td>Manages GCP resources</td>
+</tr>
+<tr>
+<td>kubectl</td>
+<td>Manages Kubernetes resources</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+You cannot create Pods using <code>gcloud</code></p>
+</blockquote>
+<hr />
+<h2 id="9-common-ace-exam-traps">9️⃣ Common ACE exam traps</h2>
+<p>❌ Forgetting to install kubectl<br />
+❌ Forgetting <code>get-credentials</code><br />
+❌ Confusing project/region/zone<br />
+❌ Assuming kubectl auto-detects clusters</p>
+<hr />
+<h2 id="-one-line-ace-memory-hook">🔑 One-line ACE memory hook</h2>
+<blockquote>
+<p><strong>kubectl talks to clusters, gcloud fetches credentials</strong></p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

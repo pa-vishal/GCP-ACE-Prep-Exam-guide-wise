@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C. Executing queries to retrieve data from data instances</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#executing-queries-to-retrieve-data-from-data-instances">Executing queries to retrieve data from data instances</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-high-level-mapping-memorize">2️⃣ High-level mapping (MEMORIZE)</a></li>
+<li><a href="#3-cloud-sql-relational-oltp">3️⃣ Cloud SQL (relational OLTP)</a></li>
+<li><a href="#4-alloydb-high-performance-postgresql">4️⃣ AlloyDB (high-performance PostgreSQL)</a></li>
+<li><a href="#5-bigquery-analytics--olap">5️⃣ BigQuery (analytics / OLAP)</a></li>
+<li><a href="#6-spanner-distributed-relational">6️⃣ Spanner (distributed relational)</a></li>
+<li><a href="#7-firestore-nosql-document-database">7️⃣ Firestore (NoSQL document database)</a></li>
+<li><a href="#8-bigtable-wide-column-key-based">8️⃣ Bigtable (wide-column, key-based)</a></li>
+<li><a href="#9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#-common-ace-exam-traps">🔟 Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.2 – Managing storage resources</strong></p>
+<h4 id="executing-queries-to-retrieve-data-from-data-instances"><strong>Executing queries to retrieve data from data instances</strong></h4>
+<p><em>(Cloud SQL, BigQuery, Bigtable, Spanner, Firestore, AlloyDB)</em></p>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A1200/1%2A5eQzpHBB_bmrY5B1IVuN8g.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/bigquery/images/console-tabs.png" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/1_4.max-1600x1600.JPG" /></p>
+<p>This bullet is about <strong>how you read data</strong>, not how you design schemas. The ACE exam checks whether you can <strong>identify the correct query interface and query model for each service</strong>, and avoid mixing OLTP and OLAP patterns.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Match each data service to <strong>its query model</strong></li>
+<li>Know <strong>where queries are executed</strong> (console, CLI, client)</li>
+<li>Recognize <strong>SQL vs NoSQL</strong> access patterns</li>
+<li>Avoid using the wrong service for the workload</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“What’s the correct way to read data from THIS service?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-high-level-mapping-memorize">2️⃣ High-level mapping (MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Query model</th>
+<th>Typical interface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cloud SQL</strong></td>
+<td>SQL (OLTP)</td>
+<td>SQL client / Console</td>
+</tr>
+<tr>
+<td><strong>AlloyDB</strong></td>
+<td>SQL (PostgreSQL)</td>
+<td>SQL client</td>
+</tr>
+<tr>
+<td><strong>BigQuery</strong></td>
+<td>SQL (OLAP)</td>
+<td>BigQuery UI / <code>bq</code></td>
+</tr>
+<tr>
+<td><strong>Spanner</strong></td>
+<td>SQL (distributed)</td>
+<td>Console / client</td>
+</tr>
+<tr>
+<td><strong>Firestore</strong></td>
+<td>Document queries</td>
+<td>SDK / Console</td>
+</tr>
+<tr>
+<td><strong>Bigtable</strong></td>
+<td>Key/row-based</td>
+<td>SDK / CLI</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+SQL ≠ universal. Each service has a <strong>designed query pattern</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="3-cloud-sql-relational-oltp">3️⃣ Cloud SQL (relational OLTP)</h2>
+<h3 id="query-model">Query model</h3>
+<ul>
+<li>Standard SQL (MySQL / PostgreSQL / SQL Server)</li>
+</ul>
+<h3 id="how-queries-are-executed">How queries are executed</h3>
+<ul>
+<li>Cloud Console (Query editor)</li>
+<li>SQL clients (psql, mysql)</li>
+<li>Applications</li>
+</ul>
+<h3 id="example-conceptual">Example (conceptual)</h3>
+<pre><code class="language-sql">SELECT * FROM orders WHERE status = 'OPEN';
+</code></pre>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Transactional queries”</li>
+<li>“Relational schema”</li>
+<li>“Small to medium dataset”</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Don’t use Cloud SQL for large analytics queries.</p>
+</blockquote>
+<hr />
+<h2 id="4-alloydb-high-performance-postgresql">4️⃣ AlloyDB (high-performance PostgreSQL)</h2>
+<h3 id="query-model_1">Query model</h3>
+<ul>
+<li>PostgreSQL-compatible SQL</li>
+<li>Optimized for performance</li>
+</ul>
+<h3 id="how-queries-are-executed_1">How queries are executed</h3>
+<ul>
+<li>PostgreSQL clients</li>
+<li>Applications</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“PostgreSQL compatible”</li>
+<li>“High performance queries”</li>
+</ul>
+<blockquote>
+<p><strong>ACE note:</strong><br />
+Treat AlloyDB like <strong>Cloud SQL with more performance</strong>, not BigQuery.</p>
+</blockquote>
+<hr />
+<h2 id="5-bigquery-analytics--olap">5️⃣ BigQuery (analytics / OLAP)</h2>
+<h3 id="query-model_2">Query model</h3>
+<ul>
+<li>ANSI SQL</li>
+<li>Columnar, read-heavy</li>
+</ul>
+<h3 id="how-queries-are-executed_2">How queries are executed</h3>
+<ul>
+<li>BigQuery web UI</li>
+<li><code>bq query</code> CLI</li>
+<li>BI tools</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre><code class="language-sql">SELECT country, COUNT(*) 
+FROM `mydataset.users`
+GROUP BY country;
+</code></pre>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Analytics”</li>
+<li>“Reporting”</li>
+<li>“Large datasets”</li>
+<li>“Aggregations”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+BigQuery = <strong>scan &amp; aggregate</strong>, not row-by-row lookups.</p>
+</blockquote>
+<hr />
+<h2 id="6-spanner-distributed-relational">6️⃣ Spanner (distributed relational)</h2>
+<h3 id="query-model_3">Query model</h3>
+<ul>
+<li>SQL with strong consistency</li>
+<li>Horizontally scalable</li>
+</ul>
+<h3 id="how-queries-are-executed_3">How queries are executed</h3>
+<ul>
+<li>Cloud Console</li>
+<li>Client libraries</li>
+<li>Applications</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Global database”</li>
+<li>“Strong consistency”</li>
+<li>“Relational at scale”</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Spanner is chosen for <strong>scale + consistency</strong>, not simplicity.</p>
+</blockquote>
+<hr />
+<h2 id="7-firestore-nosql-document-database">7️⃣ Firestore (NoSQL document database)</h2>
+<h3 id="query-model_4">Query model</h3>
+<ul>
+<li>
+<p>Structured queries on:</p>
+</li>
+<li>
+<p>Collections</p>
+</li>
+<li>Documents</li>
+<li>Fields</li>
+<li>No joins</li>
+</ul>
+<h3 id="how-queries-are-executed_4">How queries are executed</h3>
+<ul>
+<li>Console</li>
+<li>SDKs (Java, Node, Python, etc.)</li>
+</ul>
+<p><strong>Example (conceptual)</strong></p>
+<pre><code class="language-text">Query collection &quot;users&quot; where status == &quot;active&quot;
+</code></pre>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Mobile/web app”</li>
+<li>“Document-based”</li>
+<li>“Flexible schema”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If you need joins → Firestore is the wrong choice.</p>
+</blockquote>
+<hr />
+<h2 id="8-bigtable-wide-column-key-based">8️⃣ Bigtable (wide-column, key-based)</h2>
+<h3 id="query-model_5">Query model</h3>
+<ul>
+<li>Row key lookups</li>
+<li>Range scans</li>
+<li>No SQL</li>
+</ul>
+<h3 id="how-queries-are-executed_5">How queries are executed</h3>
+<ul>
+<li>Client libraries</li>
+<li><code>cbt</code> CLI (recognition-level)</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Time-series data”</li>
+<li>“Massive throughput”</li>
+<li>“Low-latency reads by key”</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Bigtable ≠ BigQuery. No ad-hoc SQL.</p>
+</blockquote>
+<hr />
+<h2 id="9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Run an aggregation over terabytes of data”</p>
+</blockquote>
+<p>✅ <strong>BigQuery</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Retrieve a user profile by ID in a mobile app”</p>
+</blockquote>
+<p>✅ <strong>Firestore</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Execute transactional SQL queries”</p>
+</blockquote>
+<p>✅ <strong>Cloud SQL or AlloyDB</strong></p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Low-latency reads on time-series metrics”</p>
+</blockquote>
+<p>✅ <strong>Bigtable</strong></p>
+<hr />
+<h3 id="scenario-5">Scenario 5</h3>
+<blockquote>
+<p>“Globally consistent relational reads”</p>
+</blockquote>
+<p>✅ <strong>Spanner</strong></p>
+<hr />
+<h2 id="-common-ace-exam-traps">🔟 Common ACE exam traps</h2>
+<p>❌ Using BigQuery for OLTP queries<br />
+❌ Expecting SQL joins in Firestore<br />
+❌ Running analytics on Cloud SQL<br />
+❌ Expecting ad-hoc queries in Bigtable</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Cloud SQL / AlloyDB = OLTP SQL</strong></li>
+<li><strong>BigQuery = analytics SQL</strong></li>
+<li><strong>Spanner = global SQL</strong></li>
+<li><strong>Firestore = document queries</strong></li>
+<li><strong>Bigtable = key-based reads</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

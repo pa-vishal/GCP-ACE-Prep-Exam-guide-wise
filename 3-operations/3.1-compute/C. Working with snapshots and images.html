@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C. Working with snapshots and images</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#working-with-snapshots-and-images">Working with snapshots and images</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-snapshots-vs-images-must-know">2️⃣ Snapshots vs Images (MUST KNOW)</a></li>
+<li><a href="#3-creating-snapshots-cli--exam-relevant">3️⃣ Creating snapshots (CLI – exam-relevant)</a></li>
+<li><a href="#4-snapshot-schedules-automation--exam-favorite">4️⃣ Snapshot schedules (AUTOMATION – EXAM FAVORITE)</a></li>
+<li><a href="#5-creating-images-cli--exam-relevant">5️⃣ Creating images (CLI – exam-relevant)</a></li>
+<li><a href="#6-restore-scenarios-exam-logic">6️⃣ Restore scenarios (exam logic)</a></li>
+<li><a href="#7-snapshots--availability-important-exam-trap">7️⃣ Snapshots &amp; availability (IMPORTANT EXAM TRAP)</a></li>
+<li><a href="#8-decision-table-memorize">8️⃣ Decision table (MEMORIZE)</a></li>
+<li><a href="#9-common-ace-exam-traps">9️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.1 – Managing compute resources</strong></p>
+<h4 id="working-with-snapshots-and-images"><strong>Working with snapshots and images</strong></h4>
+<p><em>(create, view, delete images or snapshots; schedule a snapshot)</em></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/compute/docs/images/vm2.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/compute/images/creating-snapshot.png" /></p>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A2000/1%2A2W92T4KKoiE84Xk4F97Upg.jpeg" /></p>
+<p>This bullet is about <strong>backup, reuse, and recovery</strong> for Compute Engine. The ACE exam focuses on <strong>knowing when to use snapshots vs images</strong>, <strong>how they’re used</strong>, and <strong>how to automate protection</strong>—not on low-level disk mechanics.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Distinguish <strong>snapshots vs images</strong></li>
+<li>Create, view, and delete each</li>
+<li>Choose <strong>snapshot schedules</strong> for automation</li>
+<li>Avoid confusing backups with high availability</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Am I backing up data, or creating a reusable VM template?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-snapshots-vs-images-must-know">2️⃣ Snapshots vs Images (MUST KNOW)</h2>
+<h3 id="-snapshots">📸 <strong>Snapshots</strong></h3>
+<p><strong>What they are</strong></p>
+<ul>
+<li>Incremental backups of <strong>Persistent Disks</strong></li>
+<li>Stored in Cloud Storage (managed by Google)</li>
+<li>Can be <strong>zonal or regional</strong> (based on source disk)</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Backup and restore</li>
+<li>Point-in-time recovery</li>
+<li>Disaster recovery</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Backup”</li>
+<li>“Restore disk”</li>
+<li>“Recover data”</li>
+<li>“Automate backups”</li>
+</ul>
+<blockquote>
+<p><strong>Key rule:</strong><br />
+<strong>Snapshots are for backup, not for standardizing builds</strong></p>
+</blockquote>
+<hr />
+<h3 id="-images">🧱 <strong>Images</strong></h3>
+<p><strong>What they are</strong></p>
+<ul>
+<li>Full VM disk templates</li>
+<li>Used to <strong>create new VMs</strong></li>
+<li>
+<p>Can be:</p>
+</li>
+<li>
+<p>Public</p>
+</li>
+<li>Custom</li>
+<li>Shared across projects</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Standardizing VM builds</li>
+<li>Creating many identical VMs</li>
+<li>Golden images</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Reusable VM template”</li>
+<li>“Standard OS image”</li>
+<li>“Create many identical VMs”</li>
+</ul>
+<blockquote>
+<p><strong>Key rule:</strong><br />
+<strong>Images are for provisioning, not backups</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-creating-snapshots-cli--exam-relevant">3️⃣ Creating snapshots (CLI – exam-relevant)</h2>
+<h3 id="create-a-snapshot-from-a-disk">Create a snapshot from a disk</h3>
+<pre><code class="language-bash">gcloud compute disks snapshot my-disk \
+  --snapshot-names=my-disk-snap-001 \
+  --zone=us-central1-a
+</code></pre>
+<hr />
+<h3 id="view-snapshots">View snapshots</h3>
+<pre><code class="language-bash">gcloud compute snapshots list
+</code></pre>
+<hr />
+<h3 id="delete-a-snapshot">Delete a snapshot</h3>
+<pre><code class="language-bash">gcloud compute snapshots delete my-disk-snap-001
+</code></pre>
+<blockquote>
+<p><strong>Exam note:</strong><br />
+Snapshots are <strong>incremental</strong>, but deletion does not break other snapshots.</p>
+</blockquote>
+<hr />
+<h2 id="4-snapshot-schedules-automation--exam-favorite">4️⃣ Snapshot schedules (AUTOMATION – EXAM FAVORITE)</h2>
+<h3 id="what-they-are">What they are</h3>
+<ul>
+<li>Policies that automatically create snapshots</li>
+<li>Attached to disks</li>
+<li>
+<p>Support:</p>
+</li>
+<li>
+<p>Daily / hourly schedules</p>
+</li>
+<li>Retention rules</li>
+<li>Labels</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Production workloads</li>
+<li>Compliance requirements</li>
+<li>Regular backups</li>
+</ul>
+<hr />
+<h3 id="create-a-snapshot-schedule-conceptual-cli">Create a snapshot schedule (conceptual CLI)</h3>
+<pre><code class="language-bash">gcloud compute resource-policies create snapshot-schedule daily-backups \
+  --region=us-central1 \
+  --daily-schedule \
+  --start-time=01:00 \
+  --retention-policy max-retention-days=7
+</code></pre>
+<p>Attach it to a disk:</p>
+<pre><code class="language-bash">gcloud compute disks add-resource-policies my-disk \
+  --resource-policies=daily-backups \
+  --zone=us-central1-a
+</code></pre>
+<blockquote>
+<p><strong>ACE signal:</strong><br />
+“Automate backups” → <strong>Snapshot schedule</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-creating-images-cli--exam-relevant">5️⃣ Creating images (CLI – exam-relevant)</h2>
+<h3 id="create-an-image-from-a-disk">Create an image from a disk</h3>
+<pre><code class="language-bash">gcloud compute images create my-custom-image \
+  --source-disk=my-disk \
+  --source-disk-zone=us-central1-a
+</code></pre>
+<hr />
+<h3 id="list-images">List images</h3>
+<pre><code class="language-bash">gcloud compute images list
+</code></pre>
+<hr />
+<h3 id="delete-an-image">Delete an image</h3>
+<pre><code class="language-bash">gcloud compute images delete my-custom-image
+</code></pre>
+<hr />
+<h2 id="6-restore-scenarios-exam-logic">6️⃣ Restore scenarios (exam logic)</h2>
+<h3 id="restore-from-snapshot">Restore from snapshot</h3>
+<ul>
+<li>Create a new disk from snapshot</li>
+<li>Attach disk to VM</li>
+</ul>
+<h3 id="create-vm-from-image">Create VM from image</h3>
+<ul>
+<li>Use image during VM creation</li>
+<li>
+<p>Often paired with:</p>
+</li>
+<li>
+<p>Instance templates</p>
+</li>
+<li>MIGs</li>
+</ul>
+<hr />
+<h2 id="7-snapshots--availability-important-exam-trap">7️⃣ Snapshots &amp; availability (IMPORTANT EXAM TRAP)</h2>
+<p>❌ Snapshots do <strong>not</strong> provide high availability<br />
+❌ Snapshots are <strong>not live replicas</strong><br />
+❌ Restoring from snapshot requires time</p>
+<blockquote>
+<p><strong>Exam rule:</strong><br />
+Backups ≠ availability</p>
+</blockquote>
+<hr />
+<h2 id="8-decision-table-memorize">8️⃣ Decision table (MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Best Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Backup data</td>
+<td>Snapshot</td>
+</tr>
+<tr>
+<td>Point-in-time recovery</td>
+<td>Snapshot</td>
+</tr>
+<tr>
+<td>Automate backups</td>
+<td>Snapshot schedule</td>
+</tr>
+<tr>
+<td>Reusable VM template</td>
+<td>Image</td>
+</tr>
+<tr>
+<td>Standardize VM builds</td>
+<td>Image</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-common-ace-exam-traps">9️⃣ Common ACE exam traps</h2>
+<p>❌ Using images as backups<br />
+❌ Forgetting snapshot automation<br />
+❌ Assuming snapshots replace regional disks<br />
+❌ Thinking deleting a snapshot deletes the disk</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Snapshot = backup</strong></li>
+<li><strong>Image = template</strong></li>
+<li><strong>Schedule = automation</strong></li>
+<li><strong>Backups ≠ HA</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

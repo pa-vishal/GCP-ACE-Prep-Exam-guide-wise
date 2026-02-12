@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G. Using Spot VM instances and custom machine types</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-spot-vm-instances-formerly-preemptible">2️⃣ Spot VM instances (formerly Preemptible)</a></li>
+<li><a href="#3-when-not-to-use-spot-vms-exam-traps">3️⃣ When NOT to use Spot VMs (exam traps)</a></li>
+<li><a href="#4-custom-machine-types">4️⃣ Custom machine types</a></li>
+<li><a href="#5-spot-vms--migs-important-ace-pattern">5️⃣ Spot VMs + MIGs (important ACE pattern)</a></li>
+<li><a href="#6-spot-vms-vs-regular-vms-exam-comparison">6️⃣ Spot VMs vs Regular VMs (exam comparison)</a></li>
+<li><a href="#7-custom-machine-types-vs-predefined-exam-comparison">7️⃣ Custom machine types vs predefined (exam comparison)</a></li>
+<li><a href="#8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#9-common-ace-exam-traps">9️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.1 – Using Spot VM instances and custom machine types</strong></p>
+<p><img alt="Image" src="https://media.licdn.com/dms/image/v2/C4E12AQEY-g214ga-bw/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1520106422614?e=2147483647\&amp;t=H66wEmsmyoFmkZrtaunW5WQVDuvkCXi0JhR79NCSvO8\&amp;v=beta" /></p>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A1400/0%2A7ZOGlBdDTipma35E.jpg" /></p>
+<p><img alt="Image" src="https://media2.dev.to/dynamic/image/width%3D800%2Cheight%3D%2Cfit%3Dscale-down%2Cgravity%3Dauto%2Cformat%3Dauto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fami5022dotytt5g3eeo2.png" /></p>
+<p>This bullet tests whether you can <strong>optimize cost without breaking workloads</strong>. The ACE exam checks that you understand <strong>when interruption is acceptable</strong> and <strong>how to right-size VMs</strong> instead of overpaying.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Identify <strong>workloads that tolerate interruption</strong> → Spot VMs</li>
+<li>Identify <strong>workloads that need precise sizing</strong> → Custom machine types</li>
+<li>Avoid using these options in <strong>the wrong scenarios</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Can this workload stop unexpectedly?”</em> and <em>“Am I paying for unused CPU/RAM?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-spot-vm-instances-formerly-preemptible">2️⃣ Spot VM instances (formerly Preemptible)</h2>
+<h3 id="what-they-are">What they are</h3>
+<ul>
+<li>Deeply discounted VMs</li>
+<li>Can be <strong>terminated at any time</strong> by Google</li>
+<li>No SLA</li>
+<li>Maximum lifetime (can end sooner)</li>
+</ul>
+<h3 id="key-characteristics">Key characteristics</h3>
+<ul>
+<li>Much cheaper than regular VMs</li>
+<li>Not suitable for stateful or critical workloads</li>
+<li>You <strong>must expect interruption</strong></li>
+</ul>
+<h3 id="use-when">Use when</h3>
+<ul>
+<li>Batch jobs</li>
+<li>CI/CD workers</li>
+<li>Data processing</li>
+<li>Fault-tolerant workloads</li>
+<li>Stateless services behind autoscaling</li>
+</ul>
+<h3 id="exam-signals">Exam signals</h3>
+<ul>
+<li>“Cost-sensitive”</li>
+<li>“Fault-tolerant”</li>
+<li>“Batch processing”</li>
+<li>“Can retry jobs”</li>
+</ul>
+<hr />
+<h3 id="cli-example-spot-vm">CLI example (Spot VM)</h3>
+<pre><code class="language-bash">gcloud compute instances create my-spot-vm \
+  --zone=us-central1-a \
+  --provisioning-model=SPOT
+</code></pre>
+<hr />
+<h2 id="3-when-not-to-use-spot-vms-exam-traps">3️⃣ When NOT to use Spot VMs (exam traps)</h2>
+<p>❌ Production databases<br />
+❌ Stateful applications without replication<br />
+❌ Workloads requiring guaranteed uptime<br />
+❌ Anything that cannot handle sudden termination</p>
+<blockquote>
+<p><strong>Exam rule:</strong><br />
+If the question says <strong>“must not be interrupted”</strong> → <strong>NOT Spot</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-custom-machine-types">4️⃣ Custom machine types</h2>
+<h3 id="what-they-are_1">What they are</h3>
+<ul>
+<li>
+<p>You choose:</p>
+</li>
+<li>
+<p>Exact number of vCPUs</p>
+</li>
+<li>Exact amount of memory</li>
+<li>Instead of fixed shapes (e2-medium, n2-standard-4, etc.)</li>
+</ul>
+<h3 id="why-they-exist">Why they exist</h3>
+<ul>
+<li>Avoid overpaying for unused resources</li>
+<li>Match workload requirements precisely</li>
+</ul>
+<h3 id="use-when_1">Use when</h3>
+<ul>
+<li>
+<p>Workload needs:</p>
+</li>
+<li>
+<p>More memory than standard shapes provide</p>
+</li>
+<li>Less CPU than a standard VM includes</li>
+<li>Cost optimization through right-sizing</li>
+</ul>
+<h3 id="exam-signals_1">Exam signals</h3>
+<ul>
+<li>“Overprovisioned”</li>
+<li>“Needs specific CPU/memory ratio”</li>
+<li>“Reduce cost without changing workload”</li>
+</ul>
+<hr />
+<h3 id="cli-example-custom-machine-type">CLI example (custom machine type)</h3>
+<pre><code class="language-bash">gcloud compute instances create custom-vm \
+  --zone=us-central1-a \
+  --machine-type=custom-4-12288
+</code></pre>
+<p><em>(4 vCPU, 12 GB RAM)</em></p>
+<hr />
+<h2 id="5-spot-vms--migs-important-ace-pattern">5️⃣ Spot VMs + MIGs (important ACE pattern)</h2>
+<p>Spot VMs are commonly used with:</p>
+<ul>
+<li><strong>Managed Instance Groups</strong></li>
+<li><strong>Autoscaling</strong></li>
+<li><strong>Autohealing</strong></li>
+</ul>
+<p>Why?</p>
+<ul>
+<li>Failed or preempted VMs are automatically replaced</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Cheap, scalable, fault-tolerant” → <strong>Spot VMs in a MIG</strong></p>
+</blockquote>
+<hr />
+<h2 id="6-spot-vms-vs-regular-vms-exam-comparison">6️⃣ Spot VMs vs Regular VMs (exam comparison)</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Spot VM</th>
+<th>Regular VM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cost</td>
+<td>Very low</td>
+<td>Normal</td>
+</tr>
+<tr>
+<td>Interruption</td>
+<td>Anytime</td>
+<td>Rare</td>
+</tr>
+<tr>
+<td>SLA</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Suitable for prod DB</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-custom-machine-types-vs-predefined-exam-comparison">7️⃣ Custom machine types vs predefined (exam comparison)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Best Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Simple workload</td>
+<td>Predefined</td>
+</tr>
+<tr>
+<td>Exact sizing needed</td>
+<td>Custom</td>
+</tr>
+<tr>
+<td>Cost optimization</td>
+<td>Custom</td>
+</tr>
+<tr>
+<td>Unsure requirements</td>
+<td>Predefined</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Batch processing that can restart on failure and must be cheap”</p>
+</blockquote>
+<p>✅ <strong>Spot VM</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“VM is underutilized; reduce cost without changing app”</p>
+</blockquote>
+<p>✅ <strong>Custom machine type</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Production workload must always be available”</p>
+</blockquote>
+<p>❌ Spot<br />
+✅ Regular VM or MIG</p>
+<hr />
+<h2 id="9-common-ace-exam-traps">9️⃣ Common ACE exam traps</h2>
+<p>❌ Using Spot VMs for stateful production workloads<br />
+❌ Assuming Spot VMs behave like regular VMs<br />
+❌ Overcomplicating with custom types when predefined fits<br />
+❌ Ignoring interruption risk</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Spot = cheap but interruptible</strong></li>
+<li><strong>Custom = right-sized</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

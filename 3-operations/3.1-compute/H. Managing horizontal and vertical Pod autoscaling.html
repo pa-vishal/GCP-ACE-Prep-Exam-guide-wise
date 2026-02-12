@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H. Managing horizontal and vertical Pod autoscaling</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#managing-horizontal-and-vertical-pod-autoscaling-configurations">Managing horizontal and vertical Pod autoscaling configurations</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-horizontal-pod-autoscaler-hpa--most-tested">2️⃣ Horizontal Pod Autoscaler (HPA) – MOST TESTED</a></li>
+<li><a href="#3-vertical-pod-autoscaler-vpa">3️⃣ Vertical Pod Autoscaler (VPA)</a></li>
+<li><a href="#4-hpa-vs-vpa-must-memorize">4️⃣ HPA vs VPA (MUST MEMORIZE)</a></li>
+<li><a href="#5-pod-autoscaling-vs-node-autoscaling-exam-trap">5️⃣ Pod autoscaling vs Node autoscaling (EXAM TRAP)</a></li>
+<li><a href="#6-how-they-work-together-exam-awareness">6️⃣ How they work together (exam awareness)</a></li>
+<li><a href="#7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#8-common-ace-exam-traps">8️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.1 – Managing compute resources</strong></p>
+<h4 id="managing-horizontal-and-vertical-pod-autoscaling-configurations"><strong>Managing horizontal and vertical Pod autoscaling configurations</strong></h4>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A1400/1%2A0wJBUCAWTLAe62PHmhoLOQ.gif" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/kubernetes-engine/images/traffic-autoscale-1.svg" /></p>
+<p><img alt="Image" src="https://developers.redhat.com/sites/default/files/vpa_diagram_0.png" /></p>
+<p>This bullet is <strong>classic ACE exam material</strong>. The exam is testing whether you understand <strong>what scales Pods, what scales nodes, and when to use each autoscaling type</strong>—not how to tune metrics deeply.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Differentiate <strong>Horizontal Pod Autoscaling (HPA)</strong> vs <strong>Vertical Pod Autoscaling (VPA)</strong></li>
+<li>Know <strong>what each one changes</strong></li>
+<li>Choose the <strong>right autoscaler for the scenario</strong></li>
+<li>Avoid confusing Pod autoscaling with <strong>node autoscaling</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Do I need more Pods, or do my Pods need more resources?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-horizontal-pod-autoscaler-hpa--most-tested">2️⃣ Horizontal Pod Autoscaler (HPA) – MOST TESTED</h2>
+<h3 id="what-hpa-does">What HPA does</h3>
+<ul>
+<li><strong>Scales the number of Pods</strong></li>
+<li>
+<p>Based on:</p>
+</li>
+<li>
+<p>CPU utilization (most common)</p>
+</li>
+<li>Memory utilization</li>
+<li>Custom metrics (recognition-level)</li>
+</ul>
+<pre><code>High load → more Pods
+Low load  → fewer Pods
+</code></pre>
+<h3 id="use-when">Use when</h3>
+<ul>
+<li>Stateless workloads</li>
+<li>Web apps</li>
+<li>APIs</li>
+<li>Traffic-based scaling</li>
+</ul>
+<h3 id="exam-signals">Exam signals</h3>
+<ul>
+<li>“Increase replicas automatically”</li>
+<li>“Handle traffic spikes”</li>
+<li>“Scale out”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If the app can run multiple copies → <strong>HPA</strong></p>
+</blockquote>
+<hr />
+<h3 id="viewing-hpa">Viewing HPA</h3>
+<pre><code class="language-bash">kubectl get hpa
+</code></pre>
+<hr />
+<h3 id="conceptual-hpa-configuration">Conceptual HPA configuration</h3>
+<ul>
+<li>Target CPU (e.g., 60%)</li>
+<li>Min Pods</li>
+<li>Max Pods</li>
+</ul>
+<blockquote>
+<p><strong>Exam note:</strong><br />
+You’re tested on <strong>what HPA does</strong>, not YAML syntax.</p>
+</blockquote>
+<hr />
+<h2 id="3-vertical-pod-autoscaler-vpa">3️⃣ Vertical Pod Autoscaler (VPA)</h2>
+<h3 id="what-vpa-does">What VPA does</h3>
+<ul>
+<li><strong>Adjusts CPU/memory requests and limits</strong></li>
+<li>Scales <strong>up/down</strong>, not out/in</li>
+<li>May <strong>restart Pods</strong> to apply changes</li>
+</ul>
+<pre><code>Pod too small → increase CPU/memory
+Pod oversized → reduce CPU/memory
+</code></pre>
+<h3 id="use-when_1">Use when</h3>
+<ul>
+<li>Stateful workloads</li>
+<li>Apps that cannot scale horizontally</li>
+<li>Resource tuning over time</li>
+</ul>
+<h3 id="exam-signals_1">Exam signals</h3>
+<ul>
+<li>“Adjust CPU/memory automatically”</li>
+<li>“Single Pod workload”</li>
+<li>“Right-size resources”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If replicas don’t help → <strong>VPA</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-hpa-vs-vpa-must-memorize">4️⃣ HPA vs VPA (MUST MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>HPA</th>
+<th>VPA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scales Pods count</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Scales CPU/memory</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Best for stateless apps</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>May restart Pods</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Handles traffic spikes</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-pod-autoscaling-vs-node-autoscaling-exam-trap">5️⃣ Pod autoscaling vs Node autoscaling (EXAM TRAP)</h2>
+<table>
+<thead>
+<tr>
+<th>Autoscaler</th>
+<th>Scales</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HPA</strong></td>
+<td>Pods</td>
+</tr>
+<tr>
+<td><strong>VPA</strong></td>
+<td>Pod resources</td>
+</tr>
+<tr>
+<td><strong>Node pool autoscaling</strong></td>
+<td>Nodes</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Pods pending due to lack of CPU → <strong>node pool autoscaling</strong>, not HPA</p>
+</blockquote>
+<hr />
+<h2 id="6-how-they-work-together-exam-awareness">6️⃣ How they work together (exam awareness)</h2>
+<p>Typical production setup:</p>
+<pre><code>HPA → increases Pods
+↓
+Node autoscaler → adds nodes
+</code></pre>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Traffic increases and cluster scales automatically” → HPA + node autoscaling</p>
+</blockquote>
+<hr />
+<h2 id="7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Web app should handle traffic spikes automatically”</p>
+</blockquote>
+<p>✅ <strong>Horizontal Pod Autoscaler</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Application runs as a single Pod and needs more memory over time”</p>
+</blockquote>
+<p>✅ <strong>Vertical Pod Autoscaler</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Pods stuck in Pending (Insufficient CPU)”</p>
+</blockquote>
+<p>✅ <strong>Node pool autoscaling</strong>, not HPA/VPA</p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Minimize restarts while scaling”</p>
+</blockquote>
+<p>✅ <strong>HPA</strong>, not VPA</p>
+<hr />
+<h2 id="8-common-ace-exam-traps">8️⃣ Common ACE exam traps</h2>
+<p>❌ Using VPA for traffic spikes<br />
+❌ Expecting HPA to change Pod memory<br />
+❌ Forgetting Pods need requests set for HPA<br />
+❌ Confusing Pod autoscaling with node autoscaling</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>HPA = more Pods</strong></li>
+<li><strong>VPA = bigger Pods</strong></li>
+<li><strong>Pending Pods = scale nodes</strong></li>
+<li><strong>Traffic spikes = HPA</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

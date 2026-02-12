@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J. Deploying new versions of a Cloud Run application</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#deploying-new-versions-of-a-cloud-run-application">Deploying new versions of a Cloud Run application</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-core-cloud-run-concepts-must-know">2️⃣ Core Cloud Run concepts (MUST KNOW)</a></li>
+<li><a href="#3-deploying-a-new-version-cli--exam-relevant">3️⃣ Deploying a new version (CLI – exam-relevant)</a></li>
+<li><a href="#4-traffic-management-very-important">4️⃣ Traffic management (VERY IMPORTANT)</a></li>
+<li><a href="#5-rollbacks-exam-favorite">5️⃣ Rollbacks (EXAM FAVORITE)</a></li>
+<li><a href="#6-bluegreen--canary-conceptual">6️⃣ Blue/Green &amp; Canary (conceptual)</a></li>
+<li><a href="#7-what-causes-a-new-revision-exam-trap">7️⃣ What causes a new revision (EXAM TRAP)</a></li>
+<li><a href="#8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#9-common-ace-exam-traps">9️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.1 – Managing compute resources</strong></p>
+<h4 id="deploying-new-versions-of-a-cloud-run-application"><strong>Deploying new versions of a Cloud Run application</strong></h4>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A1200/0%2A_RHjDg-9VHr4egOR.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/run/docs/images/manage-traffic-tags.png" /></p>
+<p><img alt="Image" src="https://miro.medium.com/1%2AHK-6wZeDBt0AnQog5VQpJg.png" /></p>
+<p>This bullet is <strong>very high-yield</strong>. The ACE exam tests whether you understand <strong>how Cloud Run handles versions (revisions)</strong> and <strong>how traffic is safely moved between them</strong>—not advanced CI/CD.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Explain <strong>what a revision is</strong></li>
+<li>Deploy a <strong>new version safely</strong></li>
+<li>Control <strong>traffic routing</strong></li>
+<li>Roll back <strong>without redeploying</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“How do I update a serverless app without downtime?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-core-cloud-run-concepts-must-know">2️⃣ Core Cloud Run concepts (MUST KNOW)</h2>
+<h3 id="revisions">Revisions</h3>
+<ul>
+<li><strong>Immutable versions</strong> of a Cloud Run service</li>
+<li>Created on <strong>every deploy</strong> (code or config change)</li>
+<li>Multiple revisions can exist at once</li>
+</ul>
+<pre><code>Cloud Run Service
+ ├── Revision v1
+ ├── Revision v2
+ └── Revision v3 (latest)
+</code></pre>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+You never “edit” a revision—you create a new one.</p>
+</blockquote>
+<hr />
+<h2 id="3-deploying-a-new-version-cli--exam-relevant">3️⃣ Deploying a new version (CLI – exam-relevant)</h2>
+<h3 id="basic-deploy-creates-a-new-revision">Basic deploy (creates a new revision)</h3>
+<pre><code class="language-bash">gcloud run deploy my-service \
+  --image=us-central1-docker.pkg.dev/my-project/my-repo/my-app:v2 \
+  --region=us-central1
+</code></pre>
+<p>What happens:</p>
+<ul>
+<li>New revision is created</li>
+<li>By default, <strong>100% traffic</strong> goes to the latest revision</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Deploy new version” → <strong>new revision</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-traffic-management-very-important">4️⃣ Traffic management (VERY IMPORTANT)</h2>
+<p>Cloud Run supports <strong>traffic splitting</strong> across revisions.</p>
+<h3 id="split-traffic-during-deploy">Split traffic during deploy</h3>
+<pre><code class="language-bash">gcloud run deploy my-service \
+  --image=... \
+  --traffic=LATEST=90,REVISION=v1=10
+</code></pre>
+<h3 id="update-traffic-only-no-redeploy">Update traffic only (no redeploy)</h3>
+<pre><code class="language-bash">gcloud run services update-traffic my-service \
+  --to-revisions=rev-v2=100
+</code></pre>
+<p><strong>Use cases</strong></p>
+<ul>
+<li>Canary deployments</li>
+<li>Gradual rollouts</li>
+<li>Instant rollback</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Traffic control ≠ redeploy</p>
+</blockquote>
+<hr />
+<h2 id="5-rollbacks-exam-favorite">5️⃣ Rollbacks (EXAM FAVORITE)</h2>
+<h3 id="how-rollback-works">How rollback works</h3>
+<ul>
+<li>Redirect traffic back to a <strong>previous revision</strong></li>
+<li>No new build required</li>
+</ul>
+<pre><code class="language-bash">gcloud run services update-traffic my-service \
+  --to-revisions=rev-v1=100
+</code></pre>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Rollback quickly” → <strong>change traffic</strong></p>
+</blockquote>
+<hr />
+<h2 id="6-bluegreen--canary-conceptual">6️⃣ Blue/Green &amp; Canary (conceptual)</h2>
+<ul>
+<li>
+<p><strong>Blue/Green</strong></p>
+</li>
+<li>
+<p>Old revision (blue)</p>
+</li>
+<li>New revision (green)</li>
+<li>Switch traffic instantly</li>
+<li>
+<p><strong>Canary</strong></p>
+</li>
+<li>
+<p>Small % to new revision</p>
+</li>
+<li>Monitor, then increase</li>
+</ul>
+<blockquote>
+<p>ACE expects <strong>recognition</strong>, not pipeline design.</p>
+</blockquote>
+<hr />
+<h2 id="7-what-causes-a-new-revision-exam-trap">7️⃣ What causes a new revision (EXAM TRAP)</h2>
+<p>A new revision is created if you change:</p>
+<ul>
+<li>Container image</li>
+<li>Environment variables</li>
+<li>Memory / CPU</li>
+<li>Concurrency</li>
+<li>Secrets or configs</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Even config-only changes create a new revision.</p>
+</blockquote>
+<hr />
+<h2 id="8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Deploy a new version with zero downtime”</p>
+</blockquote>
+<p>✅ <strong>Deploy new revision + traffic control</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Roll back after errors are detected”</p>
+</blockquote>
+<p>✅ <strong>Shift traffic to previous revision</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Test new version with 10% of users”</p>
+</blockquote>
+<p>✅ <strong>Traffic splitting</strong></p>
+<hr />
+<h2 id="9-common-ace-exam-traps">9️⃣ Common ACE exam traps</h2>
+<p>❌ Thinking Cloud Run overwrites the existing version<br />
+❌ Redeploying just to roll back<br />
+❌ Assuming only one version can exist<br />
+❌ Forgetting traffic defaults to latest</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Deploy = new revision</strong></li>
+<li><strong>Revisions are immutable</strong></li>
+<li><strong>Traffic controls versions</strong></li>
+<li><strong>Rollback = traffic shift</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

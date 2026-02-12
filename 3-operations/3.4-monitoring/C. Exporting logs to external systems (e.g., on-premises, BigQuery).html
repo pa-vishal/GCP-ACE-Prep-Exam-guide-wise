@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C. Exporting logs to external systems (e.g., on-premises, BigQuery)</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#exporting-logs-to-external-systems-e.g.-on-premises-bigquery">Exporting logs to external systems (e.g., on-premises, BigQuery)</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-cloud-logging-basics-foundation">2️⃣ Cloud Logging basics (foundation)</a></li>
+<li><a href="#3-what-is-a-log-sink-must-know">3️⃣ What is a Log Sink? (MUST KNOW)</a></li>
+<li><a href="#4-common-export-destinations-very-important">4️⃣ Common export destinations (VERY IMPORTANT)</a></li>
+<li><a href="#5-creating-a-log-sink-cli-example">5️⃣ Creating a log sink (CLI example)</a></li>
+<li><a href="#6-iam-considerations-very-important">6️⃣ IAM considerations (VERY IMPORTANT)</a></li>
+<li><a href="#7-filtering-logs-before-export-exam-signal">7️⃣ Filtering logs before export (EXAM SIGNAL)</a></li>
+<li><a href="#8-logs-vs-metrics-common-exam-trap">8️⃣ Logs vs metrics (COMMON EXAM TRAP)</a></li>
+<li><a href="#9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#-common-ace-exam-traps">🔟 Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.4 – Monitoring and logging</strong></p>
+<h4 id="exporting-logs-to-external-systems-e.g.-on-premises-bigquery"><strong>Exporting logs to external systems (e.g., on-premises, BigQuery)</strong></h4>
+<p>This is a <strong>high-value operational topic</strong>. The ACE exam tests whether you understand:</p>
+<ul>
+<li>Logs are stored in <strong>Cloud Logging</strong></li>
+<li>Exporting logs requires a <strong>log sink</strong></li>
+<li>Different destinations serve different purposes</li>
+<li>IAM and routing matter</li>
+</ul>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Explain what a <strong>log sink</strong> is</li>
+<li>
+<p>Export logs to:</p>
+</li>
+<li>
+<p>BigQuery</p>
+</li>
+<li>Cloud Storage</li>
+<li>Pub/Sub (for on-prem or external systems)</li>
+<li>Choose the right destination</li>
+<li>Avoid confusing logs with metrics</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Logs need to go somewhere else — how do I route them?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-cloud-logging-basics-foundation">2️⃣ Cloud Logging basics (foundation)</h2>
+<p>Logs are automatically collected from:</p>
+<ul>
+<li>Compute Engine</li>
+<li>GKE</li>
+<li>Cloud Run</li>
+<li>Load balancers</li>
+<li>Many managed services</li>
+</ul>
+<p>Logs are stored in:</p>
+<ul>
+<li><strong>Log buckets</strong> (by default)</li>
+</ul>
+<p>To export logs, you create:</p>
+<blockquote>
+<p><strong>Log Sink</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-what-is-a-log-sink-must-know">3️⃣ What is a Log Sink? (MUST KNOW)</h2>
+<p>A <strong>log sink</strong>:</p>
+<ul>
+<li>Routes logs from Logging to a destination</li>
+<li>
+<p>Uses:</p>
+</li>
+<li>
+<p>A filter</p>
+</li>
+<li>A destination</li>
+<li>Requires IAM permissions</li>
+</ul>
+<p>Flow:</p>
+<pre><code>Cloud Logging
+   ↓ (log sink)
+Destination (BigQuery / GCS / PubSub)
+</code></pre>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Exporting logs = create a <strong>log sink</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-common-export-destinations-very-important">4️⃣ Common export destinations (VERY IMPORTANT)</h2>
+<h3 id="1-bigquery-exam-favorite">1️⃣ BigQuery (EXAM FAVORITE)</h3>
+<p>Use when:</p>
+<ul>
+<li>You need analytics on logs</li>
+<li>Long-term retention</li>
+<li>Complex SQL queries</li>
+</ul>
+<p>Example scenario:</p>
+<blockquote>
+<p>“Analyze error trends over 12 months”</p>
+</blockquote>
+<p>✅ Export logs to <strong>BigQuery</strong></p>
+<hr />
+<h3 id="2-cloud-storage">2️⃣ Cloud Storage</h3>
+<p>Use when:</p>
+<ul>
+<li>Archival storage</li>
+<li>Compliance</li>
+<li>Cheap long-term retention</li>
+</ul>
+<p>Example:</p>
+<blockquote>
+<p>“Retain logs for 7 years”</p>
+</blockquote>
+<p>✅ Export to <strong>Cloud Storage</strong></p>
+<hr />
+<h3 id="3-pubsub-for-externalon-prem-systems">3️⃣ Pub/Sub (for external/on-prem systems)</h3>
+<p>Use when:</p>
+<ul>
+<li>Streaming logs to SIEM</li>
+<li>Sending logs to on-prem systems</li>
+<li>Real-time external processing</li>
+</ul>
+<p>Flow:</p>
+<pre><code>Logging → Sink → Pub/Sub → External consumer
+</code></pre>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+On-prem integration → <strong>Pub/Sub</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-creating-a-log-sink-cli-example">5️⃣ Creating a log sink (CLI example)</h2>
+<pre><code class="language-bash">gcloud logging sinks create my-bq-sink \
+  bigquery.googleapis.com/projects/my-project/datasets/logs_dataset \
+  --log-filter=&quot;severity&gt;=ERROR&quot;
+</code></pre>
+<p>This:</p>
+<ul>
+<li>Exports only ERROR logs</li>
+<li>Routes them to BigQuery</li>
+</ul>
+<blockquote>
+<p><strong>Exam note:</strong><br />
+You’re tested on the concept, not full CLI syntax.</p>
+</blockquote>
+<hr />
+<h2 id="6-iam-considerations-very-important">6️⃣ IAM considerations (VERY IMPORTANT)</h2>
+<p>When creating a sink:</p>
+<ul>
+<li>Logging creates a <strong>service account</strong></li>
+<li>
+<p>That service account needs:</p>
+</li>
+<li>
+<p>BigQuery Data Editor (for BigQuery)</p>
+</li>
+<li>Storage Object Creator (for GCS)</li>
+<li>Pub/Sub Publisher (for Pub/Sub)</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Sink created but no logs exported → missing IAM on destination.</p>
+</blockquote>
+<hr />
+<h2 id="7-filtering-logs-before-export-exam-signal">7️⃣ Filtering logs before export (EXAM SIGNAL)</h2>
+<p>Log sinks support filters like:</p>
+<ul>
+<li><code>severity&gt;=ERROR</code></li>
+<li><code>resource.type="gce_instance"</code></li>
+<li>Specific log names</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Filter early to reduce cost.</p>
+</blockquote>
+<hr />
+<h2 id="8-logs-vs-metrics-common-exam-trap">8️⃣ Logs vs metrics (COMMON EXAM TRAP)</h2>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Tool</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Alert on CPU</td>
+<td>Monitoring metric</td>
+</tr>
+<tr>
+<td>Export log entries</td>
+<td>Log sink</td>
+</tr>
+<tr>
+<td>Count log errors</td>
+<td>Log-based metric</td>
+</tr>
+<tr>
+<td>Analyze logs with SQL</td>
+<td>BigQuery</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Don’t export logs just to create alerts — use log-based metrics instead.</p>
+</blockquote>
+<hr />
+<h2 id="9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Security team wants logs in SIEM”</p>
+</blockquote>
+<p>✅ Create log sink → Pub/Sub</p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Run analytics on audit logs”</p>
+</blockquote>
+<p>✅ Export to BigQuery</p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Store logs cheaply for compliance”</p>
+</blockquote>
+<p>✅ Export to Cloud Storage</p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Sink created but no data appears”</p>
+</blockquote>
+<p>✅ Check:</p>
+<ul>
+<li>Filter logic</li>
+<li>Destination IAM permissions</li>
+</ul>
+<hr />
+<h2 id="-common-ace-exam-traps">🔟 Common ACE exam traps</h2>
+<p>❌ Forgetting IAM on destination<br />
+❌ Exporting all logs unnecessarily<br />
+❌ Confusing metrics with logs<br />
+❌ Using BigQuery when streaming is required<br />
+❌ Expecting automatic cross-project export</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Export = log sink</strong></li>
+<li><strong>Analytics = BigQuery</strong></li>
+<li><strong>Archive = GCS</strong></li>
+<li><strong>On-prem = Pub/Sub</strong></li>
+<li><strong>IAM required for sink to write</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

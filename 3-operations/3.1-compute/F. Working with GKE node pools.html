@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F. Working with GKE node pools</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#working-with-gke-node-pools">Working with GKE node pools</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-what-a-node-pool-is-mental-model">2️⃣ What a node pool is (mental model)</a></li>
+<li><a href="#3-why-node-pools-matter-exam-favorite">3️⃣ Why node pools matter (EXAM FAVORITE)</a></li>
+<li><a href="#4-adding-a-node-pool-cli--exam-relevant">4️⃣ Adding a node pool (CLI – exam-relevant)</a></li>
+<li><a href="#5-editing-a-node-pool-conceptual">5️⃣ Editing a node pool (conceptual)</a></li>
+<li><a href="#6-removing-a-node-pool-cli--exam-relevant">6️⃣ Removing a node pool (CLI – exam-relevant)</a></li>
+<li><a href="#7-node-pool-autoscaling-very-important">7️⃣ Node pool autoscaling (VERY IMPORTANT)</a></li>
+<li><a href="#8-node-autoscaling-vs-pod-autoscaling-exam-trap">8️⃣ Node autoscaling vs Pod autoscaling (EXAM TRAP)</a></li>
+<li><a href="#9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#10-common-ace-exam-traps">10️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.1 – Managing compute resources</strong></p>
+<h4 id="working-with-gke-node-pools"><strong>Working with GKE node pools</strong></h4>
+<p><em>(add, edit, remove a node pool; autoscaling node pool)</em></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/kubernetes-engine/images/gke-architecture.svg" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/5.max-2000x2000.png" /></p>
+<p><img alt="Image" src="https://cdn.prod.website-files.com/68ad5281556da93bd7179b0e/68b79f42d778386c448da0d7_685d2e66568c4363263db929_465385bc-b1de-4671-ac9e-00c26e784994.png" /></p>
+<p>This bullet is about <strong>how GKE capacity is managed</strong>. The ACE exam tests whether you understand <strong>why node pools exist</strong>, <strong>when to add or change them</strong>, and <strong>how autoscaling works at the node layer</strong> (distinct from Pod autoscaling).</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Explain <strong>what a node pool is</strong></li>
+<li>Add/remove node pools to meet <strong>workload needs</strong></li>
+<li>Enable <strong>node pool autoscaling</strong></li>
+<li>Avoid mixing incompatible workloads in one pool</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“If Pods can’t schedule or costs are too high, what do I change at the node layer?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-what-a-node-pool-is-mental-model">2️⃣ What a node pool is (mental model)</h2>
+<p>A <strong>node pool</strong> is:</p>
+<ul>
+<li>A group of <strong>identical worker nodes</strong></li>
+<li>
+<p>With the same:</p>
+</li>
+<li>
+<p>Machine type</p>
+</li>
+<li>Disk type/size</li>
+<li>Labels/taints</li>
+<li>Autoscaling settings</li>
+</ul>
+<pre><code>GKE Cluster
+ ├── Node Pool A (general)
+ ├── Node Pool B (GPU)
+ └── Node Pool C (spot/preemptible)
+</code></pre>
+<blockquote>
+<p><strong>Key rule:</strong><br />
+<strong>Node pools let you mix node types in one cluster.</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-why-node-pools-matter-exam-favorite">3️⃣ Why node pools matter (EXAM FAVORITE)</h2>
+<p>Use <strong>multiple node pools</strong> to:</p>
+<ul>
+<li>Separate workloads (prod vs batch)</li>
+<li>Add <strong>GPUs</strong> without affecting others</li>
+<li>Use <strong>Spot nodes</strong> for cost savings</li>
+<li>Apply different autoscaling policies</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Different machine types”</li>
+<li>“GPU workloads”</li>
+<li>“Cost optimization”</li>
+<li>“Workloads have different requirements”</li>
+</ul>
+<hr />
+<h2 id="4-adding-a-node-pool-cli--exam-relevant">4️⃣ Adding a node pool (CLI – exam-relevant)</h2>
+<pre><code class="language-bash">gcloud container node-pools create high-mem-pool \
+  --cluster=my-cluster \
+  --region=us-central1 \
+  --machine-type=e2-highmem-4 \
+  --num-nodes=2
+</code></pre>
+<p>Use when:</p>
+<ul>
+<li>Existing pool doesn’t meet workload needs</li>
+<li>Pods are pending due to resource constraints</li>
+</ul>
+<hr />
+<h2 id="5-editing-a-node-pool-conceptual">5️⃣ Editing a node pool (conceptual)</h2>
+<p>You can update:</p>
+<ul>
+<li>Autoscaling settings</li>
+<li>Node count</li>
+<li>Labels and taints</li>
+<li>Upgrade settings</li>
+</ul>
+<blockquote>
+<p><strong>Exam awareness:</strong><br />
+You generally <strong>cannot change machine type</strong> of an existing pool — you create a new one instead.</p>
+</blockquote>
+<hr />
+<h2 id="6-removing-a-node-pool-cli--exam-relevant">6️⃣ Removing a node pool (CLI – exam-relevant)</h2>
+<pre><code class="language-bash">gcloud container node-pools delete high-mem-pool \
+  --cluster=my-cluster \
+  --region=us-central1
+</code></pre>
+<p>Use when:</p>
+<ul>
+<li>Pool is unused</li>
+<li>Migrating workloads to a new pool</li>
+<li>Cost optimization</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Deleting a node pool <strong>removes all Pods running on it</strong></p>
+</blockquote>
+<hr />
+<h2 id="7-node-pool-autoscaling-very-important">7️⃣ Node pool autoscaling (VERY IMPORTANT)</h2>
+<h3 id="what-it-does">What it does</h3>
+<ul>
+<li>Automatically adjusts <strong>number of nodes</strong></li>
+<li>Based on <strong>Pod scheduling demand</strong></li>
+</ul>
+<blockquote>
+<p>This is <strong>NOT</strong> the same as HPA (Pod autoscaling).</p>
+</blockquote>
+<hr />
+<h3 id="enable-autoscaling-on-a-node-pool">Enable autoscaling on a node pool</h3>
+<pre><code class="language-bash">gcloud container node-pools update default-pool \
+  --cluster=my-cluster \
+  --region=us-central1 \
+  --enable-autoscaling \
+  --min-nodes=1 \
+  --max-nodes=5
+</code></pre>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Pods pending due to insufficient CPU”</li>
+<li>“Cluster should scale automatically”</li>
+</ul>
+<hr />
+<h2 id="8-node-autoscaling-vs-pod-autoscaling-exam-trap">8️⃣ Node autoscaling vs Pod autoscaling (EXAM TRAP)</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Scales</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Node pool autoscaling</strong></td>
+<td>Nodes</td>
+</tr>
+<tr>
+<td><strong>Horizontal Pod Autoscaler (HPA)</strong></td>
+<td>Pods</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam rule:</strong><br />
+If Pods can’t schedule → <strong>node pool autoscaling</strong></p>
+</blockquote>
+<hr />
+<h2 id="9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Add GPU capacity without affecting existing workloads”</p>
+</blockquote>
+<p>✅ <strong>Create a new GPU node pool</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Reduce costs for batch workloads”</p>
+</blockquote>
+<p>✅ <strong>Spot node pool + autoscaling</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Pods stuck in Pending (Insufficient CPU)”</p>
+</blockquote>
+<p>✅ <strong>Enable or increase node pool autoscaling</strong></p>
+<hr />
+<h2 id="10-common-ace-exam-traps">10️⃣ Common ACE exam traps</h2>
+<p>❌ Trying to change machine type of an existing pool<br />
+❌ Mixing critical and batch workloads in one pool<br />
+❌ Confusing node autoscaling with HPA<br />
+❌ Deleting a pool before draining workloads</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Node pool = node type</strong></li>
+<li><strong>Multiple pools = flexibility</strong></li>
+<li><strong>Pending Pods = scale nodes</strong></li>
+<li><strong>Autoscaling nodes ≠ autoscaling Pods</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

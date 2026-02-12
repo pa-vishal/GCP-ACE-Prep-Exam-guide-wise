@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A. Creating one or more billing accounts</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#section-1.2--creating-one-or-more-billing-accounts">Section 1.2 – Creating one or more billing accounts</a></li>
+<li><a href="#1-what-a-billing-account-is-exam-framing">1️⃣ What a billing account is (exam framing)</a></li>
+<li><a href="#2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</a></li>
+<li><a href="#3-who-can-create-billing-accounts">3️⃣ Who can create billing accounts</a></li>
+<li><a href="#4-why-create-more-than-one-billing-account-exam-favorite">4️⃣ Why create MORE than one billing account (exam-favorite)</a></li>
+<li><a href="#5-billing-account--project-relationship-very-important">5️⃣ Billing account ↔ project relationship (very important)</a></li>
+<li><a href="#6-creating-a-billing-account-conceptual-steps">6️⃣ Creating a billing account (conceptual steps)</a></li>
+<li><a href="#7-cli-interaction-with-billing-accounts-exam-aware">7️⃣ CLI interaction with billing accounts (exam-aware)</a></li>
+<li><a href="#8-iam--billing-accounts-high-level">8️⃣ IAM &amp; billing accounts (high-level)</a></li>
+<li><a href="#9-real-exam-style-scenarios">9️⃣ Real exam-style scenarios</a></li>
+<li><a href="#10-common-exam-traps">10️⃣ Common exam traps</a></li>
+<li><a href="#-one-line-exam-memory-hook">🔑 One-line exam memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿</p>
+<h3 id="section-1.2--creating-one-or-more-billing-accounts"><strong>Section 1.2 – Creating one or more billing accounts</strong></h3>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/billing/docs/images/resource-hierarchy-overview.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/billing/docs/images/access-control-org.png" /></p>
+<p>This bullet is about <strong>financial ownership and separation</strong>, not spending optimization yet. The ACE exam uses billing accounts to test whether you understand <strong>who pays</strong>, <strong>who controls billing</strong>, and <strong>how projects are isolated financially</strong>.</p>
+<hr />
+<h2 id="1-what-a-billing-account-is-exam-framing">1️⃣ What a billing account is (exam framing)</h2>
+<p>A <strong>billing account</strong> is:</p>
+<ul>
+<li>A container for <strong>payment methods</strong></li>
+<li>The <strong>financial owner</strong> of cloud usage</li>
+<li>Linked to one or more <strong>projects</strong></li>
+</ul>
+<blockquote>
+<p><strong>Key rule</strong><br />
+<strong>Resources don’t incur cost unless their project is linked to a billing account</strong></p>
+</blockquote>
+<hr />
+<h2 id="2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</h2>
+<p>The exam checks whether you can:</p>
+<h3 id="-understand-why-you-might-need-multiple-billing-accounts">✅ Understand why you might need <strong>multiple billing accounts</strong></h3>
+<h3 id="-know-the-relationship-between-billing-accounts-and-projects">✅ Know the <strong>relationship between billing accounts and projects</strong></h3>
+<h3 id="-identify-who-can-create-and-manage-billing-accounts">✅ Identify <strong>who can create and manage billing accounts</strong></h3>
+<h3 id="-what-it-does-not-test">❌ What it does NOT test</h3>
+<ul>
+<li>Tax setup</li>
+<li>Invoices and payments</li>
+<li>Detailed cost optimization (that comes later)</li>
+</ul>
+<hr />
+<h2 id="3-who-can-create-billing-accounts">3️⃣ Who can create billing accounts</h2>
+<p>To create a billing account, you must:</p>
+<ul>
+<li>Be a <strong>billing administrator</strong> (or equivalent)</li>
+<li>Have a valid <strong>payment method</strong></li>
+<li>
+<p>Be associated with:</p>
+</li>
+<li>
+<p>A Google Cloud Organization <strong>or</strong></p>
+</li>
+<li>A standalone (no-domain) setup</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap</strong><br />
+Project Owner ≠ Billing Account Creator (not always)</p>
+</blockquote>
+<hr />
+<h2 id="4-why-create-more-than-one-billing-account-exam-favorite">4️⃣ Why create MORE than one billing account (exam-favorite)</h2>
+<h3 id="common-valid-reasons">Common valid reasons</h3>
+<h4 id="-1.-cost-isolation">🧱 1. Cost isolation</h4>
+<ul>
+<li>
+<p>Separate:</p>
+</li>
+<li>
+<p>Dev vs Prod</p>
+</li>
+<li>Different departments</li>
+<li>Different customers</li>
+</ul>
+<blockquote>
+<p>“Ensure prod costs are not affected by dev experiments”<br />
+✅ Use separate billing accounts</p>
+</blockquote>
+<hr />
+<h4 id="-2.-different-payment-methods">🧾 2. Different payment methods</h4>
+<ul>
+<li>Different credit cards</li>
+<li>Different legal entities</li>
+</ul>
+<hr />
+<h4 id="-3.-different-billing-admins">🔐 3. Different billing admins</h4>
+<ul>
+<li>Finance team controls prod billing</li>
+<li>Engineering controls dev billing</li>
+</ul>
+<hr />
+<h4 id="-4.-budget--reporting-boundaries">📊 4. Budget &amp; reporting boundaries</h4>
+<ul>
+<li>Budgets are defined <strong>per billing account</strong></li>
+<li>Clean financial reporting</li>
+</ul>
+<hr />
+<h2 id="5-billing-account--project-relationship-very-important">5️⃣ Billing account ↔ project relationship (very important)</h2>
+<ul>
+<li>A <strong>project can be linked to only ONE billing account</strong></li>
+<li>A billing account can be linked to <strong>MANY projects</strong></li>
+<li>Projects can be <strong>moved</strong> between billing accounts</li>
+</ul>
+<pre><code>Billing Account A
+ ├── Project 1
+ ├── Project 2
+
+Billing Account B
+ └── Project 3
+</code></pre>
+<hr />
+<h2 id="6-creating-a-billing-account-conceptual-steps">6️⃣ Creating a billing account (conceptual steps)</h2>
+<p>The ACE exam expects <strong>conceptual knowledge</strong>, not UI memorization.</p>
+<p>High-level flow:</p>
+<ol>
+<li>Go to <strong>Billing</strong></li>
+<li>Create new billing account</li>
+<li>Add payment method</li>
+<li>Assign billing administrators</li>
+</ol>
+<hr />
+<h2 id="7-cli-interaction-with-billing-accounts-exam-aware">7️⃣ CLI interaction with billing accounts (exam-aware)</h2>
+<h3 id="-list-billing-accounts-you-have-access-to">🔹 List billing accounts you have access to</h3>
+<pre><code class="language-bash">gcloud billing accounts list
+</code></pre>
+<hr />
+<h3 id="-describe-a-billing-account">🔹 Describe a billing account</h3>
+<pre><code class="language-bash">gcloud billing accounts describe BILLING_ACCOUNT_ID
+</code></pre>
+<hr />
+<h3 id="-important-limitation-exam-trap">🔹 Important limitation (exam trap)</h3>
+<p>❌ You <strong>cannot</strong> create billing accounts via <code>gcloud</code></p>
+<blockquote>
+<p>Billing account creation is <strong>console-driven</strong></p>
+</blockquote>
+<hr />
+<h2 id="8-iam--billing-accounts-high-level">8️⃣ IAM &amp; billing accounts (high-level)</h2>
+<p>Billing accounts have their <strong>own IAM roles</strong>, separate from projects:</p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Billing Account Admin</td>
+<td>Full control</td>
+</tr>
+<tr>
+<td>Billing Account User</td>
+<td>Link projects</td>
+</tr>
+<tr>
+<td>Billing Viewer</td>
+<td>View costs</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam clue</strong><br />
+If someone needs to link projects → <strong>Billing Account User</strong></p>
+</blockquote>
+<hr />
+<h2 id="9-real-exam-style-scenarios">9️⃣ Real exam-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“A company wants separate invoices for prod and dev”</p>
+</blockquote>
+<p>✅ Correct:</p>
+<ul>
+<li>Create <strong>two billing accounts</strong></li>
+<li>Link projects accordingly</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“A new project is created but resources fail to start”</p>
+</blockquote>
+<p>✅ Root cause:</p>
+<ul>
+<li>Project not linked to a billing account</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Finance team must manage payments, not engineers”</p>
+</blockquote>
+<p>✅ Correct:</p>
+<ul>
+<li>Assign billing IAM roles</li>
+<li>Separate billing account ownership</li>
+</ul>
+<hr />
+<h2 id="10-common-exam-traps">10️⃣ Common exam traps</h2>
+<p>❌ Assume one billing account per organization<br />
+❌ Assume projects auto-bill without linkage<br />
+❌ Confuse project IAM with billing IAM<br />
+❌ Think budgets stop spending (they don’t)</p>
+<hr />
+<h2 id="-one-line-exam-memory-hook">🔑 One-line exam memory hook</h2>
+<blockquote>
+<p><strong>Billing account = who pays</strong><br />
+<strong>Project = what spends</strong></p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B. Creating and ingesting Cloud Monitoring custom metrics</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#creating-and-ingesting-cloud-monitoring-custom-metrics-e.g.-from-applications-or-logs">Creating and ingesting Cloud Monitoring custom metrics (e.g., from applications or logs)</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-why-custom-metrics-exist">2️⃣ Why custom metrics exist</a></li>
+<li><a href="#3-two-ways-to-create-custom-metrics-very-important">3️⃣ Two ways to create custom metrics (VERY IMPORTANT)</a></li>
+<li><a href="#4-log-based-metrics-must-know">4️⃣ Log-based metrics (MUST KNOW)</a></li>
+<li><a href="#5-custom-metric-types-exam-awareness">5️⃣ Custom metric types (exam awareness)</a></li>
+<li><a href="#6-ingesting-application-metrics-conceptual-flow">6️⃣ Ingesting application metrics (conceptual flow)</a></li>
+<li><a href="#7-using-custom-metrics-in-alerts">7️⃣ Using custom metrics in alerts</a></li>
+<li><a href="#8-custom-metrics-vs-logs-common-exam-trap">8️⃣ Custom metrics vs logs (COMMON EXAM TRAP)</a></li>
+<li><a href="#9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#-common-ace-exam-traps">🔟 Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.4 – Monitoring and logging</strong></p>
+<h4 id="creating-and-ingesting-cloud-monitoring-custom-metrics-e.g.-from-applications-or-logs"><strong>Creating and ingesting Cloud Monitoring custom metrics (e.g., from applications or logs)</strong></h4>
+<p>This is a <strong>deeper operational topic</strong>. The ACE exam is not testing you on writing full metric pipelines — it’s testing whether you understand:</p>
+<ul>
+<li>When <strong>built-in metrics are insufficient</strong></li>
+<li>How <strong>custom metrics enter Cloud Monitoring</strong></li>
+<li>The difference between <strong>application metrics vs log-based metrics</strong></li>
+</ul>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Explain what a <strong>custom metric</strong> is</li>
+<li>
+<p>Distinguish between:</p>
+</li>
+<li>
+<p>Application-generated metrics</p>
+</li>
+<li>Log-based metrics</li>
+<li>Understand the ingestion flow</li>
+<li>Use custom metrics in <strong>alerting policies</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Built-in metrics don’t measure this — how do I track it?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-why-custom-metrics-exist">2️⃣ Why custom metrics exist</h2>
+<p>Built-in metrics cover:</p>
+<ul>
+<li>CPU</li>
+<li>Memory</li>
+<li>Network</li>
+<li>Request count</li>
+<li>Latency</li>
+</ul>
+<p>But they do NOT cover:</p>
+<ul>
+<li>Business KPIs (orders per minute)</li>
+<li>Application-level queue depth</li>
+<li>Feature flags</li>
+<li>Custom error counters</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If the metric is application-specific → <strong>custom metric</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-two-ways-to-create-custom-metrics-very-important">3️⃣ Two ways to create custom metrics (VERY IMPORTANT)</h2>
+<h3 id="1-application-generated-custom-metrics">1️⃣ Application-generated custom metrics</h3>
+<p>Application sends metrics directly to Cloud Monitoring.</p>
+<p>Flow:</p>
+<pre><code>Application → Monitoring API → Cloud Monitoring → Alerting/Dashboard
+</code></pre>
+<p>Used for:</p>
+<ul>
+<li>Business metrics</li>
+<li>Real-time counters</li>
+<li>App-specific signals</li>
+</ul>
+<hr />
+<h3 id="2-log-based-metrics-exam-favorite">2️⃣ Log-based metrics (EXAM FAVORITE)</h3>
+<p>Create a metric derived from <strong>logs</strong>.</p>
+<p>Flow:</p>
+<pre><code>Application logs → Cloud Logging → Log-based metric → Monitoring → Alert
+</code></pre>
+<p>Used for:</p>
+<ul>
+<li>Counting error messages</li>
+<li>Tracking specific log patterns</li>
+<li>Monitoring structured log fields</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If the data already exists in logs → use <strong>log-based metric</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-log-based-metrics-must-know">4️⃣ Log-based metrics (MUST KNOW)</h2>
+<p>You define:</p>
+<ul>
+<li>A log filter</li>
+<li>A metric type (counter or distribution)</li>
+</ul>
+<p>Example use cases:</p>
+<ul>
+<li>Count occurrences of <code>"ERROR"</code></li>
+<li>Track number of 500 HTTP responses</li>
+<li>Extract latency field from structured logs</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Create alert when specific log appears” → <strong>log-based metric</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-custom-metric-types-exam-awareness">5️⃣ Custom metric types (exam awareness)</h2>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Use case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Counter</td>
+<td>Event count</td>
+</tr>
+<tr>
+<td>Gauge</td>
+<td>Current value</td>
+</tr>
+<tr>
+<td>Distribution</td>
+<td>Latency or size measurements</td>
+</tr>
+</tbody>
+</table>
+<p>You do NOT need to memorize syntax — just concepts.</p>
+<hr />
+<h2 id="6-ingesting-application-metrics-conceptual-flow">6️⃣ Ingesting application metrics (conceptual flow)</h2>
+<p>Applications:</p>
+<ul>
+<li>Use client libraries</li>
+<li>Send metrics via API</li>
+<li>Must have proper IAM permissions</li>
+</ul>
+<p>Required permission:</p>
+<ul>
+<li><code>monitoring.metricWriter</code></li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Missing IAM → metrics never appear</p>
+</blockquote>
+<hr />
+<h2 id="7-using-custom-metrics-in-alerts">7️⃣ Using custom metrics in alerts</h2>
+<p>Once created:</p>
+<ul>
+<li>Custom metrics behave like built-in metrics</li>
+<li>
+<p>Can be:</p>
+</li>
+<li>
+<p>Used in alerting policies</p>
+</li>
+<li>Displayed in dashboards</li>
+<li>Aggregated</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Custom metrics integrate fully with Monitoring.</p>
+</blockquote>
+<hr />
+<h2 id="8-custom-metrics-vs-logs-common-exam-trap">8️⃣ Custom metrics vs logs (COMMON EXAM TRAP)</h2>
+<table>
+<thead>
+<tr>
+<th>If you need…</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU alert</td>
+<td>Built-in metric</td>
+</tr>
+<tr>
+<td>Count log error</td>
+<td>Log-based metric</td>
+</tr>
+<tr>
+<td>Track business KPI</td>
+<td>Custom metric</td>
+</tr>
+<tr>
+<td>Store log entries</td>
+<td>Cloud Logging</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Logs alone cannot trigger metric alerts without a log-based metric.</p>
+</blockquote>
+<hr />
+<h2 id="9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Alert when application logs contain ‘PaymentFailed’”</p>
+</blockquote>
+<p>✅ Create <strong>log-based metric</strong><br />
+✅ Create alert on that metric</p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Track orders per minute for dashboard”</p>
+</blockquote>
+<p>✅ Application-generated custom metric</p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Metric not visible in Monitoring”</p>
+</blockquote>
+<p>✅ Check:</p>
+<ul>
+<li>IAM role (<code>metricWriter</code>)</li>
+<li>Correct project</li>
+<li>Correct metric type</li>
+</ul>
+<hr />
+<h2 id="-common-ace-exam-traps">🔟 Common ACE exam traps</h2>
+<p>❌ Using logs directly for alerting<br />
+❌ Forgetting to create log-based metric first<br />
+❌ Missing <code>monitoring.metricWriter</code> role<br />
+❌ Creating custom metric when built-in metric exists</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Built-in first, custom if needed</strong></li>
+<li><strong>Logs → log-based metric → alert</strong></li>
+<li><strong>App metrics → Monitoring API</strong></li>
+<li><strong>IAM required for ingestion</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

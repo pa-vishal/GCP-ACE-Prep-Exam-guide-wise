@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B. Planning and executing infrastructure as code deployments</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-versioning-iac-exam-framing">2️⃣ Versioning IaC (exam framing)</a></li>
+<li><a href="#3-state-management-very-exam-relevant">3️⃣ State management (VERY exam-relevant)</a></li>
+<li><a href="#4-updates--lifecycle-exam-favorite">4️⃣ Updates &amp; lifecycle (EXAM FAVORITE)</a></li>
+<li><a href="#5-drift-detection-important-concept">5️⃣ Drift detection (important concept)</a></li>
+<li><a href="#6-rollbacks--recovery-exam-awareness">6️⃣ Rollbacks &amp; recovery (exam awareness)</a></li>
+<li><a href="#7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#8-decision-table-memorize">8️⃣ Decision table (MEMORIZE)</a></li>
+<li><a href="#9-common-ace-exam-traps">9️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.4 – Planning and executing infrastructure as code (IaC) deployments</strong></p>
+<p><em>(versioning, state management, updates)</em></p>
+<p><img alt="Image" src="https://cdn.prod.website-files.com/644656ba41efb6b601e93ca6/666ca94313bc92617e6eb9fa_AD_4nXe-5_WQu-YNEB3tjjsejMPFliYTzRNjfX5D4sBknnJ9T-25KaQ1UAv3JsxDelee3icN2knxbdR7O6Upx--gqbvpij3hpWqgifxPez8_0ZtHflV45C1BsL3Wzs_tSLjn7WhK9JoiuY6EAd3gAtPfFU3-HaJ-.png" /></p>
+<p><img alt="Image" src="https://f.hubspotusercontent10.net/hubfs/6897318/Blog/Infrastructure-as-code-scheme.png" /></p>
+<p><img alt="Image" src="https://www.researchgate.net/publication/385642360/figure/fig3/AS%3A11431281289184829%401731051358040/GitOps-workflow-Kamath-et-al-2023-Three-Components-of-GitOps-Workflows-Infrastructure.jpg" /></p>
+<p>This bullet is about <strong>how IaC is operated safely over time</strong>, not how to write templates. The ACE exam checks whether you understand <strong>why versioning and state exist, what can go wrong, and how updates are applied without breaking environments</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Explain <strong>why IaC must be versioned</strong></li>
+<li>Understand <strong>what state is and why it matters</strong></li>
+<li>Recognize <strong>safe vs unsafe update patterns</strong></li>
+<li>Avoid manual changes that cause drift</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“How do teams safely change infrastructure repeatedly?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-versioning-iac-exam-framing">2️⃣ Versioning IaC (exam framing)</h2>
+<h3 id="what-versioning-means">What versioning means</h3>
+<ul>
+<li>Store IaC code in <strong>version control</strong> (Git)</li>
+<li>
+<p>Track:</p>
+</li>
+<li>
+<p>What changed</p>
+</li>
+<li>When</li>
+<li>Why</li>
+<li>
+<p>Enables:</p>
+</li>
+<li>
+<p>Rollbacks</p>
+</li>
+<li>Audits</li>
+<li>Collaboration</li>
+</ul>
+<h3 id="exam-signals">Exam signals</h3>
+<ul>
+<li>“Track changes”</li>
+<li>“Rollback”</li>
+<li>“Multiple environments”</li>
+<li>“Collaboration”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+IaC without version control defeats the purpose.</p>
+</blockquote>
+<hr />
+<h2 id="3-state-management-very-exam-relevant">3️⃣ State management (VERY exam-relevant)</h2>
+<h3 id="what-state-is">What “state” is</h3>
+<ul>
+<li>
+<p>A record of:</p>
+</li>
+<li>
+<p>Resources that exist</p>
+</li>
+<li>Their current configuration</li>
+<li>
+<p>Used to:</p>
+</li>
+<li>
+<p>Detect drift</p>
+</li>
+<li>Calculate updates</li>
+</ul>
+<h3 id="terraform-example-conceptual">Terraform example (conceptual)</h3>
+<ul>
+<li><code>.tfstate</code> file tracks real resources</li>
+<li>Compared against desired config</li>
+</ul>
+<hr />
+<h3 id="local-vs-remote-state-exam-level">Local vs remote state (exam-level)</h3>
+<table>
+<thead>
+<tr>
+<th>State type</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local state</td>
+<td>Solo developer, experiments</td>
+</tr>
+<tr>
+<td>Remote state</td>
+<td>Teams, CI/CD</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Common remote backends</strong></p>
+<ul>
+<li>Cloud Storage</li>
+<li>Terraform Cloud</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Multiple people using local state → conflicts &amp; corruption</p>
+</blockquote>
+<hr />
+<h2 id="4-updates--lifecycle-exam-favorite">4️⃣ Updates &amp; lifecycle (EXAM FAVORITE)</h2>
+<h3 id="how-updates-work">How updates work</h3>
+<ol>
+<li>Change IaC code</li>
+<li>Plan (preview changes)</li>
+<li>Apply changes safely</li>
+</ol>
+<h3 id="terraform-commands-recognition-level">Terraform commands (recognition-level)</h3>
+<pre><code class="language-bash">terraform plan
+terraform apply
+</code></pre>
+<blockquote>
+<p><strong>Exam note:</strong><br />
+You’re tested on <strong>the concept of planning before applying</strong>, not command syntax.</p>
+</blockquote>
+<hr />
+<h3 id="safe-updates">Safe updates</h3>
+<ul>
+<li>Incremental</li>
+<li>Predictable</li>
+<li>Reviewed via plan output</li>
+</ul>
+<h3 id="unsafe-updates-exam-traps">Unsafe updates (exam traps)</h3>
+<p>❌ Manual changes in Console<br />
+❌ Editing live resources directly<br />
+❌ Ignoring plan output</p>
+<hr />
+<h2 id="5-drift-detection-important-concept">5️⃣ Drift detection (important concept)</h2>
+<h3 id="what-drift-is">What drift is</h3>
+<ul>
+<li>Real infrastructure ≠ IaC definition</li>
+</ul>
+<h3 id="causes">Causes</h3>
+<ul>
+<li>Manual console edits</li>
+<li>Emergency fixes outside IaC</li>
+</ul>
+<h3 id="why-its-bad">Why it’s bad</h3>
+<ul>
+<li>
+<p>Next apply may:</p>
+</li>
+<li>
+<p>Undo changes</p>
+</li>
+<li>Destroy resources</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Unexpected changes after apply” → drift</p>
+</blockquote>
+<hr />
+<h2 id="6-rollbacks--recovery-exam-awareness">6️⃣ Rollbacks &amp; recovery (exam awareness)</h2>
+<ul>
+<li>
+<p>Rollbacks are done by:</p>
+</li>
+<li>
+<p>Reverting IaC code</p>
+</li>
+<li>Reapplying</li>
+<li>Not by editing resources manually</li>
+</ul>
+<blockquote>
+<p><strong>ACE principle:</strong><br />
+<strong>Infrastructure changes flow from code → cloud</strong>, never the reverse.</p>
+</blockquote>
+<hr />
+<h2 id="7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Multiple engineers deploying infrastructure safely”</p>
+</blockquote>
+<p>✅ <strong>Remote state + version control</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Need to preview changes before deployment”</p>
+</blockquote>
+<p>✅ <strong>Plan step</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Infrastructure behaves unexpectedly after manual change”</p>
+</blockquote>
+<p>✅ <strong>State drift</strong></p>
+<hr />
+<h2 id="8-decision-table-memorize">8️⃣ Decision table (MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Best Practice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Team collaboration</td>
+<td>Remote state</td>
+</tr>
+<tr>
+<td>Change visibility</td>
+<td>Version control</td>
+</tr>
+<tr>
+<td>Safe updates</td>
+<td>Plan before apply</td>
+</tr>
+<tr>
+<td>Avoid drift</td>
+<td>No manual changes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-common-ace-exam-traps">9️⃣ Common ACE exam traps</h2>
+<p>❌ Manual edits outside IaC<br />
+❌ Sharing local state files<br />
+❌ Skipping plan step<br />
+❌ Treating IaC as one-time setup</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Code is the source of truth</strong></li>
+<li><strong>State tracks reality</strong></li>
+<li><strong>Plan before apply</strong></li>
+<li><strong>Manual changes cause drift</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

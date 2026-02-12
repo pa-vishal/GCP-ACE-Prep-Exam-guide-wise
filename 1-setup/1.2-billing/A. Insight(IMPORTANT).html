@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A. Insight(IMPORTANT)</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#-the-ace-failure-diagnosis-mental-model-order-matters">🎯 The ACE Failure-Diagnosis Mental Model (ORDER MATTERS)</a></li>
+<li><a href="#-1.-billing-account-not-linked-most-common">🥇 1. Billing account NOT linked (MOST COMMON)</a></li>
+<li><a href="#-2.-required-api-not-enabled">🥈 2. Required API NOT enabled</a></li>
+<li><a href="#-3.-iam-permissions-missing-or-wrong">🥉 3. IAM permissions missing or wrong</a></li>
+<li><a href="#-4.-quota-exhausted-very-common-after-scaling">🟦 4. Quota exhausted (VERY common after scaling)</a></li>
+<li><a href="#-5.-location--availability-mismatch">🟪 5. Location / availability mismatch</a></li>
+<li><a href="#-6.-organization-policy-restriction-advanced-but-tested">🟥 6. Organization Policy restriction (advanced but tested)</a></li>
+<li><a href="#-master-exam-order-memorize-this">🧠 MASTER EXAM ORDER (MEMORIZE THIS)</a></li>
+<li><a href="#-one-line-ace-memory-hook">🔑 One-line ACE memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿Excellent question. This is <strong>exactly how the ACE exam is structured</strong>: same symptom, different root causes. The exam is really testing whether you can <strong>mentally triage failures in the correct order</strong>.</p>
+<p>We are still inside <strong>Section 1.2 → Creating one or more billing accounts</strong>, and this clarification <strong>will be included in the Section HTML</strong>.</p>
+<hr />
+<h2 id="-the-ace-failure-diagnosis-mental-model-order-matters">🎯 The ACE Failure-Diagnosis Mental Model (ORDER MATTERS)</h2>
+<p>When the exam says something like:</p>
+<blockquote>
+<p>“A new project is created but resources fail to start / deploy / work”</p>
+</blockquote>
+<p>You should <strong>mentally run this checklist in order</strong>. This order reflects <strong>how often the exam expects each cause</strong>.</p>
+<hr />
+<h2 id="-1.-billing-account-not-linked-most-common">🥇 1. Billing account NOT linked (MOST COMMON)</h2>
+<h3 id="symptom">Symptom</h3>
+<ul>
+<li>VM won’t start</li>
+<li>GKE / Cloud Run deployment fails immediately</li>
+<li>Error mentions billing or payment</li>
+</ul>
+<h3 id="root-cause">Root cause</h3>
+<ul>
+<li>Project exists</li>
+<li>APIs enabled</li>
+<li>IAM correct</li>
+<li><strong>But no billing account linked</strong></li>
+</ul>
+<h3 id="why-this-is-1">Why this is #1</h3>
+<ul>
+<li>New projects <strong>do not auto-link billing</strong></li>
+<li>Exam loves this trap</li>
+</ul>
+<h3 id="exam-phrasing-clues">Exam phrasing clues</h3>
+<ul>
+<li>“New project”</li>
+<li>“Resources fail immediately”</li>
+<li>“Everything seems configured”</li>
+</ul>
+<p>👉 <strong>First thing to check: Billing</strong></p>
+<hr />
+<h2 id="-2.-required-api-not-enabled">🥈 2. Required API NOT enabled</h2>
+<h3 id="symptom_1">Symptom</h3>
+<ul>
+<li>Permission-like errors</li>
+<li>“API has not been used in project”</li>
+<li>Service-specific failure</li>
+</ul>
+<h3 id="root-cause_1">Root cause</h3>
+<ul>
+<li>Billing linked</li>
+<li>IAM correct</li>
+<li><strong>Service API disabled</strong></li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li>VM creation → Compute Engine API disabled</li>
+<li>GKE → Container API disabled</li>
+<li>Cloud Run → Run API disabled</li>
+</ul>
+<h3 id="exam-phrasing-clues_1">Exam phrasing clues</h3>
+<ul>
+<li>Mentions a <strong>specific service</strong></li>
+<li>Mentions “first time” or “new project”</li>
+</ul>
+<p>👉 <strong>Second thing to check: APIs</strong></p>
+<hr />
+<h2 id="-3.-iam-permissions-missing-or-wrong">🥉 3. IAM permissions missing or wrong</h2>
+<h3 id="symptom_2">Symptom</h3>
+<ul>
+<li>Explicit “permission denied”</li>
+<li>User/service account cannot perform action</li>
+</ul>
+<h3 id="root-cause_2">Root cause</h3>
+<ul>
+<li>Billing linked</li>
+<li>API enabled</li>
+<li><strong>IAM role missing / wrong scope</strong></li>
+</ul>
+<h3 id="examples_1">Examples</h3>
+<ul>
+<li>User lacks <code>compute.admin</code></li>
+<li>Service account lacks <code>storage.objectAdmin</code></li>
+</ul>
+<h3 id="exam-phrasing-clues_2">Exam phrasing clues</h3>
+<ul>
+<li>Mentions <strong>who</strong> is performing the action</li>
+<li>Mentions “access denied”</li>
+</ul>
+<p>👉 <strong>Third thing to check: IAM</strong></p>
+<hr />
+<h2 id="-4.-quota-exhausted-very-common-after-scaling">🟦 4. Quota exhausted (VERY common after scaling)</h2>
+<h3 id="symptom_3">Symptom</h3>
+<ul>
+<li>Deployment worked before</li>
+<li>Suddenly fails when scaling</li>
+<li>Error mentions “quota exceeded” or “resource exhausted”</li>
+</ul>
+<h3 id="root-cause_3">Root cause</h3>
+<ul>
+<li>Everything configured correctly</li>
+<li><strong>Quota limit hit</strong></li>
+</ul>
+<h3 id="examples_2">Examples</h3>
+<ul>
+<li>CPU quota per region</li>
+<li>IP address quota</li>
+<li>Load balancer quota</li>
+</ul>
+<h3 id="exam-phrasing-clues_3">Exam phrasing clues</h3>
+<ul>
+<li>“After scaling”</li>
+<li>“Suddenly fails”</li>
+<li>“Limit reached”</li>
+</ul>
+<p>👉 <strong>Fourth thing to check: Quotas</strong></p>
+<hr />
+<h2 id="-5.-location--availability-mismatch">🟪 5. Location / availability mismatch</h2>
+<h3 id="symptom_4">Symptom</h3>
+<ul>
+<li>Service cannot be created in selected region</li>
+<li>“Service not available in this region”</li>
+</ul>
+<h3 id="root-cause_4">Root cause</h3>
+<ul>
+<li>Service does not exist in that region</li>
+<li>Zonal vs regional mismatch</li>
+</ul>
+<h3 id="examples_3">Examples</h3>
+<ul>
+<li>Trying to deploy a service in unsupported region</li>
+<li>Expecting zonal HA behavior</li>
+</ul>
+<h3 id="exam-phrasing-clues_4">Exam phrasing clues</h3>
+<ul>
+<li>Mentions <strong>region or zone</strong></li>
+<li>Mentions availability or locality</li>
+</ul>
+<p>👉 <strong>Fifth thing to check: Region / scope</strong></p>
+<hr />
+<h2 id="-6.-organization-policy-restriction-advanced-but-tested">🟥 6. Organization Policy restriction (advanced but tested)</h2>
+<h3 id="symptom_5">Symptom</h3>
+<ul>
+<li>Action denied despite correct IAM</li>
+<li>No obvious permission error</li>
+<li>Consistent failure across projects</li>
+</ul>
+<h3 id="root-cause_5">Root cause</h3>
+<ul>
+<li>Org Policy blocks the configuration</li>
+</ul>
+<h3 id="examples_4">Examples</h3>
+<ul>
+<li>External IPs blocked</li>
+<li>Restricted regions</li>
+<li>Restricted machine types</li>
+</ul>
+<h3 id="exam-phrasing-clues_5">Exam phrasing clues</h3>
+<ul>
+<li>“Company-wide restriction”</li>
+<li>“Security policy”</li>
+<li>“Prevent creation”</li>
+</ul>
+<p>👉 <strong>Sixth thing to check: Org Policies</strong></p>
+<hr />
+<h2 id="-master-exam-order-memorize-this">🧠 MASTER EXAM ORDER (MEMORIZE THIS)</h2>
+<p>When <strong>resources fail</strong>, check in this order:</p>
+<pre><code>1. Billing
+2. API enabled
+3. IAM
+4. Quotas
+5. Region / availability
+6. Org Policy
+</code></pre>
+<p>This order will correctly answer <strong>~90% of ACE failure scenarios</strong>.</p>
+<hr />
+<h2 id="-one-line-ace-memory-hook">🔑 One-line ACE memory hook</h2>
+<blockquote>
+<p><strong>Money → API → Permission → Capacity → Location → Policy</strong></p>
+</blockquote>
+<hr />
+<p>If you want, next we can:</p>
+<ul>
+<li>Do <strong>5 exam-style questions</strong> where you practice identifying the root cause<br />
+  or</li>
+<li>Move on to the <strong>next bullet under Section 1.2</strong></li>
+</ul>
+<p>Just tell me how you want to proceed.</p>
+    </div>
+  </div>
+</body>
+
+</html>

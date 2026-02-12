@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B. Viewing current running Compute Engine instances</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#viewing-current-running-compute-engine-instances">Viewing current running Compute Engine instances</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-where-you-can-view-running-instances">2️⃣ Where you can view running instances</a></li>
+<li><a href="#3-understanding-vm-states-must-know">3️⃣ Understanding VM states (MUST know)</a></li>
+<li><a href="#4-scope--permissions-exam-awareness">4️⃣ Scope &amp; permissions (exam awareness)</a></li>
+<li><a href="#5-common-ace-exam-scenarios">5️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#6-common-ace-exam-traps">6️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.1 – Managing compute resources</strong></p>
+<h4 id="viewing-current-running-compute-engine-instances"><strong>Viewing current running Compute Engine instances</strong></h4>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/compute/images/operations_console.png" /></p>
+<p><img alt="Image" src="https://i.sstatic.net/oRIFi.jpg" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/scheduler/docs/images/scheduling-instances-architecture-pubsub.png" /></p>
+<p>This bullet tests whether you can <strong>quickly assess what is running, where it’s running, and in what state</strong>. On the ACE exam, this often appears as <strong>triage</strong>: “What’s running right now?” before deciding what to fix.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>List <strong>current VMs</strong> in a project</li>
+<li>Identify <strong>state</strong> (RUNNING, TERMINATED)</li>
+<li>Understand <strong>scope</strong> (project, zone)</li>
+<li>Choose <strong>CLI vs Console</strong> appropriately</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Before troubleshooting or changing anything—what’s actually running?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-where-you-can-view-running-instances">2️⃣ Where you can view running instances</h2>
+<h3 id="-a.-cloud-console-visual-quick-checks">🖥️ A. Cloud Console (visual, quick checks)</h3>
+<p><strong>What you see</strong></p>
+<ul>
+<li>VM name</li>
+<li>Status (Running / Stopped)</li>
+<li>Zone</li>
+<li>Internal / external IPs</li>
+<li>Machine type</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Quick visual inspection</li>
+<li>Small environments</li>
+<li>Verifying status before/after changes</li>
+</ul>
+<blockquote>
+<p><strong>Exam reality:</strong><br />
+Console is acceptable—but <strong>CLI is often implied</strong> in ops scenarios.</p>
+</blockquote>
+<hr />
+<h3 id="-b.-gcloud-cli-most-tested">⌨️ B. gcloud CLI (MOST TESTED)</h3>
+<h4 id="list-all-instances-in-the-current-project">List all instances in the current project</h4>
+<pre><code class="language-bash">gcloud compute instances list
+</code></pre>
+<p><strong>Output includes</strong></p>
+<ul>
+<li>NAME</li>
+<li>ZONE</li>
+<li>MACHINE_TYPE</li>
+<li>INTERNAL_IP</li>
+<li>EXTERNAL_IP</li>
+<li>STATUS</li>
+</ul>
+<hr />
+<h4 id="filter-only-running-instances">Filter only running instances</h4>
+<pre><code class="language-bash">gcloud compute instances list \
+  --filter=&quot;status=RUNNING&quot;
+</code></pre>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“View currently running instances” → <strong>filter by status</strong></p>
+</blockquote>
+<hr />
+<h4 id="list-instances-in-a-specific-zone">List instances in a specific zone</h4>
+<pre><code class="language-bash">gcloud compute instances list \
+  --filter=&quot;zone:us-central1-a&quot;
+</code></pre>
+<hr />
+<h2 id="3-understanding-vm-states-must-know">3️⃣ Understanding VM states (MUST know)</h2>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RUNNING</strong></td>
+<td>VM is active and billable</td>
+</tr>
+<tr>
+<td><strong>TERMINATED</strong></td>
+<td>VM stopped (disk persists)</td>
+</tr>
+<tr>
+<td><strong>PROVISIONING / STAGING</strong></td>
+<td>VM starting</td>
+</tr>
+<tr>
+<td><strong>STOPPING</strong></td>
+<td>VM shutting down</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+TERMINATED VMs <strong>do not incur CPU charges</strong>, but disks still cost money.</p>
+</blockquote>
+<hr />
+<h2 id="4-scope--permissions-exam-awareness">4️⃣ Scope &amp; permissions (exam awareness)</h2>
+<ul>
+<li>
+<p>VM listing is:</p>
+</li>
+<li>
+<p><strong>Project-scoped</strong></p>
+</li>
+<li>
+<p>Requires:</p>
+<ul>
+<li><code>compute.instances.list</code> permission</li>
+<li>Project Viewer can list instances</li>
+<li>Billing access is <strong>not required</strong> just to view</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“User can’t see instances” → missing IAM permission</p>
+</blockquote>
+<hr />
+<h2 id="5-common-ace-exam-scenarios">5️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Operations team wants to see which VMs are currently running”</p>
+</blockquote>
+<p>✅ <strong>gcloud compute instances list --filter="status=RUNNING"</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Identify which VMs are incurring compute charges”</p>
+</blockquote>
+<p>✅ <strong>RUNNING instances only</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“VM exists but cannot be connected to”</p>
+</blockquote>
+<p>✅ First step:</p>
+<ul>
+<li>Confirm <strong>status = RUNNING</strong></li>
+</ul>
+<hr />
+<h2 id="6-common-ace-exam-traps">6️⃣ Common ACE exam traps</h2>
+<p>❌ Forgetting to filter by status<br />
+❌ Assuming stopped VMs are deleted<br />
+❌ Confusing project scope with organization scope<br />
+❌ Thinking billing permission is needed to view VMs</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>RUNNING = billing</strong></li>
+<li><strong>TERMINATED ≠ deleted</strong></li>
+<li><strong>List first, troubleshoot second</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

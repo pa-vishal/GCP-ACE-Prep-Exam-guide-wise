@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B. Managing the various role types and defining custom IAM roles</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#4.1-managing-identity-and-access-management-iam">4.1 Managing Identity and Access Management (IAM)</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿Excellent — this is a <strong>very testable IAM concept</strong>.</p>
+<h1 id="section-4--configuring-access-and-security"><strong>Section 4 – Configuring access and security</strong></h1>
+<h2 id="4.1-managing-identity-and-access-management-iam"><strong>4.1 Managing Identity and Access Management (IAM)</strong></h2>
+<h3 id="managing-the-various-role-types-and-defining-custom-iam-roles-basic-predefined-custom"><strong>Managing the various role types and defining custom IAM roles (basic, predefined, custom)</strong></h3>
+<p>This bullet tests whether you understand <strong>role selection strategy</strong>, not how to write YAML.</p>
+<hr />
+<h1 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h1>
+<p>You should be able to:</p>
+<ul>
+<li>
+<p>Differentiate:</p>
+</li>
+<li>
+<p>Basic roles</p>
+</li>
+<li>Predefined roles</li>
+<li>Custom roles</li>
+<li>Choose the safest option</li>
+<li>Apply <strong>least privilege</strong></li>
+<li>Recognize when custom roles are appropriate</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“What is the safest role that satisfies this requirement?”</em></p>
+</blockquote>
+<hr />
+<h1 id="2-the-three-role-types-must-memorize">2️⃣ The Three Role Types (MUST MEMORIZE)</h1>
+<table>
+<thead>
+<tr>
+<th>Role Type</th>
+<th>Scope</th>
+<th>Recommended?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Basic</td>
+<td>Project-wide</td>
+<td>❌ Avoid</td>
+</tr>
+<tr>
+<td>Predefined</td>
+<td>Service-specific</td>
+<td>✅ Preferred</td>
+</tr>
+<tr>
+<td>Custom</td>
+<td>User-defined</td>
+<td>⚠️ When needed</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="3-basic-roles-legacy--high-risk">3️⃣ Basic Roles (Legacy – High Risk)</h1>
+<h3 id="examples">Examples:</h3>
+<ul>
+<li>Owner</li>
+<li>Editor</li>
+<li>Viewer</li>
+</ul>
+<h3 id="why-they-are-risky">Why they are risky:</h3>
+<ul>
+<li>Broad permissions</li>
+<li>Apply to entire project</li>
+<li>Not granular</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Avoid basic roles unless question explicitly says “full project control.”</p>
+</blockquote>
+<hr />
+<h3 id="exam-trap">Exam trap:</h3>
+<p>If question says:</p>
+<blockquote>
+<p>“Grant access to manage Cloud Run only”</p>
+</blockquote>
+<p>❌ Editor<br />
+✅ <code>roles/run.admin</code></p>
+<hr />
+<h1 id="4-predefined-roles-default-answer">4️⃣ Predefined Roles (DEFAULT ANSWER)</h1>
+<p>Predefined roles:</p>
+<ul>
+<li>Created and maintained by Google</li>
+<li>Service-specific</li>
+<li>Granular</li>
+</ul>
+<h3 id="examples_1">Examples:</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Role Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compute</td>
+<td><code>roles/compute.admin</code></td>
+</tr>
+<tr>
+<td>Storage</td>
+<td><code>roles/storage.objectViewer</code></td>
+</tr>
+<tr>
+<td>Cloud Run</td>
+<td><code>roles/run.invoker</code></td>
+</tr>
+<tr>
+<td>IAM</td>
+<td><code>roles/iam.serviceAccountUser</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Use predefined roles unless explicitly limited.</p>
+</blockquote>
+<hr />
+<h1 id="5-custom-roles-when-to-use">5️⃣ Custom Roles (When to Use)</h1>
+<p>Custom roles:</p>
+<ul>
+<li>Created by organization</li>
+<li>Combine selected permissions</li>
+<li>Used when predefined roles are too broad</li>
+</ul>
+<h3 id="example-use-case">Example use case:</h3>
+<p>User needs:</p>
+<ul>
+<li>Compute start/stop</li>
+<li>No ability to delete</li>
+</ul>
+<p>No predefined role fits → create custom role.</p>
+<hr />
+<h1 id="6-custom-role-characteristics-exam-awareness">6️⃣ Custom Role Characteristics (Exam Awareness)</h1>
+<p>Custom roles:</p>
+<ul>
+<li>
+<p>Created at:</p>
+</li>
+<li>
+<p>Organization level</p>
+</li>
+<li>Project level</li>
+<li>
+<p>Contain:</p>
+</li>
+<li>
+<p>Specific permissions</p>
+</li>
+<li>Do NOT automatically update when Google adds new permissions</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Custom roles require maintenance.</p>
+</blockquote>
+<hr />
+<h1 id="7-choosing-the-right-role-decision-logic">7️⃣ Choosing the Right Role (Decision Logic)</h1>
+<h3 id="step-1">Step 1:</h3>
+<p>Is there a predefined role that fits?</p>
+<p>→ YES → Use predefined</p>
+<h3 id="step-2">Step 2:</h3>
+<p>Is predefined too broad?</p>
+<p>→ YES → Consider custom role</p>
+<h3 id="step-3">Step 3:</h3>
+<p>Does user need full project control?</p>
+<p>→ Rare → Basic role</p>
+<hr />
+<h1 id="8-organization-vs-project-level-custom-roles">8️⃣ Organization vs Project-level Custom Roles</h1>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Visibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Org-level</td>
+<td>Usable across projects</td>
+</tr>
+<tr>
+<td>Project-level</td>
+<td>Only within that project</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE signal:</strong><br />
+“Used across multiple projects” → Org-level custom role</p>
+</blockquote>
+<hr />
+<h1 id="9-common-ace-exam-scenarios">9️⃣ Common ACE Exam Scenarios</h1>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“User needs to invoke Cloud Run service only”</p>
+</blockquote>
+<p>✅ <code>roles/run.invoker</code></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“User should manage Compute but not IAM”</p>
+</blockquote>
+<p>❌ Editor<br />
+✅ <code>roles/compute.admin</code></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Predefined role gives too many permissions”</p>
+</blockquote>
+<p>✅ Create custom role</p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Security team wants standardized roles across org”</p>
+</blockquote>
+<p>✅ Org-level custom roles</p>
+<hr />
+<h1 id="-common-ace-exam-traps">🔟 Common ACE Exam Traps</h1>
+<p>❌ Defaulting to Editor<br />
+❌ Granting Owner for convenience<br />
+❌ Creating custom role unnecessarily<br />
+❌ Forgetting custom roles don’t auto-update<br />
+❌ Granting project-level when resource-level is enough</p>
+<hr />
+<h1 id="-one-line-ace-memory-hooks">🔑 One-line ACE Memory Hooks</h1>
+<ul>
+<li><strong>Basic = broad</strong></li>
+<li><strong>Predefined = preferred</strong></li>
+<li><strong>Custom = precise</strong></li>
+<li><strong>Least privilege always</strong></li>
+<li><strong>Avoid Editor unless absolutely necessary</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G. Using Database Center to manage the Google Cloud database fleet</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#using-database-center-to-manage-the-google-cloud-database-fleet">Using Database Center to manage the Google Cloud database fleet</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-what-database-center-is-foundational">2️⃣ What Database Center is (FOUNDATIONAL)</a></li>
+<li><a href="#3-databases-covered-exam-awareness">3️⃣ Databases covered (EXAM AWARENESS)</a></li>
+<li><a href="#4-what-you-can-do-in-database-center">4️⃣ What you can do in Database Center</a></li>
+<li><a href="#5-iam--access-model-exam-level">5️⃣ IAM &amp; access model (exam-level)</a></li>
+<li><a href="#6-typical-ace-exam-scenarios">6️⃣ Typical ACE exam scenarios</a></li>
+<li><a href="#7-how-database-center-fits-with-other-tools">7️⃣ How Database Center fits with other tools</a></li>
+<li><a href="#8-common-ace-exam-traps">8️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.2 – Managing storage resources</strong></p>
+<h4 id="using-database-center-to-manage-the-google-cloud-database-fleet"><strong>Using Database Center to manage the Google Cloud database fleet</strong></h4>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/database-center/images/database-center-overview-page.png" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/original_images/1_zYPWCL2.gif" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Which-Database_v03-22-23.max-2000x2000.jpg" /></p>
+<p>This bullet is about <strong>centralized visibility and governance</strong> for databases. The ACE exam tests whether you know <strong>what Database Center is</strong>, <strong>what problems it solves</strong>, and <strong>when to use it</strong>—not how to configure databases from scratch.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Explain <strong>what Database Center provides</strong></li>
+<li>Identify <strong>which databases appear there</strong></li>
+<li>Use it for <strong>inventory, health, and posture</strong>, not querying data</li>
+<li>Recognize it as a <strong>fleet-management tool</strong>, not a database engine</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“How do I get a single view of all databases across projects?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-what-database-center-is-foundational">2️⃣ What Database Center is (FOUNDATIONAL)</h2>
+<p><strong>Database Center</strong> is a <strong>centralized management and observability hub</strong> for Google Cloud databases.</p>
+<p>It provides:</p>
+<ul>
+<li><strong>Fleet-wide inventory</strong> of databases</li>
+<li><strong>Health and configuration visibility</strong></li>
+<li><strong>Best-practice insights</strong> (security, availability)</li>
+<li>Cross-project view (with permissions)</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Database Center = <strong>visibility &amp; governance</strong>, not data access.</p>
+</blockquote>
+<hr />
+<h2 id="3-databases-covered-exam-awareness">3️⃣ Databases covered (EXAM AWARENESS)</h2>
+<p>Database Center can show (depending on rollout and permissions):</p>
+<ul>
+<li><strong>Cloud SQL</strong></li>
+<li><strong>AlloyDB</strong></li>
+<li><strong>Spanner</strong></li>
+<li><strong>Bigtable</strong></li>
+<li>(Other managed DB services as supported)</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Multiple database types across projects” → <strong>Database Center</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-what-you-can-do-in-database-center">4️⃣ What you can do in Database Center</h2>
+<h3 id="-you-can">✅ You CAN:</h3>
+<ul>
+<li>See <strong>all database instances</strong> in one place</li>
+<li>
+<p>View:</p>
+</li>
+<li>
+<p>Engine type</p>
+</li>
+<li>Region</li>
+<li>Configuration</li>
+<li>Availability posture</li>
+<li>
+<p>Identify:</p>
+</li>
+<li>
+<p>Missing backups</p>
+</li>
+<li>HA misconfigurations</li>
+<li>Security gaps</li>
+<li>Navigate to the underlying resource</li>
+</ul>
+<h3 id="-you-cannot">❌ You CANNOT:</h3>
+<ul>
+<li>Run SQL queries</li>
+<li>Replace database-specific consoles</li>
+<li>Perform application-level debugging</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Database Center ≠ query editor</p>
+</blockquote>
+<hr />
+<h2 id="5-iam--access-model-exam-level">5️⃣ IAM &amp; access model (exam-level)</h2>
+<ul>
+<li>
+<p>Access depends on:</p>
+</li>
+<li>
+<p>IAM permissions on the underlying database resources</p>
+</li>
+<li>No special “Database Center admin” role</li>
+<li>Visibility is <strong>permission-driven</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“User can’t see some databases” → IAM scope issue</p>
+</blockquote>
+<hr />
+<h2 id="6-typical-ace-exam-scenarios">6️⃣ Typical ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Operations team wants a single dashboard of all databases”</p>
+</blockquote>
+<p>✅ <strong>Database Center</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Find which databases lack backups or HA”</p>
+</blockquote>
+<p>✅ <strong>Database Center insights</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“List all Cloud SQL and Spanner instances across projects”</p>
+</blockquote>
+<p>✅ <strong>Database Center fleet view</strong></p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Run queries against multiple databases”</p>
+</blockquote>
+<p>❌ Not Database Center<br />
+✅ Use database-specific tools</p>
+<hr />
+<h2 id="7-how-database-center-fits-with-other-tools">7️⃣ How Database Center fits with other tools</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Database Center</td>
+<td>Fleet visibility &amp; governance</td>
+</tr>
+<tr>
+<td>Cloud SQL console</td>
+<td>Instance-level management</td>
+</tr>
+<tr>
+<td>BigQuery UI</td>
+<td>Query analytics data</td>
+</tr>
+<tr>
+<td>Monitoring</td>
+<td>Metrics &amp; alerts</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-common-ace-exam-traps">8️⃣ Common ACE exam traps</h2>
+<p>❌ Expecting Database Center to replace query tools<br />
+❌ Confusing it with Database Migration Service<br />
+❌ Assuming it grants access automatically<br />
+❌ Treating it as a backup or restore tool</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Database Center = fleet view</strong></li>
+<li><strong>Visibility, not queries</strong></li>
+<li><strong>Cross-project awareness</strong></li>
+<li><strong>Governance &amp; posture</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

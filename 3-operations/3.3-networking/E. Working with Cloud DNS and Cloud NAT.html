@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E. Working with Cloud DNS and Cloud NAT</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#working-with-cloud-dns-and-cloud-nat">Working with Cloud DNS and Cloud NAT</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-cloud-dns-name-resolution">2️⃣ Cloud DNS (NAME RESOLUTION)</a></li>
+<li><a href="#3-cloud-nat-outbound-internet-access">3️⃣ Cloud NAT (OUTBOUND INTERNET ACCESS)</a></li>
+<li><a href="#4-what-cloud-nat-does-not-do-exam-trap">4️⃣ What Cloud NAT does NOT do (EXAM TRAP)</a></li>
+<li><a href="#5-cloud-dns-vs-cloud-nat-must-memorize">5️⃣ Cloud DNS vs Cloud NAT (MUST MEMORIZE)</a></li>
+<li><a href="#6-how-they-work-together-exam-awareness">6️⃣ How they work together (EXAM AWARENESS)</a></li>
+<li><a href="#7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#8-common-ace-exam-traps">8️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.3 – Managing networking resources</strong></p>
+<h4 id="working-with-cloud-dns-and-cloud-nat"><strong>Working with Cloud DNS and Cloud NAT</strong></h4>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/image2_YjKkxEG.max-2000x2000.jpg" /></p>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A1400/1%2AeLbxLVIfRIhsJau70AvtiA.png" /></p>
+<p><img alt="Image" src="https://miro.medium.com/0%2Ad-i2Mnpi1iMgQbgA.png" /></p>
+<p>This bullet is <strong>very high-yield</strong> because it tests two things the ACE exam loves:</p>
+<ul>
+<li><strong>Name resolution (Cloud DNS)</strong></li>
+<li><strong>Outbound internet access without public IPs (Cloud NAT)</strong></li>
+</ul>
+<p>Most exam questions here are framed as <em>“it can’t resolve a name”</em> or <em>“private VMs can’t reach the internet”</em>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Explain <strong>what Cloud DNS does vs what Cloud NAT does</strong></li>
+<li>Know <strong>when each is required</strong></li>
+<li>Recognize <strong>private network scenarios</strong></li>
+<li>Avoid confusing <strong>inbound vs outbound connectivity</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Is this a name-resolution problem or an internet-egress problem?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-cloud-dns-name-resolution">2️⃣ Cloud DNS (NAME RESOLUTION)</h2>
+<h3 id="what-cloud-dns-is">What Cloud DNS is</h3>
+<ul>
+<li>A <strong>managed DNS service</strong></li>
+<li>Translates <strong>names → IP addresses</strong></li>
+<li>
+<p>Can be used for:</p>
+</li>
+<li>
+<p>Public DNS</p>
+</li>
+<li>Private DNS inside a VPC</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Cloud DNS solves <strong>“how do I find it?”</strong>, not <strong>“how do I reach it?”</strong></p>
+</blockquote>
+<hr />
+<h3 id="types-of-cloud-dns-zones-must-know">Types of Cloud DNS zones (MUST KNOW)</h3>
+<h4 id="-public-dns-zones">🌍 Public DNS zones</h4>
+<ul>
+<li>Internet-facing</li>
+<li>Used for websites and public APIs</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Public domain”</li>
+<li>“Website”</li>
+<li>“External users”</li>
+</ul>
+<hr />
+<h4 id="-private-dns-zones-very-important">🔒 Private DNS zones (VERY IMPORTANT)</h4>
+<ul>
+<li>Only visible <strong>inside a VPC</strong></li>
+<li>
+<p>Used for:</p>
+</li>
+<li>
+<p>Internal services</p>
+</li>
+<li>Private IP name resolution</li>
+<li>Hybrid environments</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Internal hostname”</li>
+<li>“Private service”</li>
+<li>“Not resolvable from internet”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Internal-only names → <strong>Private DNS zone</strong></p>
+</blockquote>
+<hr />
+<h3 id="cloud-dns-common-operations-exam-awareness">Cloud DNS common operations (exam awareness)</h3>
+<ul>
+<li>Create DNS zone</li>
+<li>Add record sets (A, CNAME, etc.)</li>
+<li>Associate private zone with VPC</li>
+</ul>
+<blockquote>
+<p>You are <strong>not tested</strong> on record syntax—only <strong>when to use DNS</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="3-cloud-nat-outbound-internet-access">3️⃣ Cloud NAT (OUTBOUND INTERNET ACCESS)</h2>
+<h3 id="what-cloud-nat-is">What Cloud NAT is</h3>
+<ul>
+<li>Provides <strong>outbound internet access</strong></li>
+<li>For resources <strong>without external IPs</strong></li>
+<li>Uses <strong>private IP → shared public IP translation</strong></li>
+</ul>
+<pre><code>Private VM → Cloud NAT → Internet
+</code></pre>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Cloud NAT = <strong>egress only</strong>, never inbound access.</p>
+</blockquote>
+<hr />
+<h3 id="when-cloud-nat-is-required-exam-favorite">When Cloud NAT is required (EXAM FAVORITE)</h3>
+<p>Use Cloud NAT when:</p>
+<ul>
+<li>VMs have <strong>no external IPs</strong></li>
+<li>
+<p>VMs must:</p>
+</li>
+<li>
+<p>Download packages</p>
+</li>
+<li>Call external APIs</li>
+<li>Reach the internet</li>
+<li>You want <strong>better security</strong></li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“No public IPs”</li>
+<li>“Private VM”</li>
+<li>“Outbound internet access required”</li>
+</ul>
+<hr />
+<h2 id="4-what-cloud-nat-does-not-do-exam-trap">4️⃣ What Cloud NAT does NOT do (EXAM TRAP)</h2>
+<p>❌ Does NOT allow inbound traffic<br />
+❌ Does NOT provide DNS<br />
+❌ Does NOT replace firewall rules</p>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+You still need <strong>firewall rules</strong> to allow egress traffic.</p>
+</blockquote>
+<hr />
+<h2 id="5-cloud-dns-vs-cloud-nat-must-memorize">5️⃣ Cloud DNS vs Cloud NAT (MUST MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name not resolving</td>
+<td><strong>Cloud DNS</strong></td>
+</tr>
+<tr>
+<td>Private VM can’t reach internet</td>
+<td><strong>Cloud NAT</strong></td>
+</tr>
+<tr>
+<td>External users can’t access VM</td>
+<td>External IP / Load Balancer</td>
+</tr>
+<tr>
+<td>Internal service name resolution</td>
+<td>Private DNS zone</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-how-they-work-together-exam-awareness">6️⃣ How they work together (EXAM AWARENESS)</h2>
+<p>Very common architecture:</p>
+<pre><code>Private VM
+ ├── Uses Private DNS to resolve names
+ └── Uses Cloud NAT to reach internet
+</code></pre>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Private VMs with no external IPs need updates” → <strong>DNS + NAT</strong></p>
+</blockquote>
+<hr />
+<h2 id="7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“VM has no external IP and cannot download updates”</p>
+</blockquote>
+<p>✅ <strong>Cloud NAT</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Internal services need name resolution using private IPs”</p>
+</blockquote>
+<p>✅ <strong>Cloud DNS (private zone)</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Public website domain not resolving”</p>
+</blockquote>
+<p>✅ <strong>Cloud DNS (public zone)</strong></p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“User expects Cloud NAT to allow inbound traffic”</p>
+</blockquote>
+<p>❌ Wrong<br />
+✅ Use Load Balancer or external IP</p>
+<hr />
+<h2 id="8-common-ace-exam-traps">8️⃣ Common ACE exam traps</h2>
+<p>❌ Using Cloud NAT for inbound access<br />
+❌ Expecting DNS to enable connectivity<br />
+❌ Forgetting firewall egress rules<br />
+❌ Using public DNS for internal services<br />
+❌ Assigning external IPs when NAT is required</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>DNS = names</strong></li>
+<li><strong>NAT = outbound internet</strong></li>
+<li><strong>Private VM + internet = NAT</strong></li>
+<li><strong>Internal names = private DNS</strong></li>
+<li><strong>NAT is outbound only</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

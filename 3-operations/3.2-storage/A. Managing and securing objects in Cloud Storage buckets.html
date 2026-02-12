@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A. Managing and securing objects in Cloud Storage buckets</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#managing-and-securing-objects-in-cloud-storage-buckets">Managing and securing objects in Cloud Storage buckets</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-cloud-storage-hierarchy-foundation">2️⃣ Cloud Storage hierarchy (foundation)</a></li>
+<li><a href="#3-access-control-models-must-know">3️⃣ Access control models (MUST KNOW)</a></li>
+<li><a href="#4-uniform-bucket-level-access-very-important">4️⃣ Uniform bucket-level access (VERY IMPORTANT)</a></li>
+<li><a href="#5-object-level-operations-exam-relevant">5️⃣ Object-level operations (exam-relevant)</a></li>
+<li><a href="#6-securing-object-access-key-exam-scenarios">6️⃣ Securing object access (KEY EXAM SCENARIOS)</a></li>
+<li><a href="#7-encryption-exam-awareness">7️⃣ Encryption (exam awareness)</a></li>
+<li><a href="#8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#9-common-ace-exam-traps">9️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.2 – Managing storage resources</strong></p>
+<h4 id="managing-and-securing-objects-in-cloud-storage-buckets"><strong>Managing and securing objects in Cloud Storage buckets</strong></h4>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/GCS_Folders_Product_Slides.max-2200x2200.jpg" /></p>
+<p><img alt="Image" src="https://media.licdn.com/dms/image/v2/D4D12AQFfAXD1WFNkvA/article-inline_image-shrink_1000_1488/article-inline_image-shrink_1000_1488/0/1727723095239?e=2147483647\&amp;t=R6O7JADgRyndbAQr2xX-mBbQmTjnpsxKeVJ1vXKPyjo\&amp;v=beta" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/architecture_with_GCP_services.max-1100x1100.png" /></p>
+<p><img alt="Image" src="https://miro.medium.com/1%2AlSHH8XPviwVQkSOXstVRUA.png" /></p>
+<p>This bullet is <strong>very high-yield</strong>. The ACE exam tests whether you can <strong>secure data at rest and in access paths</strong>, choose <strong>the right access control model</strong>, and <strong>avoid legacy or insecure patterns</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Manage <strong>objects inside buckets</strong></li>
+<li>Control <strong>who can access what</strong></li>
+<li>Choose <strong>IAM vs ACLs</strong> correctly</li>
+<li>Secure access <strong>without making buckets public</strong></li>
+<li>Recognize <strong>best practices</strong> vs legacy patterns</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Who can access this object, how, and for how long?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-cloud-storage-hierarchy-foundation">2️⃣ Cloud Storage hierarchy (foundation)</h2>
+<pre><code>Project
+ └── Bucket
+      └── Object(s)
+</code></pre>
+<p>Key facts:</p>
+<ul>
+<li>Buckets are <strong>globally unique</strong></li>
+<li>Objects inherit <strong>bucket-level permissions</strong></li>
+<li>Security is usually enforced at the <strong>bucket level</strong>, not per object</li>
+</ul>
+<hr />
+<h2 id="3-access-control-models-must-know">3️⃣ Access control models (MUST KNOW)</h2>
+<h3 id="-a.-iam-recommended--exam-default">✅ A. IAM (RECOMMENDED &amp; EXAM DEFAULT)</h3>
+<p><strong>How it works</strong></p>
+<ul>
+<li>
+<p>Grant roles to:</p>
+</li>
+<li>
+<p>Users</p>
+</li>
+<li>Groups</li>
+<li>Service accounts</li>
+<li>
+<p>Permissions apply at:</p>
+</li>
+<li>
+<p>Project</p>
+</li>
+<li>Bucket</li>
+</ul>
+<p><strong>Common roles</strong></p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>storage.objectViewer</code></td>
+<td>Read objects</td>
+</tr>
+<tr>
+<td><code>storage.objectCreator</code></td>
+<td>Upload objects</td>
+</tr>
+<tr>
+<td><code>storage.objectAdmin</code></td>
+<td>Full object control</td>
+</tr>
+<tr>
+<td><code>storage.admin</code></td>
+<td>Full bucket + object control</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If the question says <em>secure</em>, <em>recommended</em>, or <em>best practice</em> → <strong>IAM</strong></p>
+</blockquote>
+<hr />
+<h3 id="-b.-acls-legacy--recognition-only">⚠️ B. ACLs (LEGACY – recognition only)</h3>
+<p><strong>How they work</strong></p>
+<ul>
+<li>Per-object permissions</li>
+<li>Fine-grained but <strong>hard to manage</strong></li>
+</ul>
+<p><strong>Exam expectation</strong></p>
+<ul>
+<li>Know ACLs exist</li>
+<li>Know they are <strong>not recommended</strong></li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Do <strong>not</strong> choose ACLs unless the question explicitly requires them.</p>
+</blockquote>
+<hr />
+<h2 id="4-uniform-bucket-level-access-very-important">4️⃣ Uniform bucket-level access (VERY IMPORTANT)</h2>
+<h3 id="what-it-does">What it does</h3>
+<ul>
+<li><strong>Disables ACLs completely</strong></li>
+<li>Forces <strong>IAM-only access</strong></li>
+<li>Simplifies security model</li>
+</ul>
+<h3 id="enable-it-best-practice">Enable it (best practice)</h3>
+<pre><code class="language-bash">gcloud storage buckets update gs://my-bucket \
+  --uniform-bucket-level-access
+</code></pre>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Uniform bucket-level access = <strong>modern, secure default</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-object-level-operations-exam-relevant">5️⃣ Object-level operations (exam-relevant)</h2>
+<h3 id="upload-objects">Upload objects</h3>
+<pre><code class="language-bash">gcloud storage cp local.txt gs://my-bucket/
+</code></pre>
+<h3 id="list-objects">List objects</h3>
+<pre><code class="language-bash">gcloud storage ls gs://my-bucket/
+</code></pre>
+<h3 id="delete-objects">Delete objects</h3>
+<pre><code class="language-bash">gcloud storage rm gs://my-bucket/local.txt
+</code></pre>
+<blockquote>
+<p><strong>Exam note:</strong><br />
+You are tested on <strong>what is possible</strong>, not CLI memorization.</p>
+</blockquote>
+<hr />
+<h2 id="6-securing-object-access-key-exam-scenarios">6️⃣ Securing object access (KEY EXAM SCENARIOS)</h2>
+<h3 id="-a.-private-buckets-default--preferred">🔐 A. Private buckets (default &amp; preferred)</h3>
+<ul>
+<li>No public access</li>
+<li>IAM-controlled</li>
+</ul>
+<p><strong>Exam signal</strong></p>
+<ul>
+<li>“Sensitive data”</li>
+<li>“Internal access only”</li>
+</ul>
+<hr />
+<h3 id="-b.-signed-urls-temporary-access--exam-favorite">🔗 B. Signed URLs (TEMPORARY ACCESS – EXAM FAVORITE)</h3>
+<p><strong>What they are</strong></p>
+<ul>
+<li>Time-limited URLs</li>
+<li>Grant access <strong>without changing IAM</strong></li>
+<li>
+<p>Ideal for:</p>
+</li>
+<li>
+<p>Downloads</p>
+</li>
+<li>External users</li>
+<li>Temporary sharing</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Temporary access”</li>
+<li>“No IAM changes”</li>
+<li>“External client”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Temporary access → <strong>Signed URL</strong></p>
+</blockquote>
+<hr />
+<h3 id="-c.-public-access-use-with-caution">🌍 C. Public access (USE WITH CAUTION)</h3>
+<ul>
+<li>Makes objects publicly readable</li>
+<li>Not secure for sensitive data</li>
+</ul>
+<p><strong>Exam signal</strong></p>
+<ul>
+<li>“Public website assets”</li>
+<li>“Images accessible by anyone”</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Never make a bucket public unless explicitly stated.</p>
+</blockquote>
+<hr />
+<h2 id="7-encryption-exam-awareness">7️⃣ Encryption (exam awareness)</h2>
+<h3 id="default-behavior">Default behavior</h3>
+<ul>
+<li>All objects are <strong>encrypted at rest by Google</strong></li>
+</ul>
+<h3 id="optional">Optional</h3>
+<ul>
+<li>Customer-managed keys (CMEK)</li>
+</ul>
+<p><strong>ACE expectation</strong></p>
+<ul>
+<li>Know encryption is <strong>on by default</strong></li>
+<li>CMEK only if explicitly required</li>
+</ul>
+<hr />
+<h2 id="8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Securely store files and allow only a service account to read them”</p>
+</blockquote>
+<p>✅ <strong>IAM role: storage.objectViewer</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Grant a customer access to a file for 10 minutes”</p>
+</blockquote>
+<p>✅ <strong>Signed URL</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Simplify access control and remove ACL complexity”</p>
+</blockquote>
+<p>✅ <strong>Enable uniform bucket-level access</strong></p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Host public images for a website”</p>
+</blockquote>
+<p>✅ <strong>Public access (only if explicitly stated)</strong></p>
+<hr />
+<h2 id="9-common-ace-exam-traps">9️⃣ Common ACE exam traps</h2>
+<p>❌ Using ACLs instead of IAM<br />
+❌ Making buckets public unnecessarily<br />
+❌ Granting <code>storage.admin</code> when <code>objectViewer</code> is enough<br />
+❌ Forgetting uniform bucket-level access<br />
+❌ Assuming signed URLs require IAM changes</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>IAM &gt; ACLs</strong></li>
+<li><strong>Uniform access = best practice</strong></li>
+<li><strong>Signed URL = temporary access</strong></li>
+<li><strong>Private by default</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

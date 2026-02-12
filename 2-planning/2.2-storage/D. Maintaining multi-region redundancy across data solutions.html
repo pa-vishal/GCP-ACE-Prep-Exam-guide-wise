@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D. Maintaining multi-region redundancy across data solutions</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-redundancy-levels-lock-this-in">2️⃣ Redundancy levels (lock this in)</a></li>
+<li><a href="#3-how-major-data-services-handle-redundancy">3️⃣ How major data services handle redundancy</a></li>
+<li><a href="#4-redundancy--backup-very-important">4️⃣ Redundancy ≠ Backup (VERY important)</a></li>
+<li><a href="#5-decision-table-memorize">5️⃣ Decision table (MEMORIZE)</a></li>
+<li><a href="#6-real-ace-style-scenarios">6️⃣ Real ACE-style scenarios</a></li>
+<li><a href="#7-common-ace-exam-traps">7️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.2 – Maintaining multi-region redundancy across data solutions</strong></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/architecture/images/multiregional-ra-gclb.svg" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/image1_bgyltjy.max-1900x1900.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/sql/images/post-ha.svg" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/solutions/images/cloud-sql-mysql-disaster-recovery-complete-failover-fallback-basic-architecture.png" /></p>
+<p>This bullet tests whether you understand <strong>how Google Cloud protects data from failures beyond a single zone or region</strong>, and—crucially—<strong>which services do this automatically vs which require explicit configuration</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Distinguish <strong>zonal</strong>, <strong>regional</strong>, and <strong>multi-region/global</strong> redundancy</li>
+<li>Choose the <strong>right service configuration</strong> to meet availability requirements</li>
+<li>Avoid assuming backups = high availability</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“If a zone or region fails, is my data still available?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-redundancy-levels-lock-this-in">2️⃣ Redundancy levels (lock this in)</h2>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Protects against</th>
+<th>Typical scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zonal</td>
+<td>VM / disk failure</td>
+<td>One zone</td>
+</tr>
+<tr>
+<td>Regional</td>
+<td>Zone failure</td>
+<td>One region</td>
+</tr>
+<tr>
+<td>Multi-region / Global</td>
+<td>Region failure</td>
+<td>Multiple regions</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Zonal ≠ HA. Backups ≠ HA.</p>
+</blockquote>
+<hr />
+<h2 id="3-how-major-data-services-handle-redundancy">3️⃣ How major data services handle redundancy</h2>
+<h3 id="-cloud-storage-most-tested-here">🗄️ <strong>Cloud Storage</strong> (MOST tested here)</h3>
+<h4 id="options">Options</h4>
+<ul>
+<li><strong>Regional</strong> bucket → replicated within one region</li>
+<li><strong>Dual-region</strong> bucket → replicated across two regions</li>
+<li><strong>Multi-region</strong> bucket → replicated across multiple regions automatically</li>
+</ul>
+<h4 id="use-when">Use when</h4>
+<ul>
+<li>Need durability + availability</li>
+<li>Want Google to manage replication</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Highly durable object storage”</li>
+<li>“Cross-region availability”</li>
+<li>“No manual replication”</li>
+</ul>
+<blockquote>
+<p><strong>Exam rule:</strong><br />
+If multi-region durability is required → <strong>Cloud Storage multi-region</strong></p>
+</blockquote>
+<hr />
+<h3 id="-cloud-sql">🐘 <strong>Cloud SQL</strong></h3>
+<h4 id="what-it-supports">What it supports</h4>
+<ul>
+<li>
+<p><strong>Regional HA configuration</strong></p>
+</li>
+<li>
+<p>Primary + standby in different zones</p>
+</li>
+<li>Automatic failover</li>
+</ul>
+<h4 id="what-it-does-not-do">What it does NOT do</h4>
+<ul>
+<li>Native multi-region writes</li>
+<li>Global active-active</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Survive zone failure”</li>
+<li>“Relational database with HA”</li>
+</ul>
+<blockquote>
+<p><strong>Important:</strong><br />
+Cloud SQL HA = <strong>regional</strong>, not multi-region</p>
+</blockquote>
+<hr />
+<h3 id="-spanner">🌍 <strong>Spanner</strong></h3>
+<h4 id="what-it-provides">What it provides</h4>
+<ul>
+<li>Native <strong>multi-region / global replication</strong></li>
+<li>Strong consistency</li>
+<li>Automatic failover across regions</li>
+</ul>
+<h4 id="use-when_1">Use when</h4>
+<ul>
+<li>Mission-critical</li>
+<li>Global users</li>
+<li>Zero-downtime requirements</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Global database”</li>
+<li>“Strong consistency across regions”</li>
+<li>“High availability at global scale”</li>
+</ul>
+<hr />
+<h3 id="-bigquery">📊 <strong>BigQuery</strong></h3>
+<h4 id="redundancy-model">Redundancy model</h4>
+<ul>
+<li>Data automatically replicated</li>
+<li>Regional or multi-region datasets</li>
+<li>No user-managed replication</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Analytics with high availability”</li>
+<li>“No infrastructure management”</li>
+</ul>
+<hr />
+<h3 id="-firestore">📄 <strong>Firestore</strong></h3>
+<h4 id="native-behavior">Native behavior</h4>
+<ul>
+<li>Multi-region replication (in multi-region mode)</li>
+<li>Automatic failover</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Highly available NoSQL”</li>
+<li>“Global app backend”</li>
+</ul>
+<hr />
+<h3 id="-bigtable">📊 <strong>Bigtable</strong></h3>
+<h4 id="redundancy-options">Redundancy options</h4>
+<ul>
+<li>Single-cluster (regional)</li>
+<li>Multi-cluster routing (cross-region)</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“High throughput”</li>
+<li>“Cross-region reads”</li>
+</ul>
+<hr />
+<h2 id="4-redundancy--backup-very-important">4️⃣ Redundancy ≠ Backup (VERY important)</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Redundancy</td>
+<td>Availability during failures</td>
+</tr>
+<tr>
+<td>Backup</td>
+<td>Data recovery from corruption/deletion</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Backups help you recover data, <strong>not</strong> keep apps running during outages.</p>
+</blockquote>
+<hr />
+<h2 id="5-decision-table-memorize">5️⃣ Decision table (MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Best Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Object storage, global availability</td>
+<td>Cloud Storage (multi-region)</td>
+</tr>
+<tr>
+<td>Relational DB, zone HA</td>
+<td>Cloud SQL (regional HA)</td>
+</tr>
+<tr>
+<td>Relational DB, global HA</td>
+<td>Spanner</td>
+</tr>
+<tr>
+<td>Analytics with built-in HA</td>
+<td>BigQuery</td>
+</tr>
+<tr>
+<td>Global NoSQL</td>
+<td>Firestore (multi-region)</td>
+</tr>
+<tr>
+<td>Massive scale, cross-region reads</td>
+<td>Bigtable (multi-cluster)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-real-ace-style-scenarios">6️⃣ Real ACE-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Store user uploads with automatic cross-region redundancy”</p>
+</blockquote>
+<p>✅ <strong>Cloud Storage multi-region</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Relational database must survive a zone outage”</p>
+</blockquote>
+<p>✅ <strong>Cloud SQL with regional HA</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Financial system requiring global availability and consistency”</p>
+</blockquote>
+<p>✅ <strong>Spanner</strong></p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Analytics platform with built-in durability and availability”</p>
+</blockquote>
+<p>✅ <strong>BigQuery</strong></p>
+<hr />
+<h2 id="7-common-ace-exam-traps">7️⃣ Common ACE exam traps</h2>
+<p>❌ Assuming zonal disks are highly available<br />
+❌ Assuming Cloud SQL is multi-region by default<br />
+❌ Using backups as an HA strategy<br />
+❌ Overengineering with Spanner when regional HA is enough</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Regional HA = zone failure</strong></li>
+<li><strong>Multi-region = region failure</strong></li>
+<li><strong>Backups ≠ availability</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

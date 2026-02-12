@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B. Creating and applying Cloud Next Generation Firewall</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-core-firewall-concepts-must-be-automatic">2️⃣ Core firewall concepts (must be automatic)</a></li>
+<li><a href="#3-ingress-vs-egress-exam-favorite">3️⃣ Ingress vs Egress (EXAM FAVORITE)</a></li>
+<li><a href="#4-firewall-rule-components-you-must-know-all">4️⃣ Firewall rule components (you must know all)</a></li>
+<li><a href="#5-targets-tags-vs-service-accounts-important">5️⃣ Targets: tags vs service accounts (IMPORTANT)</a></li>
+<li><a href="#6-creating-firewall-rules-cli--exam-relevant">6️⃣ Creating firewall rules (CLI – exam-relevant)</a></li>
+<li><a href="#7-default-firewall-behavior-exam-gold">7️⃣ Default firewall behavior (EXAM GOLD)</a></li>
+<li><a href="#8-rule-evaluation-order-very-important">8️⃣ Rule evaluation order (VERY IMPORTANT)</a></li>
+<li><a href="#9-hierarchical-firewall-policies-exam-awareness">9️⃣ Hierarchical firewall policies (exam awareness)</a></li>
+<li><a href="#10-common-ace-exam-scenarios">10️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#11-common-ace-exam-traps">11️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.3 – Creating and applying Cloud Next Generation Firewall (Cloud NGFW) policies</strong></p>
+<p><em>(ingress &amp; egress rules; action, source, destination, targets, protocols, ports)</em></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/architecture/images/hybrid-multicloud-secure-networking-patterns/gated-e-i.svg" /></p>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A1400/1%2AGBHxqzbxkey7OgJTncZF7g.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/firewall/images/firewall-policies/hfw-11.svg" /></p>
+<p>This bullet is <strong>heavily tested</strong> because firewall rules are the <strong>most common root cause of “it doesn’t work” networking questions</strong>. The ACE exam checks that you understand <strong>how rules are evaluated, what they apply to, and where to place them</strong>—not advanced threat inspection.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Create <strong>ingress vs egress</strong> rules correctly</li>
+<li>Understand <strong>rule components</strong> (action, source, target, protocol, ports)</li>
+<li>Know <strong>where rules apply</strong> (VPC-wide vs targeted)</li>
+<li>Recognize <strong>priority and default behavior</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Why is traffic blocked or allowed?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-core-firewall-concepts-must-be-automatic">2️⃣ Core firewall concepts (must be automatic)</h2>
+<h3 id="-cloud-ngfw-vpc-firewall-rules">🔥 Cloud NGFW (VPC firewall rules)</h3>
+<ul>
+<li><strong>Stateful</strong> firewall</li>
+<li>Evaluated at the <strong>VPC level</strong></li>
+<li>Apply to <strong>VM network interfaces</strong></li>
+<li>Traffic is <strong>denied by default</strong> unless allowed</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+“Internal traffic just works” → ❌ False without an allow rule</p>
+</blockquote>
+<hr />
+<h2 id="3-ingress-vs-egress-exam-favorite">3️⃣ Ingress vs Egress (EXAM FAVORITE)</h2>
+<h3 id="-ingress-rules">⬅️ Ingress rules</h3>
+<ul>
+<li>Control <strong>incoming</strong> traffic to VMs</li>
+<li>Most commonly tested</li>
+</ul>
+<p><strong>Example use cases</strong></p>
+<ul>
+<li>Allow SSH (tcp:22)</li>
+<li>Allow HTTP/HTTPS (tcp:80, 443)</li>
+</ul>
+<hr />
+<h3 id="-egress-rules">➡️ Egress rules</h3>
+<ul>
+<li>Control <strong>outgoing</strong> traffic from VMs</li>
+<li>Often forgotten but tested</li>
+</ul>
+<p><strong>Example use cases</strong></p>
+<ul>
+<li>Restrict internet access</li>
+<li>Force traffic through NAT/proxy</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“VM cannot reach the internet” → egress rule or NAT</p>
+</blockquote>
+<hr />
+<h2 id="4-firewall-rule-components-you-must-know-all">4️⃣ Firewall rule components (you must know all)</h2>
+<p>Every firewall rule has:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Direction</strong></td>
+<td>Ingress or Egress</td>
+</tr>
+<tr>
+<td><strong>Action</strong></td>
+<td>Allow or Deny</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>Lower number = higher priority</td>
+</tr>
+<tr>
+<td><strong>Source</strong></td>
+<td>(Ingress) CIDR / tags / service accounts</td>
+</tr>
+<tr>
+<td><strong>Destination</strong></td>
+<td>(Egress) CIDR</td>
+</tr>
+<tr>
+<td><strong>Target</strong></td>
+<td>Which VMs the rule applies to</td>
+</tr>
+<tr>
+<td><strong>Protocols / Ports</strong></td>
+<td>tcp, udp, icmp, specific ports</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Priority rule:</strong><br />
+The <strong>first matching rule wins</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-targets-tags-vs-service-accounts-important">5️⃣ Targets: tags vs service accounts (IMPORTANT)</h2>
+<h3 id="network-tags">Network tags</h3>
+<ul>
+<li>String labels on VMs</li>
+<li>Simple, common</li>
+</ul>
+<h3 id="service-accounts">Service accounts</h3>
+<ul>
+<li>Identity-based targeting</li>
+<li>More secure and auditable</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Apply rule to a specific workload” → service account</li>
+<li>“Simple VM grouping” → network tags</li>
+</ul>
+<hr />
+<h2 id="6-creating-firewall-rules-cli--exam-relevant">6️⃣ Creating firewall rules (CLI – exam-relevant)</h2>
+<h3 id="allow-ssh-ingress">Allow SSH (ingress)</h3>
+<pre><code class="language-bash">gcloud compute firewall-rules create allow-ssh \
+  --network=my-vpc \
+  --direction=INGRESS \
+  --priority=1000 \
+  --action=ALLOW \
+  --rules=tcp:22 \
+  --source-ranges=0.0.0.0/0 \
+  --target-tags=ssh-enabled
+</code></pre>
+<hr />
+<h3 id="allow-outbound-internet-egress">Allow outbound internet (egress)</h3>
+<pre><code class="language-bash">gcloud compute firewall-rules create allow-egress-internet \
+  --network=my-vpc \
+  --direction=EGRESS \
+  --priority=1000 \
+  --action=ALLOW \
+  --rules=all \
+  --destination-ranges=0.0.0.0/0
+</code></pre>
+<hr />
+<h2 id="7-default-firewall-behavior-exam-gold">7️⃣ Default firewall behavior (EXAM GOLD)</h2>
+<p>By default:</p>
+<ul>
+<li><strong>Ingress</strong>: Denied</li>
+<li><strong>Egress</strong>: Allowed (default rule exists)</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Deleting default egress rule can break internet access</p>
+</blockquote>
+<hr />
+<h2 id="8-rule-evaluation-order-very-important">8️⃣ Rule evaluation order (VERY IMPORTANT)</h2>
+<ol>
+<li>Lowest priority number first</li>
+<li>First matching rule applies</li>
+<li>If no rule matches → <strong>deny</strong></li>
+</ol>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Traffic unexpectedly blocked” → priority issue</p>
+</blockquote>
+<hr />
+<h2 id="9-hierarchical-firewall-policies-exam-awareness">9️⃣ Hierarchical firewall policies (exam awareness)</h2>
+<ul>
+<li>
+<p>Can be applied at:</p>
+</li>
+<li>
+<p>Organization</p>
+</li>
+<li>Folder</li>
+<li>Project</li>
+<li>Inherit downward</li>
+<li>Centralized control for enterprises</li>
+</ul>
+<blockquote>
+<p>ACE expects <strong>recognition</strong>, not deep configuration.</p>
+</blockquote>
+<hr />
+<h2 id="10-common-ace-exam-scenarios">10️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“VM exists but cannot be reached via SSH”</p>
+</blockquote>
+<p>✅ Check:</p>
+<ul>
+<li>Ingress rule</li>
+<li>Port 22</li>
+<li>Target tag or service account</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Only one set of VMs should accept HTTP traffic”</p>
+</blockquote>
+<p>✅ Use:</p>
+<ul>
+<li>Targeted firewall rule (tags or service account)</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Traffic allowed despite deny rule”</p>
+</blockquote>
+<p>✅ Cause:</p>
+<ul>
+<li>Lower-priority allow rule matched first</li>
+</ul>
+<hr />
+<h2 id="11-common-ace-exam-traps">11️⃣ Common ACE exam traps</h2>
+<p>❌ Forgetting firewall rules are VPC-wide<br />
+❌ Using wrong direction (ingress vs egress)<br />
+❌ Ignoring priority<br />
+❌ Assuming internal traffic is allowed<br />
+❌ Confusing firewall rules with routes</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Ingress = incoming</strong></li>
+<li><strong>Egress = outgoing</strong></li>
+<li><strong>Lowest priority number wins</strong></li>
+<li><strong>No rule = deny</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

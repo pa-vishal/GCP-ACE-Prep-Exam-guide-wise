@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A. Infrastructure as code tooling (e.g., Fabric FAST, Cong Connector, Terraform, Helm)</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-why-infrastructure-as-code-matters-exam-framing">2️⃣ Why Infrastructure as Code matters (exam framing)</a></li>
+<li><a href="#3-the-four-iac-tools-you-must-recognize">3️⃣ The four IaC tools you must recognize</a></li>
+<li><a href="#4-decision-table-memorize">4️⃣ Decision table (MEMORIZE)</a></li>
+<li><a href="#5-tool-boundaries-very-exam-relevant">5️⃣ Tool boundaries (VERY exam-relevant)</a></li>
+<li><a href="#6-iac-state--lifecycle-exam-awareness">6️⃣ IaC state &amp; lifecycle (exam awareness)</a></li>
+<li><a href="#7-real-ace-style-scenarios">7️⃣ Real ACE-style scenarios</a></li>
+<li><a href="#8-common-ace-exam-traps">8️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.4 – Infrastructure as code (IaC) tooling</strong></p>
+<p><em>(Fabric FAST, Config Connector, Terraform, Helm)</em></p>
+<p><img alt="Image" src="https://www.altexsoft.com/static/blog-post/2023/11/243035af-1e47-41ca-8b2d-43f42d3de5b9.jpg" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/docs/terraform/images/managing-infrastructure-as-code-infrastructure.svg" /></p>
+<p><img alt="Image" src="https://miro.medium.com/1%2AdV7Kec1af1Y1W250Z9FtIA.jpeg" /></p>
+<p><img alt="Image" src="https://media.licdn.com/dms/image/v2/D5612AQFsMQUvk0qEcQ/article-cover_image-shrink_600_2000/article-cover_image-shrink_600_2000/0/1714535117772?e=2147483647\&amp;t=lRLPNDI58CR3D67FLMTOf3E6fOf97nBRK_9gDguG5tY\&amp;v=beta" /></p>
+<p>This bullet is about <strong>tool selection</strong>, not syntax mastery. The ACE exam checks whether you can <strong>identify the right IaC tool for the environment and workflow</strong> and understand <strong>what each tool manages best</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Recognize <strong>why IaC is used</strong> (repeatability, versioning)</li>
+<li>
+<p>Choose the <strong>right IaC tool</strong> based on:</p>
+</li>
+<li>
+<p>Scope (cloud-wide vs Kubernetes)</p>
+</li>
+<li>Team workflow</li>
+<li>Existing tooling</li>
+<li>Avoid mixing tools unnecessarily</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“What’s the simplest, standard tool to manage this infrastructure declaratively?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-why-infrastructure-as-code-matters-exam-framing">2️⃣ Why Infrastructure as Code matters (exam framing)</h2>
+<p>IaC allows you to:</p>
+<ul>
+<li>Define infrastructure <strong>declaratively</strong></li>
+<li>Version infrastructure changes (Git)</li>
+<li>Reproduce environments reliably</li>
+<li>Automate deployments and rollbacks</li>
+</ul>
+<blockquote>
+<p><strong>ACE signal:</strong><br />
+“Repeatable”, “automated”, “consistent environments” → <strong>IaC</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-the-four-iac-tools-you-must-recognize">3️⃣ The four IaC tools you must recognize</h2>
+<h3 id="-terraform-most-tested">🧱 <strong>Terraform</strong> (MOST TESTED)</h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Declarative IaC tool by HashiCorp</li>
+<li>Uses <code>.tf</code> files</li>
+<li>Manages <strong>Google Cloud resources directly</strong></li>
+</ul>
+<p><strong>Best for</strong></p>
+<ul>
+<li>Projects, networks, IAM</li>
+<li>Compute, GKE, Cloud SQL</li>
+<li>Cross-cloud infrastructure</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Industry standard IaC”</li>
+<li>“Manage GCP resources”</li>
+<li>“Multi-cloud”</li>
+</ul>
+<blockquote>
+<p><strong>ACE default choice:</strong><br />
+If no constraint is given → <strong>Terraform</strong></p>
+</blockquote>
+<hr />
+<h3 id="-helm">☸️ <strong>Helm</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Package manager for Kubernetes</li>
+<li>Deploys applications <strong>into clusters</strong></li>
+<li>Uses Helm charts (YAML templates)</li>
+</ul>
+<p><strong>Best for</strong></p>
+<ul>
+<li>Kubernetes applications</li>
+<li>Reusable app deployments</li>
+<li>Managing releases in GKE</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Deploy applications to Kubernetes”</li>
+<li>“Reusable Kubernetes templates”</li>
+</ul>
+<blockquote>
+<p><strong>Important:</strong><br />
+Helm does <strong>not</strong> create GCP infrastructure like VPCs.</p>
+</blockquote>
+<hr />
+<h3 id="-config-connector">🔗 <strong>Config Connector</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Kubernetes-native IaC for Google Cloud</li>
+<li>GCP resources defined as <strong>Kubernetes CRDs</strong></li>
+<li>Managed via <code>kubectl</code></li>
+</ul>
+<p><strong>Best for</strong></p>
+<ul>
+<li>Teams already using Kubernetes</li>
+<li>Managing GCP resources <em>from inside</em> GKE</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Manage GCP resources using Kubernetes”</li>
+<li>“Kubernetes-native approach”</li>
+</ul>
+<blockquote>
+<p><strong>ACE expectation:</strong><br />
+Recognition-level understanding (not deep usage).</p>
+</blockquote>
+<hr />
+<h3 id="-fabric-fast-recognition-level">🧩 <strong>Fabric FAST</strong> (recognition-level)</h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Opinionated <strong>Terraform-based framework</strong></li>
+<li>Provides pre-built modules</li>
+<li>Accelerates enterprise GCP deployments</li>
+</ul>
+<p><strong>Best for</strong></p>
+<ul>
+<li>Large organizations</li>
+<li>Standardized environments</li>
+<li>Faster, consistent rollouts</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Enterprise standards”</li>
+<li>“Pre-built Terraform modules”</li>
+</ul>
+<hr />
+<h2 id="4-decision-table-memorize">4️⃣ Decision table (MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Best Tool</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Manage GCP infrastructure</td>
+<td>Terraform</td>
+</tr>
+<tr>
+<td>Deploy apps to GKE</td>
+<td>Helm</td>
+</tr>
+<tr>
+<td>Kubernetes-native GCP mgmt</td>
+<td>Config Connector</td>
+</tr>
+<tr>
+<td>Enterprise standardized IaC</td>
+<td>Fabric FAST</td>
+</tr>
+<tr>
+<td>Multi-cloud IaC</td>
+<td>Terraform</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-tool-boundaries-very-exam-relevant">5️⃣ Tool boundaries (VERY exam-relevant)</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Manages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Terraform</td>
+<td>GCP infrastructure</td>
+</tr>
+<tr>
+<td>Helm</td>
+<td>Kubernetes applications</td>
+</tr>
+<tr>
+<td>Config Connector</td>
+<td>GCP infra via Kubernetes</td>
+</tr>
+<tr>
+<td>Fabric FAST</td>
+<td>Terraform modules &amp; patterns</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Helm ≠ infrastructure provisioning for VPCs or projects</p>
+</blockquote>
+<hr />
+<h2 id="6-iac-state--lifecycle-exam-awareness">6️⃣ IaC state &amp; lifecycle (exam awareness)</h2>
+<h3 id="terraform-state">Terraform state</h3>
+<ul>
+<li>
+<p>Tracks:</p>
+</li>
+<li>
+<p>What exists</p>
+</li>
+<li>What needs to change</li>
+<li>Stored locally or remotely (e.g., Cloud Storage)</li>
+</ul>
+<h3 id="why-state-matters">Why state matters</h3>
+<ul>
+<li>Prevents drift</li>
+<li>Enables safe updates</li>
+</ul>
+<blockquote>
+<p>ACE expects <strong>conceptual awareness</strong>, not backend config.</p>
+</blockquote>
+<hr />
+<h2 id="7-real-ace-style-scenarios">7️⃣ Real ACE-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Provision VPCs, subnets, and IAM in a repeatable way”</p>
+</blockquote>
+<p>✅ <strong>Terraform</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Deploy the same app to multiple GKE clusters”</p>
+</blockquote>
+<p>✅ <strong>Helm</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Manage Cloud SQL and Pub/Sub using Kubernetes manifests”</p>
+</blockquote>
+<p>✅ <strong>Config Connector</strong></p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Enterprise wants standardized GCP landing zones quickly”</p>
+</blockquote>
+<p>✅ <strong>Fabric FAST</strong></p>
+<hr />
+<h2 id="8-common-ace-exam-traps">8️⃣ Common ACE exam traps</h2>
+<p>❌ Using Helm to create GCP networks<br />
+❌ Choosing Config Connector without Kubernetes<br />
+❌ Overcomplicating with multiple IaC tools<br />
+❌ Forgetting IaC implies version control</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Terraform = infra</strong></li>
+<li><strong>Helm = apps</strong></li>
+<li><strong>Config Connector = Kubernetes-native infra</strong></li>
+<li><strong>Fabric FAST = enterprise Terraform</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

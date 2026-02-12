@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C. Loading data</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-command-line-uploads-small-ad-hoc-data">2️⃣ Command-line uploads (small, ad-hoc data)</a></li>
+<li><a href="#3-loading-data-from-cloud-storage-most-tested">3️⃣ Loading data from Cloud Storage (MOST TESTED)</a></li>
+<li><a href="#4-storage-transfer-service-large-or-recurring-data">4️⃣ Storage Transfer Service (LARGE or RECURRING data)</a></li>
+<li><a href="#5-choosing-the-right-loading-method-decision-table">5️⃣ Choosing the right loading method (DECISION TABLE)</a></li>
+<li><a href="#6-what-not-to-choose-exam-traps">6️⃣ What NOT to choose (exam traps)</a></li>
+<li><a href="#7-real-ace-style-scenarios">7️⃣ Real ACE-style scenarios</a></li>
+<li><a href="#8-one-line-ace-memory-hooks">8️⃣ One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.2 – Loading data</strong></p>
+<p><em>(command-line upload, load data from Cloud Storage, Storage Transfer Service)</em></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/BigQuery_ingest_6.max-1000x1000.png" /></p>
+<p><img alt="Image" src="https://www.netapp.com/media/netapp22_tcm19-127873.png" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/BigQuery_ingest_3.max-800x800.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/workflows/images/serverless-orchestration-loading-data-from-cloud-storage-to-biquery-using-workflows-1-architecture.svg" /></p>
+<p>This bullet tests whether you can <strong>choose the correct ingestion method based on data size, source, and frequency</strong>. The ACE exam is not about tuning pipelines—it’s about <strong>picking the simplest, correct loading mechanism</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Choose <strong>manual vs automated</strong> data loading</li>
+<li>Load data <strong>into the right destination</strong> (Cloud Storage, BigQuery)</li>
+<li>Select <strong>Storage Transfer Service</strong> for large or recurring moves</li>
+<li>Avoid overengineering with Dataflow when not required</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Where is the data coming from, how big is it, and how often does it move?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-command-line-uploads-small-ad-hoc-data">2️⃣ Command-line uploads (small, ad-hoc data)</h2>
+<h3 id="tools">Tools</h3>
+<ul>
+<li><code>gcloud storage</code> (modern)</li>
+<li><code>gsutil</code> (legacy but still common on exams)</li>
+</ul>
+<h3 id="use-when">Use when</h3>
+<ul>
+<li>Small datasets</li>
+<li>One-time or ad-hoc uploads</li>
+<li>Developer-driven actions</li>
+</ul>
+<h3 id="exam-signals">Exam signals</h3>
+<ul>
+<li>“Upload a file”</li>
+<li>“Quickly move data”</li>
+<li>“One-time import”</li>
+</ul>
+<h3 id="example-cloud-storage">Example (Cloud Storage)</h3>
+<pre><code class="language-bash">gcloud storage cp local-file.csv gs://my-bucket/
+</code></pre>
+<blockquote>
+<p><strong>ACE note:</strong><br />
+CLI uploads are <strong>not</strong> ideal for large-scale or recurring transfers.</p>
+</blockquote>
+<hr />
+<h2 id="3-loading-data-from-cloud-storage-most-tested">3️⃣ Loading data from Cloud Storage (MOST TESTED)</h2>
+<h3 id="key-pattern">Key pattern</h3>
+<pre><code>Source → Cloud Storage → Target service
+</code></pre>
+<p>Many Google Cloud services <strong>load from Cloud Storage</strong>, not directly from your laptop.</p>
+<hr />
+<h3 id="a.-bigquery-load-jobs">A. BigQuery load jobs</h3>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Structured or semi-structured data</li>
+<li>Batch analytics</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Load CSV/JSON/Avro into BigQuery”</li>
+<li>“Analytics dataset”</li>
+</ul>
+<pre><code class="language-bash">bq load \
+  --source_format=CSV \
+  my_dataset.my_table \
+  gs://my-bucket/data.csv
+</code></pre>
+<hr />
+<h3 id="b.-cloud-sql-imports">B. Cloud SQL imports</h3>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Importing SQL dumps</li>
+<li>Migrating small to medium databases</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Import database”</li>
+<li>“SQL dump”</li>
+</ul>
+<p>Flow:</p>
+<pre><code>Dump → Cloud Storage → Cloud SQL
+</code></pre>
+<hr />
+<h2 id="4-storage-transfer-service-large-or-recurring-data">4️⃣ Storage Transfer Service (LARGE or RECURRING data)</h2>
+<h3 id="what-it-is">What it is</h3>
+<ul>
+<li>Fully managed bulk data transfer service</li>
+</ul>
+<h3 id="sources">Sources</h3>
+<ul>
+<li>On-premises</li>
+<li>Other cloud providers (AWS S3, Azure Blob)</li>
+<li>Another Cloud Storage bucket</li>
+</ul>
+<h3 id="use-when_1">Use when</h3>
+<ul>
+<li>Large datasets (TBs+)</li>
+<li>Scheduled or recurring transfers</li>
+<li>Minimal operational effort</li>
+</ul>
+<h3 id="exam-signals_1">Exam signals</h3>
+<ul>
+<li>“Terabytes of data”</li>
+<li>“Recurring transfer”</li>
+<li>“Migrate from on-prem or AWS”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+<strong>Large + recurring = Storage Transfer Service</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-choosing-the-right-loading-method-decision-table">5️⃣ Choosing the right loading method (DECISION TABLE)</h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Best Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>One-time small upload</td>
+<td>CLI (gcloud/gsutil)</td>
+</tr>
+<tr>
+<td>Load analytics data</td>
+<td>Cloud Storage → BigQuery</td>
+</tr>
+<tr>
+<td>Import database</td>
+<td>Cloud Storage → Cloud SQL</td>
+</tr>
+<tr>
+<td>Large recurring transfer</td>
+<td>Storage Transfer Service</td>
+</tr>
+<tr>
+<td>Transform during load</td>
+<td>Dataflow (if explicitly required)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-what-not-to-choose-exam-traps">6️⃣ What NOT to choose (exam traps)</h2>
+<p>❌ Use Dataflow for simple uploads<br />
+❌ Upload TBs via <code>gsutil</code><br />
+❌ Load directly from laptop to BigQuery<br />
+❌ Use Storage Transfer for tiny one-time files</p>
+<hr />
+<h2 id="7-real-ace-style-scenarios">7️⃣ Real ACE-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Upload a CSV file to analyze in BigQuery”</p>
+</blockquote>
+<p>✅ <strong>Upload to Cloud Storage, then BigQuery load</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Migrate TBs of data nightly from on-prem”</p>
+</blockquote>
+<p>✅ <strong>Storage Transfer Service</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Quickly upload a log file for testing”</p>
+</blockquote>
+<p>✅ <strong>CLI upload</strong></p>
+<hr />
+<h2 id="8-one-line-ace-memory-hooks">8️⃣ One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Small &amp; manual → CLI</strong></li>
+<li><strong>Analytics → Cloud Storage → BigQuery</strong></li>
+<li><strong>Big &amp; recurring → Storage Transfer Service</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D. Creating an autoscaled managed instance group by using an instance template</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-core-concepts-must-be-automatic">2️⃣ Core concepts (must be automatic)</a></li>
+<li><a href="#3-zonal-vs-regional-mig-exam-favorite">3️⃣ Zonal vs Regional MIG (EXAM FAVORITE)</a></li>
+<li><a href="#4-autoscaling-basics-ace-level">4️⃣ Autoscaling basics (ACE level)</a></li>
+<li><a href="#5-creating-an-instance-template-cli">5️⃣ Creating an instance template (CLI)</a></li>
+<li><a href="#6-creating-a-managed-instance-group">6️⃣ Creating a Managed Instance Group</a></li>
+<li><a href="#7-enabling-autoscaling">7️⃣ Enabling autoscaling</a></li>
+<li><a href="#8-health-checks--autohealing-exam-awareness">8️⃣ Health checks &amp; autohealing (exam awareness)</a></li>
+<li><a href="#9-real-ace-style-scenarios">9️⃣ Real ACE-style scenarios</a></li>
+<li><a href="#10-common-ace-exam-traps">10️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿ ### <strong>Section 2.1 – Creating an autoscaled managed instance group (MIG) using an instance template</strong></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/compute/docs/tutorials/images/globally-autoscaling-compute-engine-architecture.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/build/images/devops.png" /></p>
+<p><img alt="Image" src="https://cloud.google.com/compute/images/mig-overview.svg" /></p>
+<p>This bullet tests whether you understand <strong>how Compute Engine achieves scale and high availability</strong>. The ACE exam is not asking you to design complex autoscaling policies—it’s checking that you know <strong>the required building blocks and when to use them</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Recognize that <strong>autoscaling requires a Managed Instance Group</strong></li>
+<li>Know that <strong>instance templates are mandatory</strong></li>
+<li>Choose <strong>zonal vs regional MIGs</strong> correctly</li>
+<li>Understand <strong>what autoscaling reacts to</strong> (CPU, load)</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“If traffic increases or a VM fails, what automatically replaces or scales it?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-core-concepts-must-be-automatic">2️⃣ Core concepts (must be automatic)</h2>
+<h3 id="-instance-template">🧱 Instance Template</h3>
+<ul>
+<li>A <strong>blueprint</strong> for VMs</li>
+<li>
+<p>Defines:</p>
+</li>
+<li>
+<p>Machine type</p>
+</li>
+<li>Boot disk</li>
+<li>Image</li>
+<li>Startup script</li>
+<li>Network settings</li>
+<li><strong>Immutable</strong> (you create a new version to change it)</li>
+</ul>
+<blockquote>
+<p><strong>Hard rule:</strong><br />
+You <strong>cannot</strong> create a MIG without an instance template.</p>
+</blockquote>
+<hr />
+<h3 id="-managed-instance-group-mig">👥 Managed Instance Group (MIG)</h3>
+<ul>
+<li>A group of <strong>identical VMs</strong></li>
+<li>Managed by Google</li>
+<li>
+<p>Supports:</p>
+</li>
+<li>
+<p>Autohealing</p>
+</li>
+<li>Autoscaling</li>
+<li>Rolling updates</li>
+</ul>
+<p>Two types:</p>
+<ul>
+<li><strong>Zonal MIG</strong></li>
+<li><strong>Regional MIG</strong></li>
+</ul>
+<hr />
+<h2 id="3-zonal-vs-regional-mig-exam-favorite">3️⃣ Zonal vs Regional MIG (EXAM FAVORITE)</h2>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Behavior</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zonal MIG</td>
+<td>VMs in one zone</td>
+<td>Cost-sensitive, simple HA</td>
+</tr>
+<tr>
+<td>Regional MIG</td>
+<td>VMs spread across zones</td>
+<td>Survive zone failure</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“High availability” → <strong>Regional MIG</strong></li>
+<li>“Single zone is acceptable” → <strong>Zonal MIG</strong></li>
+</ul>
+<hr />
+<h2 id="4-autoscaling-basics-ace-level">4️⃣ Autoscaling basics (ACE level)</h2>
+<p>Autoscaling can be based on:</p>
+<ul>
+<li><strong>CPU utilization</strong> (most common)</li>
+<li>Load balancer metrics</li>
+<li>Custom metrics (not deeply tested)</li>
+</ul>
+<p><strong>Key idea</strong></p>
+<ul>
+<li>Autoscaler <strong>adds/removes VMs</strong></li>
+<li>
+<p>You define:</p>
+</li>
+<li>
+<p>Minimum instances</p>
+</li>
+<li>Maximum instances</li>
+<li>Target utilization</li>
+</ul>
+<hr />
+<h2 id="5-creating-an-instance-template-cli">5️⃣ Creating an instance template (CLI)</h2>
+<pre><code class="language-bash">gcloud compute instance-templates create web-template \
+  --machine-type=e2-medium \
+  --image-family=debian-11 \
+  --image-project=debian-cloud \
+  --tags=http-server
+</code></pre>
+<hr />
+<h2 id="6-creating-a-managed-instance-group">6️⃣ Creating a Managed Instance Group</h2>
+<h3 id="zonal-mig">Zonal MIG</h3>
+<pre><code class="language-bash">gcloud compute instance-groups managed create web-mig \
+  --base-instance-name=web \
+  --template=web-template \
+  --size=2 \
+  --zone=us-central1-a
+</code></pre>
+<hr />
+<h3 id="regional-mig">Regional MIG</h3>
+<pre><code class="language-bash">gcloud compute instance-groups managed create web-mig \
+  --base-instance-name=web \
+  --template=web-template \
+  --size=2 \
+  --region=us-central1
+</code></pre>
+<hr />
+<h2 id="7-enabling-autoscaling">7️⃣ Enabling autoscaling</h2>
+<pre><code class="language-bash">gcloud compute instance-groups managed set-autoscaling web-mig \
+  --max-num-replicas=10 \
+  --min-num-replicas=2 \
+  --target-cpu-utilization=0.6 \
+  --region=us-central1
+</code></pre>
+<hr />
+<h2 id="8-health-checks--autohealing-exam-awareness">8️⃣ Health checks &amp; autohealing (exam awareness)</h2>
+<ul>
+<li>MIGs use <strong>health checks</strong></li>
+<li>
+<p>Unhealthy VMs are:</p>
+</li>
+<li>
+<p>Automatically recreated</p>
+</li>
+<li>
+<p>Commonly paired with:</p>
+</li>
+<li>
+<p>Load balancers</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Replace failed VM automatically” → <strong>MIG + health check</strong></p>
+</blockquote>
+<hr />
+<h2 id="9-real-ace-style-scenarios">9️⃣ Real ACE-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Application must scale automatically based on traffic”</p>
+</blockquote>
+<p>✅ <strong>Managed Instance Group with autoscaling</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“VMs must be identical and auto-recreated if they fail”</p>
+</blockquote>
+<p>✅ <strong>MIG + instance template</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Workload must survive a zone failure”</p>
+</blockquote>
+<p>✅ <strong>Regional MIG</strong></p>
+<hr />
+<h2 id="10-common-ace-exam-traps">10️⃣ Common ACE exam traps</h2>
+<p>❌ Trying to autoscale individual VMs<br />
+❌ Forgetting instance templates<br />
+❌ Using zonal MIG when zone failure must be tolerated<br />
+❌ Thinking MIGs replace backups</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Template = blueprint</strong></li>
+<li><strong>MIG = scale + heal</strong></li>
+<li><strong>Regional MIG = zone-level HA</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

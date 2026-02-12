@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B. Launching a compute instance (e.g., availability policy, SSH keys)</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-availability-policy-very-exam-relevant">2️⃣ Availability policy (VERY exam-relevant)</a></li>
+<li><a href="#3-ssh-access-to-compute-engine-exam-favorite">3️⃣ SSH access to Compute Engine (EXAM FAVORITE)</a></li>
+<li><a href="#4-launching-a-vm-via-cli-ace-level">4️⃣ Launching a VM via CLI (ACE-level)</a></li>
+<li><a href="#5-networking--access-basics-quick-exam-reminders">5️⃣ Networking &amp; access basics (quick exam reminders)</a></li>
+<li><a href="#6-common-ace-exam-scenarios">6️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#7-common-exam-traps">7️⃣ Common exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.1 – Launching a compute instance</strong></p>
+<p><em>(availability policy, SSH keys)</em></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/compute/images/instance-lifecycle.png" /></p>
+<p><img alt="Image" src="https://media2.dev.to/dynamic/image/width%3D800%2Cheight%3D%2Cfit%3Dscale-down%2Cgravity%3Dauto%2Cformat%3Dauto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F8j6ppnpx0vnd4jks6wu9.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/compute/docs/connect/ssh-best-practices/flowchart.svg" /></p>
+<p>This bullet is about <strong>creating VMs correctly the first time</strong>. The ACE exam tests whether you understand <strong>availability behavior</strong>, <strong>access methods</strong>, and <strong>safe defaults</strong>—not deep OS tuning.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You’re expected to know how to:</p>
+<ul>
+<li>Launch a VM with the <strong>right availability behavior</strong></li>
+<li>Choose <strong>how users access</strong> the VM (SSH)</li>
+<li>Avoid common mistakes that break access or HA</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong> “If I create a VM this way, what happens during maintenance or failure—and can I still log in?”</p>
+</blockquote>
+<hr />
+<h2 id="2-availability-policy-very-exam-relevant">2️⃣ Availability policy (VERY exam-relevant)</h2>
+<h3 id="what-it-controls">What it controls</h3>
+<ul>
+<li>What happens to the VM during <strong>host maintenance</strong></li>
+<li>Whether the VM is <strong>restarted automatically</strong> after a crash</li>
+<li>Whether the VM is <strong>preemptible / Spot</strong></li>
+</ul>
+<h3 id="key-settings-you-must-recognize">Key settings you must recognize</h3>
+<h4 id="-on-host-maintenance">🔹 On host maintenance</h4>
+<ul>
+<li><strong>Migrate (default)</strong> → Live migration during maintenance</li>
+<li><strong>Terminate</strong> → VM stops during maintenance</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Zero downtime during maintenance” → <strong>Migrate</strong></li>
+<li>“Uses GPUs / special hardware” → <strong>Terminate</strong> (live migration not supported)</li>
+</ul>
+<hr />
+<h4 id="-automatic-restart">🔹 Automatic restart</h4>
+<ul>
+<li><strong>On</strong> → VM restarts after crash</li>
+<li><strong>Off</strong> → VM stays stopped</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Production workload” → <strong>On</strong></li>
+<li>“Batch job” → <strong>Off</strong> (often paired with Spot)</li>
+</ul>
+<hr />
+<h4 id="-spot-preemptible-vms">🔹 Spot (Preemptible) VMs</h4>
+<ul>
+<li>Cheap</li>
+<li>Can stop <strong>anytime</strong></li>
+<li>No SLA</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Fault-tolerant”</li>
+<li>“Batch processing”</li>
+<li>“Cost-sensitive”</li>
+</ul>
+<hr />
+<h2 id="3-ssh-access-to-compute-engine-exam-favorite">3️⃣ SSH access to Compute Engine (EXAM FAVORITE)</h2>
+<h3 id="three-common-ssh-methods">Three common SSH methods</h3>
+<h4 id="-a.-os-login-best-practice">✅ A. OS Login (BEST PRACTICE)</h4>
+<ul>
+<li>Uses IAM for SSH</li>
+<li>Centralized access control</li>
+<li>No manual key management</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Centralized access”</li>
+<li>“Use IAM for SSH”</li>
+<li>“Avoid managing keys”</li>
+</ul>
+<pre><code class="language-bash">gcloud compute project-info add-metadata \
+  --metadata enable-oslogin=TRUE
+</code></pre>
+<hr />
+<h4 id="b.-project-wide-ssh-keys">B. Project-wide SSH keys</h4>
+<ul>
+<li>Stored in project metadata</li>
+<li>Applies to all VMs</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>Small teams</li>
+<li>Simpler setups</li>
+</ul>
+<hr />
+<h4 id="c.-instance-specific-ssh-keys">C. Instance-specific SSH keys</h4>
+<ul>
+<li>Stored on the VM</li>
+<li>Least scalable</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>One-off access</li>
+<li>Temporary VM</li>
+</ul>
+<hr />
+<h2 id="4-launching-a-vm-via-cli-ace-level">4️⃣ Launching a VM via CLI (ACE-level)</h2>
+<h3 id="basic-vm-creation">Basic VM creation</h3>
+<pre><code class="language-bash">gcloud compute instances create my-vm \
+  --zone=us-central1-a \
+  --machine-type=e2-medium
+</code></pre>
+<hr />
+<h3 id="vm-with-availability-options">VM with availability options</h3>
+<pre><code class="language-bash">gcloud compute instances create my-vm \
+  --zone=us-central1-a \
+  --maintenance-policy=MIGRATE \
+  --restart-on-failure
+</code></pre>
+<hr />
+<h3 id="spot-vm">Spot VM</h3>
+<pre><code class="language-bash">gcloud compute instances create my-spot-vm \
+  --zone=us-central1-a \
+  --provisioning-model=SPOT
+</code></pre>
+<hr />
+<h2 id="5-networking--access-basics-quick-exam-reminders">5️⃣ Networking &amp; access basics (quick exam reminders)</h2>
+<ul>
+<li>
+<p>VM needs:</p>
+</li>
+<li>
+<p><strong>Firewall rule</strong> allowing SSH (tcp:22)</p>
+</li>
+<li>
+<p>Either:</p>
+<ul>
+<li>External IP <strong>or</strong></li>
+<li>IAP / bastion (advanced)</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+VM exists but cannot SSH → usually <strong>firewall</strong> or <strong>SSH key/OS Login</strong> issue</p>
+</blockquote>
+<hr />
+<h2 id="6-common-ace-exam-scenarios">6️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“VM must survive host maintenance without downtime”</p>
+</blockquote>
+<p>✅ <strong>Live migration (MIGRATE)</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Batch processing job, cost sensitive”</p>
+</blockquote>
+<p>✅ <strong>Spot VM</strong> + automatic restart off</p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Centralized, auditable SSH access”</p>
+</blockquote>
+<p>✅ <strong>OS Login</strong></p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“VM restarts automatically after crash”</p>
+</blockquote>
+<p>✅ <strong>Automatic restart enabled</strong></p>
+<hr />
+<h2 id="7-common-exam-traps">7️⃣ Common exam traps</h2>
+<p>❌ Choosing Spot for production stateful apps<br />
+❌ Forgetting GPUs disable live migration<br />
+❌ Managing SSH keys manually when OS Login is requested<br />
+❌ Ignoring firewall rules for SSH</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Migrate = uptime</strong></li>
+<li><strong>Terminate = special hardware</strong></li>
+<li><strong>Spot = cheap &amp; interruptible</strong></li>
+<li><strong>OS Login = IAM-based SSH</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

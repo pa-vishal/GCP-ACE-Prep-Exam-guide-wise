@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B. Choosing and deploying storage products</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-storage-type-mental-model-must-know">2️⃣ Storage type mental model (MUST know)</a></li>
+<li><a href="#3-cloud-storage-object-storage--most-tested">3️⃣ Cloud Storage (OBJECT storage – MOST TESTED)</a></li>
+<li><a href="#4-filestore-file-storage">4️⃣ Filestore (FILE storage)</a></li>
+<li><a href="#5-google-cloud-netapp-volumes-enterprise-file-storage">5️⃣ Google Cloud NetApp Volumes (ENTERPRISE file storage)</a></li>
+<li><a href="#6-decision-table-memorize">6️⃣ Decision table (MEMORIZE)</a></li>
+<li><a href="#7-deployment-awareness-ace-level">7️⃣ Deployment awareness (ACE-level)</a></li>
+<li><a href="#8-common-ace-exam-traps">8️⃣ Common ACE exam traps</a></li>
+<li><a href="#9-real-ace-style-scenarios">9️⃣ Real ACE-style scenarios</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.2 – Choosing and deploying storage products</strong></p>
+<p><em>(Cloud Storage, Filestore, Google Cloud NetApp Volumes; Cloud Storage options: Standard, Nearline, Coldline, Archive)</em></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Which-Database_v03-22-23.max-2000x2000.jpg" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/new-storage-classes-5ybb1.max-600x600.PNG" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Storage-to-Use_v04-23-21.max-1600x1600.jpeg" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/persistent_disk_sketchnotes.max-900x900.jpeg" /></p>
+<p>This bullet tests whether you can <strong>separate object storage from file storage</strong>, and then <strong>optimize cost by choosing the correct storage class</strong>. The ACE exam strongly favors <strong>simple, correct choices</strong> over overengineering.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Choose <strong>object vs file storage</strong></li>
+<li>Pick the <strong>right Cloud Storage class</strong> based on access frequency</li>
+<li>Recognize <strong>enterprise file storage needs</strong></li>
+<li>Avoid using databases or disks where storage services fit better</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“How is the data accessed, and how often?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-storage-type-mental-model-must-know">2️⃣ Storage type mental model (MUST know)</h2>
+<h3 id="object-storage-vs-file-storage">Object storage vs File storage</h3>
+<table>
+<thead>
+<tr>
+<th>Storage Type</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Object</strong></td>
+<td>Unstructured data, blobs</td>
+</tr>
+<tr>
+<td><strong>File</strong></td>
+<td>POSIX-style shared file systems</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-cloud-storage-object-storage--most-tested">3️⃣ Cloud Storage (OBJECT storage – MOST TESTED)</h2>
+<h3 id="what-it-is">What it is</h3>
+<ul>
+<li>Global object storage</li>
+<li>HTTP-based access</li>
+<li>Virtually unlimited scale</li>
+<li>Strong consistency</li>
+</ul>
+<h3 id="use-when">Use when</h3>
+<ul>
+<li>Images, videos, backups</li>
+<li>Static website assets</li>
+<li>Logs and exports</li>
+<li>Data lakes</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Store files”</li>
+<li>“Unstructured data”</li>
+<li>“Global access”</li>
+<li>“Highly durable”</li>
+</ul>
+<hr />
+<h3 id="cloud-storage-classes-exam-favorite">Cloud Storage classes (EXAM FAVORITE)</h3>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Access Pattern</th>
+<th>Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Standard</strong></td>
+<td>Frequent</td>
+<td>Higher storage, low access</td>
+</tr>
+<tr>
+<td><strong>Nearline</strong></td>
+<td>&lt; 1/month</td>
+<td>Lower storage</td>
+</tr>
+<tr>
+<td><strong>Coldline</strong></td>
+<td>&lt; 1/quarter</td>
+<td>Even lower</td>
+</tr>
+<tr>
+<td><strong>Archive</strong></td>
+<td>Rare</td>
+<td>Lowest storage, highest access</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Hard rule:</strong><br />
+Storage class ≠ location (region/multi-region)</p>
+</blockquote>
+<hr />
+<h3 id="lifecycle-rules-exam-awareness">Lifecycle rules (exam awareness)</h3>
+<ul>
+<li>Automatically transition objects between classes</li>
+<li>Based on age or conditions</li>
+<li>Used for cost optimization</li>
+</ul>
+<hr />
+<h2 id="4-filestore-file-storage">4️⃣ Filestore (FILE storage)</h2>
+<h3 id="what-it-is_1">What it is</h3>
+<ul>
+<li>Managed NFS file system</li>
+<li>Mounted by VMs and GKE</li>
+<li>Low latency, POSIX-compliant</li>
+</ul>
+<h3 id="use-when_1">Use when</h3>
+<ul>
+<li>Shared file systems</li>
+<li>Legacy applications</li>
+<li>Lift-and-shift workloads</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Shared filesystem”</li>
+<li>“POSIX”</li>
+<li>“Multiple VMs access same files”</li>
+</ul>
+<blockquote>
+<p>❌ Filestore is <strong>not object storage</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-google-cloud-netapp-volumes-enterprise-file-storage">5️⃣ Google Cloud NetApp Volumes (ENTERPRISE file storage)</h2>
+<h3 id="what-it-is_2">What it is</h3>
+<ul>
+<li>Fully managed NetApp ONTAP</li>
+<li>Enterprise-grade file storage</li>
+<li>
+<p>Supports:</p>
+</li>
+<li>
+<p>NFS</p>
+</li>
+<li>SMB</li>
+<li>Multiprotocol access</li>
+</ul>
+<h3 id="use-when_2">Use when</h3>
+<ul>
+<li>Enterprise NAS workloads</li>
+<li>SAP</li>
+<li>Large-scale file systems</li>
+<li>Migration from on-prem NetApp</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Enterprise file storage”</li>
+<li>“NetApp”</li>
+<li>“NAS migration”</li>
+</ul>
+<hr />
+<h2 id="6-decision-table-memorize">6️⃣ Decision table (MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Best Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unstructured objects</td>
+<td>Cloud Storage</td>
+</tr>
+<tr>
+<td>Frequently accessed data</td>
+<td>Cloud Storage Standard</td>
+</tr>
+<tr>
+<td>Rarely accessed backups</td>
+<td>Coldline / Archive</td>
+</tr>
+<tr>
+<td>Shared POSIX filesystem</td>
+<td>Filestore</td>
+</tr>
+<tr>
+<td>Enterprise NAS</td>
+<td>NetApp Volumes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-deployment-awareness-ace-level">7️⃣ Deployment awareness (ACE-level)</h2>
+<h3 id="cloud-storage">Cloud Storage</h3>
+<pre><code class="language-bash">gcloud storage buckets create gs://my-bucket \
+  --location=us-central1
+</code></pre>
+<h3 id="filestore">Filestore</h3>
+<ul>
+<li>
+<p>Choose:</p>
+</li>
+<li>
+<p>Region</p>
+</li>
+<li>Capacity</li>
+<li>Performance tier</li>
+<li>Mounted via NFS</li>
+</ul>
+<blockquote>
+<p>CLI details are <strong>not tested</strong>, only <strong>selection logic</strong></p>
+</blockquote>
+<hr />
+<h2 id="8-common-ace-exam-traps">8️⃣ Common ACE exam traps</h2>
+<p>❌ Using Filestore for object storage<br />
+❌ Using Cloud Storage as a mounted filesystem<br />
+❌ Choosing Archive for frequently accessed data<br />
+❌ Confusing storage class with region<br />
+❌ Using databases for file storage</p>
+<hr />
+<h2 id="9-real-ace-style-scenarios">9️⃣ Real ACE-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Store images accessed frequently by a web app”</p>
+</blockquote>
+<p>✅ <strong>Cloud Storage Standard</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Backups kept for years and rarely accessed”</p>
+</blockquote>
+<p>✅ <strong>Archive</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Legacy app needs shared filesystem across VMs”</p>
+</blockquote>
+<p>✅ <strong>Filestore</strong></p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Enterprise migrating NetApp workloads”</p>
+</blockquote>
+<p>✅ <strong>Google Cloud NetApp Volumes</strong></p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Cloud Storage = objects</strong></li>
+<li><strong>Filestore = shared files</strong></li>
+<li><strong>NetApp = enterprise NAS</strong></li>
+<li><strong>Archive = cheapest, slowest access</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

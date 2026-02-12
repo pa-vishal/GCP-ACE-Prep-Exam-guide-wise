@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C. Reserving static external or internal IP addresses</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#reserving-static-external-or-internal-ip-addresses">Reserving static external or internal IP addresses</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-ephemeral-vs-static-ips-must-know">2️⃣ Ephemeral vs static IPs (MUST KNOW)</a></li>
+<li><a href="#3-external-vs-internal-static-ips">3️⃣ External vs internal static IPs</a></li>
+<li><a href="#4-regional-vs-global-ips-very-important">4️⃣ Regional vs global IPs (VERY IMPORTANT)</a></li>
+<li><a href="#5-reserving-a-static-external-ip-cli--exam-relevant">5️⃣ Reserving a static external IP (CLI – exam-relevant)</a></li>
+<li><a href="#6-reserving-a-static-internal-ip">6️⃣ Reserving a static internal IP</a></li>
+<li><a href="#7-attaching-a-static-ip-exam-awareness">7️⃣ Attaching a static IP (exam awareness)</a></li>
+<li><a href="#8-cost-implications-exam-favorite">8️⃣ Cost implications (EXAM FAVORITE)</a></li>
+<li><a href="#9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#-common-ace-exam-traps">🔟 Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.3 – Managing networking resources</strong></p>
+<h4 id="reserving-static-external-or-internal-ip-addresses"><strong>Reserving static external or internal IP addresses</strong></h4>
+<p><img alt="Image" src="https://miro.medium.com/1%2AW_pESAt3DPtGilWqPpljOg.png" /></p>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A1400/1%2AsD90kDhRB6u4oIvVE0rGkw.png" /></p>
+<p><img alt="Image" src="https://labresources.whizlabs.com/010c3004937dd6e39b9f2eb128b00d80/ipv4-vs-ipv6-en.webp" /></p>
+<p>This bullet tests whether you understand <strong>IP address lifecycle and stability</strong> in Google Cloud. The ACE exam frequently frames this as <strong>“my IP keeps changing”</strong> or <strong>“I need a fixed IP for allowlists / DNS”</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Distinguish <strong>ephemeral vs static IPs</strong></li>
+<li>Reserve <strong>external vs internal</strong> static IPs</li>
+<li>Choose <strong>regional vs global</strong> correctly</li>
+<li>Avoid unnecessary IP charges</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Does this workload need a stable IP, and who needs to reach it?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-ephemeral-vs-static-ips-must-know">2️⃣ Ephemeral vs static IPs (MUST KNOW)</h2>
+<h3 id="-ephemeral-ip">🌊 Ephemeral IP</h3>
+<ul>
+<li>Assigned automatically</li>
+<li>
+<p><strong>Changes</strong> when:</p>
+</li>
+<li>
+<p>VM is stopped and restarted</p>
+</li>
+<li>No cost when attached</li>
+</ul>
+<h3 id="-static-ip">📌 Static IP</h3>
+<ul>
+<li>Reserved explicitly</li>
+<li><strong>Does not change</strong></li>
+<li>Can be attached/detached</li>
+<li><strong>Costs money when unused</strong></li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If the IP must not change → <strong>Static IP</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-external-vs-internal-static-ips">3️⃣ External vs internal static IPs</h2>
+<h3 id="-external-static-ip">🌐 External static IP</h3>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Internet-facing services</li>
+<li>DNS records</li>
+<li>Allowlisting from external systems</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Public endpoint”</li>
+<li>“Firewall allowlist”</li>
+<li>“DNS A record”</li>
+</ul>
+<hr />
+<h3 id="-internal-static-ip">🏠 Internal static IP</h3>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Private services inside VPC</li>
+<li>Backend systems</li>
+<li>Fixed internal endpoints</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Internal-only”</li>
+<li>“Private access”</li>
+<li>“No internet exposure”</li>
+</ul>
+<hr />
+<h2 id="4-regional-vs-global-ips-very-important">4️⃣ Regional vs global IPs (VERY IMPORTANT)</h2>
+<h3 id="regional-ips">Regional IPs</h3>
+<ul>
+<li>
+<p>Used by:</p>
+</li>
+<li>
+<p>Compute Engine VMs</p>
+</li>
+<li>Network Load Balancers</li>
+<li>Bound to <strong>one region</strong></li>
+</ul>
+<h3 id="global-ips">Global IPs</h3>
+<ul>
+<li>
+<p>Used by:</p>
+</li>
+<li>
+<p>HTTP(S) Load Balancers</p>
+</li>
+<li>Anycast across Google’s edge</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Global load balancer → <strong>Global static IP</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-reserving-a-static-external-ip-cli--exam-relevant">5️⃣ Reserving a static external IP (CLI – exam-relevant)</h2>
+<h3 id="regional-external-ip">Regional external IP</h3>
+<pre><code class="language-bash">gcloud compute addresses create my-static-ip \
+  --region=us-central1
+</code></pre>
+<h3 id="global-external-ip">Global external IP</h3>
+<pre><code class="language-bash">gcloud compute addresses create my-global-ip \
+  --global
+</code></pre>
+<hr />
+<h2 id="6-reserving-a-static-internal-ip">6️⃣ Reserving a static internal IP</h2>
+<pre><code class="language-bash">gcloud compute addresses create my-internal-ip \
+  --region=us-central1 \
+  --subnet=my-subnet \
+  --addresses=10.10.0.50
+</code></pre>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Internal IPs must be <strong>within the subnet CIDR</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="7-attaching-a-static-ip-exam-awareness">7️⃣ Attaching a static IP (exam awareness)</h2>
+<h3 id="attach-to-a-vm">Attach to a VM</h3>
+<ul>
+<li>During VM creation, or</li>
+<li>Update VM network interface</li>
+</ul>
+<blockquote>
+<p>You are <strong>not tested</strong> on the exact attach flags—only that it’s possible.</p>
+</blockquote>
+<hr />
+<h2 id="8-cost-implications-exam-favorite">8️⃣ Cost implications (EXAM FAVORITE)</h2>
+<ul>
+<li><strong>Unused static IPs incur charges</strong></li>
+<li>Ephemeral IPs do not incur cost when attached</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+“Reserve just in case” → ❌ leads to unnecessary cost</p>
+</blockquote>
+<hr />
+<h2 id="9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“VM’s public IP changes after restart”</p>
+</blockquote>
+<p>✅ <strong>Reserve and attach a static external IP</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Create DNS record for a global web app”</p>
+</blockquote>
+<p>✅ <strong>Global static external IP</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Backend service needs fixed private IP”</p>
+</blockquote>
+<p>✅ <strong>Static internal IP</strong></p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Reduce cost when stable IP not required”</p>
+</blockquote>
+<p>✅ <strong>Use ephemeral IP</strong></p>
+<hr />
+<h2 id="-common-ace-exam-traps">🔟 Common ACE exam traps</h2>
+<p>❌ Using ephemeral IP when stability is required<br />
+❌ Reserving static IPs and forgetting to use them<br />
+❌ Using regional IP for global HTTP(S) LB<br />
+❌ Assigning internal IP outside subnet range</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Stable = static</strong></li>
+<li><strong>Internet = external</strong></li>
+<li><strong>Private = internal</strong></li>
+<li><strong>Global LB = global IP</strong></li>
+<li><strong>Unused static IP = cost</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

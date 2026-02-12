@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I. Deploying a GKE cluster with dierent congurations (e.g., GKE Autopilot, regional clusters, private clusters)</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-gke-standard-vs-gke-autopilot-most-tested-choice">2️⃣ GKE Standard vs GKE Autopilot (MOST tested choice)</a></li>
+<li><a href="#3-zonal-vs-regional-clusters-availability-test">3️⃣ Zonal vs Regional clusters (AVAILABILITY TEST)</a></li>
+<li><a href="#4-private-gke-clusters-security-test">4️⃣ Private GKE clusters (SECURITY TEST)</a></li>
+<li><a href="#5-decision-table-memorize">5️⃣ Decision table (MEMORIZE)</a></li>
+<li><a href="#6-creating-clusters-cli--exam-aware">6️⃣ Creating clusters (CLI – exam-aware)</a></li>
+<li><a href="#7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#8-common-ace-exam-traps">8️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.1 – Deploying a GKE cluster with different configurations</strong></p>
+<p><em>(GKE Autopilot, regional clusters, private clusters)</em></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/gke_autopilot.max-1800x1800.jpg" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/kubernetes-engine/images/gke-architecture.svg" /></p>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A1400/1%2AKrDCJ68dUfGcCTsKsk-YvQ.jpeg" /></p>
+<p>This bullet is <strong>very high-yield</strong>. The ACE exam is testing whether you can <strong>pick the right GKE cluster mode and topology</strong> based on <strong>operations effort, availability, and security</strong>—not whether you can tune Kubernetes internals.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Choose <strong>Autopilot vs Standard</strong></li>
+<li>Choose <strong>regional vs zonal</strong></li>
+<li>Know <strong>when to use private clusters</strong></li>
+<li>Avoid overengineering</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“How much control do I need, and how much reliability/security is required?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-gke-standard-vs-gke-autopilot-most-tested-choice">2️⃣ GKE Standard vs GKE Autopilot (MOST tested choice)</h2>
+<h3 id="-gke-standard">☸️ <strong>GKE Standard</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>
+<p>You manage:</p>
+</li>
+<li>
+<p>Node pools</p>
+</li>
+<li>Node sizes</li>
+<li>Autoscaling behavior (nodes)</li>
+<li>Google manages the control plane</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>
+<p>You need:</p>
+</li>
+<li>
+<p>Custom node types</p>
+</li>
+<li>GPUs</li>
+<li>DaemonSets with special requirements</li>
+<li>More control over nodes</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Custom node pools”</li>
+<li>“Specific machine types”</li>
+<li>“More control over cluster”</li>
+</ul>
+<hr />
+<h3 id="-gke-autopilot">🚀 <strong>GKE Autopilot</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Fully managed Kubernetes</li>
+<li>
+<p>Google manages:</p>
+</li>
+<li>
+<p>Nodes</p>
+</li>
+<li>Scaling</li>
+<li>Bin packing</li>
+<li>You pay per Pod resources</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>
+<p>You want:</p>
+</li>
+<li>
+<p>Minimal operations</p>
+</li>
+<li>Best practices enforced</li>
+<li>No node management</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Minimize operational overhead”</li>
+<li>“Serverless Kubernetes”</li>
+<li>“No node management”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If no node-level customization is required → <strong>Autopilot</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-zonal-vs-regional-clusters-availability-test">3️⃣ Zonal vs Regional clusters (AVAILABILITY TEST)</h2>
+<h3 id="-zonal-cluster">🧱 <strong>Zonal cluster</strong></h3>
+<ul>
+<li>Control plane in <strong>one zone</strong></li>
+<li>Worker nodes in one zone</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Dev / test</li>
+<li>Cost-sensitive</li>
+<li>Zone failure is acceptable</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Development environment”</li>
+<li>“Lower cost”</li>
+</ul>
+<hr />
+<h3 id="-regional-cluster">🌍 <strong>Regional cluster</strong></h3>
+<ul>
+<li>Control plane replicated across zones</li>
+<li>Worker nodes spread across zones</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Production workloads</li>
+<li>Need <strong>zone failure tolerance</strong></li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“High availability”</li>
+<li>“Production cluster”</li>
+<li>“Survive zone failure”</li>
+</ul>
+<blockquote>
+<p><strong>Exam rule:</strong><br />
+Production + HA → <strong>Regional cluster</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-private-gke-clusters-security-test">4️⃣ Private GKE clusters (SECURITY TEST)</h2>
+<h3 id="what-makes-a-cluster-private">What makes a cluster “private”</h3>
+<ul>
+<li>Nodes <strong>do not have public IPs</strong></li>
+<li>Control plane has <strong>private endpoint</strong></li>
+<li>
+<p>Access via:</p>
+</li>
+<li>
+<p>VPN</p>
+</li>
+<li>Bastion</li>
+<li>Private networking</li>
+</ul>
+<h3 id="use-when">Use when</h3>
+<ul>
+<li>Security-sensitive workloads</li>
+<li>Regulatory environments</li>
+<li>No public node exposure allowed</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“No public IPs”</li>
+<li>“Private access”</li>
+<li>“Security requirement”</li>
+</ul>
+<hr />
+<h2 id="5-decision-table-memorize">5️⃣ Decision table (MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Best Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Minimal ops</td>
+<td>GKE Autopilot</td>
+</tr>
+<tr>
+<td>Node-level control</td>
+<td>GKE Standard</td>
+</tr>
+<tr>
+<td>Production HA</td>
+<td>Regional cluster</td>
+</tr>
+<tr>
+<td>Dev / test</td>
+<td>Zonal cluster</td>
+</tr>
+<tr>
+<td>No public node IPs</td>
+<td>Private cluster</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-creating-clusters-cli--exam-aware">6️⃣ Creating clusters (CLI – exam-aware)</h2>
+<h3 id="gke-autopilot-regional-by-default">GKE Autopilot (regional by default)</h3>
+<pre><code class="language-bash">gcloud container clusters create-auto my-autopilot \
+  --region=us-central1
+</code></pre>
+<hr />
+<h3 id="gke-standard-zonal">GKE Standard (zonal)</h3>
+<pre><code class="language-bash">gcloud container clusters create my-cluster \
+  --zone=us-central1-a
+</code></pre>
+<hr />
+<h3 id="private-cluster-conceptual-cli">Private cluster (conceptual CLI)</h3>
+<pre><code class="language-bash">gcloud container clusters create my-private-cluster \
+  --enable-private-nodes \
+  --master-ipv4-cidr=172.16.0.0/28 \
+  --region=us-central1
+</code></pre>
+<blockquote>
+<p><strong>ACE note:</strong><br />
+You are tested on <strong>why</strong>, not on memorizing flags.</p>
+</blockquote>
+<hr />
+<h2 id="7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Kubernetes with minimal operational effort”</p>
+</blockquote>
+<p>✅ <strong>GKE Autopilot</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Production cluster must survive zone failure”</p>
+</blockquote>
+<p>✅ <strong>Regional cluster</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Nodes must not have public IPs”</p>
+</blockquote>
+<p>✅ <strong>Private GKE cluster</strong></p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Need GPUs and custom node pools”</p>
+</blockquote>
+<p>✅ <strong>GKE Standard</strong></p>
+<hr />
+<h2 id="8-common-ace-exam-traps">8️⃣ Common ACE exam traps</h2>
+<p>❌ Choosing Standard when Autopilot fits<br />
+❌ Using zonal clusters for production HA<br />
+❌ Assuming Autopilot allows node customization<br />
+❌ Forgetting private clusters affect access methods</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Autopilot = no nodes to manage</strong></li>
+<li><strong>Standard = control</strong></li>
+<li><strong>Regional = HA</strong></li>
+<li><strong>Private = security</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

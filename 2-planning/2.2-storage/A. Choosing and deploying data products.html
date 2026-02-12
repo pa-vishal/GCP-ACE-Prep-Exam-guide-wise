@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A. Choosing and deploying data products</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-really-testing">1️⃣ What the ACE exam is REALLY testing</a></li>
+<li><a href="#2-mental-model-classify-the-workload-first">2️⃣ Mental model: classify the workload FIRST</a></li>
+<li><a href="#3-core-data-products-exam-level-understanding">3️⃣ Core data products (exam-level understanding)</a></li>
+<li><a href="#4-the-ace-decision-table-memorize">4️⃣ The ACE decision table (MEMORIZE)</a></li>
+<li><a href="#5-deployment-awareness-ace-level">5️⃣ Deployment awareness (ACE-level)</a></li>
+<li><a href="#6-common-ace-exam-traps-very-important">6️⃣ Common ACE exam traps (VERY IMPORTANT)</a></li>
+<li><a href="#7-real-ace-style-scenarios">7️⃣ Real ACE-style scenarios</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.2 – Choosing and deploying data products</strong></p>
+<p><em>(Cloud SQL, BigQuery, Firestore, Spanner, Bigtable, AlloyDB, Dataflow, Pub/Sub, Google Cloud Managed Service for Apache Kafka, Memorystore)</em></p>
+<p><img alt="Image" src="https://assets.bytebytego.com/diagrams/0093-cloud-comparison-cheat-sheet.png" /></p>
+<p><img alt="Image" src="https://media.licdn.com/dms/image/v2/C5612AQGa9oLcWmMzxQ/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1575264743959?e=2147483647\&amp;t=TKvajLpxIU8xKsE58LkWTmKS3ebj2crtnSGPohKKacE\&amp;v=beta" /></p>
+<p><img alt="Image" src="https://www.xenonstack.com/hubfs/xenonstack-build-stream-analytics-systems.png" /></p>
+<p>This is a <strong>top-tier ACE decision bullet</strong>. The exam is testing whether you can <strong>map data access patterns and consistency needs to the right managed service</strong>—not whether you can tune schemas or write pipelines.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-really-testing">1️⃣ What the ACE exam is REALLY testing</h2>
+<p>You must identify:</p>
+<ul>
+<li><strong>OLTP vs OLAP</strong></li>
+<li><strong>Relational vs NoSQL</strong></li>
+<li><strong>Batch vs streaming</strong></li>
+<li><strong>In-memory vs durable</strong></li>
+<li><strong>Single-region vs global scale</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“What problem is this data service solving?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-mental-model-classify-the-workload-first">2️⃣ Mental model: classify the workload FIRST</h2>
+<p>Before choosing a product, answer these in order:</p>
+<ol>
+<li>Is it <strong>transactional</strong> or <strong>analytical</strong>?</li>
+<li>Is the schema <strong>relational</strong> or <strong>flexible</strong>?</li>
+<li>Is scale <strong>small/medium</strong> or <strong>massive/global</strong>?</li>
+<li>Is data <strong>streaming</strong> or <strong>at rest</strong>?</li>
+<li>Is <strong>low latency</strong> critical?</li>
+</ol>
+<hr />
+<h2 id="3-core-data-products-exam-level-understanding">3️⃣ Core data products (exam-level understanding)</h2>
+<h3 id="-cloud-sql">🗄️ <strong>Cloud SQL</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Managed relational databases (MySQL, PostgreSQL, SQL Server)</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Traditional OLTP</li>
+<li>Small to medium scale</li>
+<li>App needs SQL + ACID</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Relational database”</li>
+<li>“Transactional workload”</li>
+<li>“Lift-and-shift database”</li>
+</ul>
+<hr />
+<h3 id="-bigquery">🧮 <strong>BigQuery</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Serverless <strong>data warehouse</strong></li>
+<li>OLAP analytics at massive scale</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Analytics</li>
+<li>Reporting</li>
+<li>Large datasets</li>
+<li>Read-heavy queries</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Analytics”</li>
+<li>“Reporting”</li>
+<li>“Petabytes of data”</li>
+<li>“No infrastructure management”</li>
+</ul>
+<hr />
+<h3 id="-firestore">📄 <strong>Firestore</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>NoSQL document database</li>
+<li>Serverless</li>
+<li>Strong consistency (in native mode)</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Mobile / web apps</li>
+<li>Flexible schema</li>
+<li>Real-time updates</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Mobile backend”</li>
+<li>“Document-based”</li>
+<li>“No schema migrations”</li>
+</ul>
+<hr />
+<h3 id="-spanner">🌍 <strong>Spanner</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Globally distributed relational database</li>
+<li>Strong consistency</li>
+<li>Horizontal scaling</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Global applications</li>
+<li>Relational + massive scale</li>
+<li>Strong consistency across regions</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Global scale”</li>
+<li>“Strong consistency”</li>
+<li>“Mission critical”</li>
+</ul>
+<hr />
+<h3 id="-bigtable">📊 <strong>Bigtable</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Wide-column NoSQL database</li>
+<li>Extremely high throughput</li>
+<li>Low latency at scale</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Time-series data</li>
+<li>IoT</li>
+<li>Metrics</li>
+<li>Large-scale analytical ingestion</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Billions of rows”</li>
+<li>“Low latency reads/writes”</li>
+<li>“Time-series”</li>
+</ul>
+<hr />
+<h3 id="-alloydb">🐘 <strong>AlloyDB</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>High-performance PostgreSQL-compatible database</li>
+<li>Optimized for analytics + transactions</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>PostgreSQL compatibility</li>
+<li>Higher performance than Cloud SQL</li>
+<li>Enterprise workloads</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“PostgreSQL compatible”</li>
+<li>“High performance”</li>
+<li>“Enterprise database”</li>
+</ul>
+<hr />
+<h3 id="-dataflow">🔄 <strong>Dataflow</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Serverless data processing</li>
+<li>Batch + streaming</li>
+<li>Apache Beam-based</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>ETL pipelines</li>
+<li>Stream processing</li>
+<li>Transforming data at scale</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Transform data”</li>
+<li>“Streaming pipeline”</li>
+<li>“ETL”</li>
+</ul>
+<hr />
+<h3 id="-pubsub">📣 <strong>Pub/Sub</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Global messaging service</li>
+<li>Event ingestion and delivery</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Event-driven architectures</li>
+<li>Decoupling producers/consumers</li>
+<li>Streaming ingestion</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Event-driven”</li>
+<li>“Asynchronous messaging”</li>
+<li>“Publish/subscribe”</li>
+</ul>
+<hr />
+<h3 id="-google-cloud-managed-service-for-apache-kafka">🧵 <strong>Google Cloud Managed Service for Apache Kafka</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Fully managed Kafka</li>
+<li>Compatible with Kafka APIs</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Existing Kafka workloads</li>
+<li>Kafka ecosystem required</li>
+<li>Streaming with Kafka semantics</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Kafka”</li>
+<li>“Existing Kafka clients”</li>
+<li>“Kafka compatibility”</li>
+</ul>
+<hr />
+<h3 id="-memorystore">⚡ <strong>Memorystore</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>In-memory data store (Redis / Memcached)</li>
+<li>Very low latency</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Caching</li>
+<li>Session storage</li>
+<li>Leaderboards</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Cache”</li>
+<li>“Sub-millisecond latency”</li>
+<li>“Reduce database load”</li>
+</ul>
+<hr />
+<h2 id="4-the-ace-decision-table-memorize">4️⃣ The ACE decision table (MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Best Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Relational OLTP</td>
+<td>Cloud SQL</td>
+</tr>
+<tr>
+<td>Global relational scale</td>
+<td>Spanner</td>
+</tr>
+<tr>
+<td>Analytics / OLAP</td>
+<td>BigQuery</td>
+</tr>
+<tr>
+<td>Flexible schema app</td>
+<td>Firestore</td>
+</tr>
+<tr>
+<td>Time-series / massive throughput</td>
+<td>Bigtable</td>
+</tr>
+<tr>
+<td>PostgreSQL, high performance</td>
+<td>AlloyDB</td>
+</tr>
+<tr>
+<td>ETL / stream processing</td>
+<td>Dataflow</td>
+</tr>
+<tr>
+<td>Event ingestion</td>
+<td>Pub/Sub</td>
+</tr>
+<tr>
+<td>Kafka compatibility</td>
+<td>Managed Kafka</td>
+</tr>
+<tr>
+<td>Cache / sessions</td>
+<td>Memorystore</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-deployment-awareness-ace-level">5️⃣ Deployment awareness (ACE-level)</h2>
+<p>You are expected to know:</p>
+<ul>
+<li>These are <strong>managed services</strong></li>
+<li>
+<p>Provisioning is mostly:</p>
+</li>
+<li>
+<p>Choose region</p>
+</li>
+<li>Choose capacity/tier</li>
+<li>
+<p>You are <strong>not</strong> tested on:</p>
+</li>
+<li>
+<p>Schema design</p>
+</li>
+<li>Query tuning</li>
+<li>Pipeline code</li>
+</ul>
+<hr />
+<h2 id="6-common-ace-exam-traps-very-important">6️⃣ Common ACE exam traps (VERY IMPORTANT)</h2>
+<p>❌ Using BigQuery for transactions<br />
+❌ Using Cloud SQL for analytics<br />
+❌ Using Firestore when SQL joins are required<br />
+❌ Using Memorystore as a primary database<br />
+❌ Choosing Spanner when global scale isn’t needed</p>
+<blockquote>
+<p><strong>Exam rule:</strong><br />
+<strong>Do not over-engineer. Choose the simplest service that meets requirements.</strong></p>
+</blockquote>
+<hr />
+<h2 id="7-real-ace-style-scenarios">7️⃣ Real ACE-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Mobile app backend with flexible schema and real-time updates”</p>
+</blockquote>
+<p>✅ <strong>Firestore</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Company needs analytics on terabytes of log data”</p>
+</blockquote>
+<p>✅ <strong>BigQuery</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Global financial system requiring strong consistency”</p>
+</blockquote>
+<p>✅ <strong>Spanner</strong></p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Decouple services using events”</p>
+</blockquote>
+<p>✅ <strong>Pub/Sub</strong></p>
+<hr />
+<h3 id="scenario-5">Scenario 5</h3>
+<blockquote>
+<p>“Reduce database load for read-heavy traffic”</p>
+</blockquote>
+<p>✅ <strong>Memorystore</strong></p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Cloud SQL = traditional SQL</strong></li>
+<li><strong>BigQuery = analytics</strong></li>
+<li><strong>Firestore = documents</strong></li>
+<li><strong>Spanner = global SQL</strong></li>
+<li><strong>Bigtable = massive throughput</strong></li>
+<li><strong>Dataflow = processing</strong></li>
+<li><strong>Pub/Sub = events</strong></li>
+<li><strong>Memorystore = cache</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

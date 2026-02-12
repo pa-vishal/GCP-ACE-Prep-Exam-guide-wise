@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C. Granting members Identity and Access Management (IAM) roles within a project</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#section-1.1--granting-members-identity-and-access-management-iam-roles-within-a-project">Section 1.1 – Granting members Identity and Access Management (IAM) roles within a project</a></li>
+<li><a href="#1-what-the-exam-actually-tests-here">1️⃣ What the exam actually tests here</a></li>
+<li><a href="#2-iam-fundamentals-must-be-automatic-for-you">2️⃣ IAM fundamentals (must be automatic for you)</a></li>
+<li><a href="#3-types-of-iam-members-exam-critical">3️⃣ Types of IAM members (exam-critical)</a></li>
+<li><a href="#4-iam-role-types-very-exam-relevant">4️⃣ IAM role types (VERY exam-relevant)</a></li>
+<li><a href="#5-granting-iam-roles-via-cli-gcloud">5️⃣ Granting IAM roles via CLI (gcloud)</a></li>
+<li><a href="#6-granting-iam-via-console-exam-safe-understanding">6️⃣ Granting IAM via Console (exam-safe understanding)</a></li>
+<li><a href="#7-common-exam-scenarios-with-correct-answers">7️⃣ Common exam scenarios (with correct answers)</a></li>
+<li><a href="#8-iam-vs-org-policy-quick-exam-lock-in">8️⃣ IAM vs Org Policy (quick exam lock-in)</a></li>
+<li><a href="#9-exam-traps--mistakes">9️⃣ Exam traps &amp; mistakes</a></li>
+<li><a href="#-one-line-exam-memory-hook">🔑 One-line exam memory hook</a></li>
+<li><a href="#-short-answer-exam-ready">✅ Short answer (exam-ready)</a></li>
+<li><a href="#1-iam-scope-hierarchy-full-picture">1️⃣ IAM scope hierarchy (full picture)</a></li>
+<li><a href="#2-why-resource-level-iam-exists-exam-logic">2️⃣ Why resource-level IAM exists (exam logic)</a></li>
+<li><a href="#3-common-gcp-resources-that-support-resource-level-iam">3️⃣ Common GCP resources that support resource-level IAM</a></li>
+<li><a href="#4-concrete-examples-with-cli">4️⃣ Concrete examples (with CLI)</a></li>
+<li><a href="#5-resource-level-vs-project-level-exam-decision-table">5️⃣ Resource-level vs project-level (exam decision table)</a></li>
+<li><a href="#6-ace-exam-traps-very-important">6️⃣ ACE exam traps (very important)</a></li>
+<li><a href="#7-how-the-ace-exam-phrases-this">7️⃣ How the ACE exam phrases this</a></li>
+<li><a href="#-final-exam-memory-hook">🔑 Final exam memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿</p>
+<h3 id="section-1.1--granting-members-identity-and-access-management-iam-roles-within-a-project"><strong>Section 1.1 – Granting members Identity and Access Management (IAM) roles within a project</strong></h3>
+<p><img alt="Image" src="https://d33wubrfki0l68.cloudfront.net/eaddeba5e864fe63444fe247f7a7277b427e42c2/ed88b/gcpimages/02-architecture/resource-hierarchy-overview.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/iam/img/iam-overview-basics.svg" /></p>
+<p>This bullet is <strong>heavily tested</strong> on the ACE exam. You’re expected to choose the <strong>right role</strong>, <strong>right scope</strong>, and <strong>right identity type</strong>—not to design enterprise IAM from scratch.</p>
+<hr />
+<h2 id="1-what-the-exam-actually-tests-here">1️⃣ What the exam actually tests here</h2>
+<p>The ACE exam focuses on your ability to:</p>
+<h3 id="-grant-access-at-the-correct-level">✅ Grant access at the <strong>correct level</strong></h3>
+<ul>
+<li>Project vs folder vs organization</li>
+<li>Project-level IAM is the <strong>most common</strong></li>
+</ul>
+<h3 id="-choose-the-least-privilege-role">✅ Choose the <strong>least-privilege role</strong></h3>
+<ul>
+<li>Prefer <strong>predefined roles</strong></li>
+<li>Avoid <strong>primitive roles</strong> unless explicitly required</li>
+</ul>
+<h3 id="-identify-who-gets-access">✅ Identify <strong>who</strong> gets access</h3>
+<ul>
+<li>User</li>
+<li>Group</li>
+<li>Service account</li>
+</ul>
+<h3 id="-what-the-exam-does-not-test">❌ What the exam does NOT test</h3>
+<ul>
+<li>Writing custom IAM roles in depth</li>
+<li>Complex conditional IAM logic</li>
+<li>Organization-wide IAM strategy</li>
+</ul>
+<hr />
+<h2 id="2-iam-fundamentals-must-be-automatic-for-you">2️⃣ IAM fundamentals (must be automatic for you)</h2>
+<h3 id="iam--who--what--where">IAM = <strong>Who + What + Where</strong></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Member</td>
+<td>Who (user, group, service account)</td>
+</tr>
+<tr>
+<td>Role</td>
+<td>What permissions</td>
+</tr>
+<tr>
+<td>Resource</td>
+<td>Where (project in this bullet)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>IAM Binding</strong></p>
+<pre><code>member → role → project
+</code></pre>
+<hr />
+<h2 id="3-types-of-iam-members-exam-critical">3️⃣ Types of IAM members (exam-critical)</h2>
+<h3 id="-user">👤 User</h3>
+<ul>
+<li>Individual identity</li>
+<li>Example: <code>user:alice@example.com</code></li>
+</ul>
+<h3 id="-group-preferred-in-real-life--exams">👥 Group (<strong>preferred in real life &amp; exams</strong>)</h3>
+<ul>
+<li>Managed via Cloud Identity / Workspace</li>
+<li>Example: <code>group:devs@example.com</code></li>
+</ul>
+<blockquote>
+<p><strong>Exam hint:</strong><br />
+“Grant access to multiple users” → <strong>Use a group</strong></p>
+</blockquote>
+<hr />
+<h3 id="-service-account">🤖 Service Account</h3>
+<ul>
+<li>Used by applications, VMs, GKE, Cloud Run</li>
+<li>Example: <code>serviceAccount:my-sa@project.iam.gserviceaccount.com</code></li>
+</ul>
+<blockquote>
+<p><strong>Exam hint:</strong><br />
+“Application needs access” → <strong>Service account</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-iam-role-types-very-exam-relevant">4️⃣ IAM role types (VERY exam-relevant)</h2>
+<h3 id="-primitive-roles-legacy">❌ Primitive roles (legacy)</h3>
+<ul>
+<li><code>roles/viewer</code></li>
+<li><code>roles/editor</code></li>
+<li><code>roles/owner</code></li>
+</ul>
+<p>⚠️ <strong>Overly broad</strong>, avoid unless explicitly stated.</p>
+<hr />
+<h3 id="-predefined-roles-exam-default-choice">✅ Predefined roles (<strong>exam default choice</strong>)</h3>
+<ul>
+<li>Fine-grained</li>
+<li>Service-specific</li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><code>roles/compute.admin</code></li>
+<li><code>roles/storage.objectViewer</code></li>
+<li><code>roles/logging.viewer</code></li>
+</ul>
+<blockquote>
+<p><strong>If unsure, choose predefined</strong></p>
+</blockquote>
+<hr />
+<h3 id="-custom-roles">⚙️ Custom roles</h3>
+<ul>
+<li>Defined by admin</li>
+<li>Least privilege but <strong>not common in ACE questions</strong></li>
+</ul>
+<hr />
+<h2 id="5-granting-iam-roles-via-cli-gcloud">5️⃣ Granting IAM roles via CLI (gcloud)</h2>
+<h3 id="-grant-a-role-to-a-user-at-project-level">🔹 Grant a role to a user at project level</h3>
+<pre><code class="language-bash">gcloud projects add-iam-policy-binding my-project \
+  --member=&quot;user:alice@example.com&quot; \
+  --role=&quot;roles/viewer&quot;
+</code></pre>
+<hr />
+<h3 id="-grant-a-role-to-a-group-best-practice">🔹 Grant a role to a group (best practice)</h3>
+<pre><code class="language-bash">gcloud projects add-iam-policy-binding my-project \
+  --member=&quot;group:devs@example.com&quot; \
+  --role=&quot;roles/compute.admin&quot;
+</code></pre>
+<hr />
+<h3 id="-grant-a-role-to-a-service-account">🔹 Grant a role to a service account</h3>
+<pre><code class="language-bash">gcloud projects add-iam-policy-binding my-project \
+  --member=&quot;serviceAccount:my-sa@my-project.iam.gserviceaccount.com&quot; \
+  --role=&quot;roles/storage.objectAdmin&quot;
+</code></pre>
+<hr />
+<h3 id="-view-iam-policy-for-a-project">🔹 View IAM policy for a project</h3>
+<pre><code class="language-bash">gcloud projects get-iam-policy my-project
+</code></pre>
+<hr />
+<h2 id="6-granting-iam-via-console-exam-safe-understanding">6️⃣ Granting IAM via Console (exam-safe understanding)</h2>
+<p>Steps (conceptual):</p>
+<ol>
+<li>Go to <strong>IAM &amp; Admin → IAM</strong></li>
+<li>Select <strong>Project</strong></li>
+<li>Click <strong>Grant Access</strong></li>
+<li>Add member</li>
+<li>Choose role</li>
+<li>Save</li>
+</ol>
+<blockquote>
+<p>You will <strong>not</strong> be tested on exact UI clicks, only <strong>intent and outcome</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="7-common-exam-scenarios-with-correct-answers">7️⃣ Common exam scenarios (with correct answers)</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Grant read-only access to logs for a support engineer”</p>
+</blockquote>
+<p>✅ Correct:</p>
+<ul>
+<li>Member: User or Group</li>
+<li>Role: <code>roles/logging.viewer</code></li>
+<li>Scope: Project</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Allow an application running on a VM to write to Cloud Storage”</p>
+</blockquote>
+<p>✅ Correct:</p>
+<ul>
+<li>Member: Service Account</li>
+<li>Role: <code>roles/storage.objectAdmin</code></li>
+<li>Scope: Project</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Grant access to 20 developers without managing them individually”</p>
+</blockquote>
+<p>✅ Correct:</p>
+<ul>
+<li>Use a <strong>group</strong></li>
+<li>Bind role once at project level</li>
+</ul>
+<hr />
+<h2 id="8-iam-vs-org-policy-quick-exam-lock-in">8️⃣ IAM vs Org Policy (quick exam lock-in)</h2>
+<table>
+<thead>
+<tr>
+<th>Question intent</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Grant permission</td>
+<td>IAM</td>
+</tr>
+<tr>
+<td>Restrict capability</td>
+<td>Org Policy</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>If the question says <strong>“allow”</strong>, <strong>“grant”</strong>, <strong>“access”</strong> → IAM</p>
+</blockquote>
+<hr />
+<h2 id="9-exam-traps--mistakes">9️⃣ Exam traps &amp; mistakes</h2>
+<p>❌ Assign <code>Editor</code> when a predefined role exists<br />
+❌ Grant to users instead of groups<br />
+❌ Use service account for humans<br />
+❌ Confuse project IAM with folder IAM</p>
+<hr />
+<h2 id="-one-line-exam-memory-hook">🔑 One-line exam memory hook</h2>
+<blockquote>
+<p><strong>IAM = who can do what on this project</strong></p>
+</blockquote>
+<hr />
+<p>Yes — <strong>identities <em>can</em> be granted IAM roles at the resource level</strong>, and this is <strong>explicitly tested on the ACE exam</strong>, usually as a <em>“least privilege”</em> decision.</p>
+<p>We are <strong>still inside</strong>:<br />
+<strong>Section 1.1 → Granting members IAM roles within a project</strong><br />
+This clarification <strong>will be included in the section HTML</strong>.</p>
+<hr />
+<h2 id="-short-answer-exam-ready">✅ Short answer (exam-ready)</h2>
+<blockquote>
+<p><strong>Yes.</strong><br />
+IAM roles can be granted at <strong>organization, folder, project, <em>and individual resource levels</em></strong> — <strong>if the resource supports IAM</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="1-iam-scope-hierarchy-full-picture">1️⃣ IAM scope hierarchy (full picture)</h2>
+<p>IAM can be applied at these levels:</p>
+<pre><code>Organization
+ └── Folder
+      └── Project
+           └── Resource (bucket, VM, Cloud Run service, BigQuery dataset, etc.)
+</code></pre>
+<p><strong>Inheritance rule</strong></p>
+<ul>
+<li>Permissions <strong>flow downward</strong></li>
+<li>Lower-level IAM <strong>adds or narrows scope</strong>, not permissions</li>
+</ul>
+<hr />
+<h2 id="2-why-resource-level-iam-exists-exam-logic">2️⃣ Why resource-level IAM exists (exam logic)</h2>
+<p>Resource-level IAM is used when:</p>
+<ul>
+<li>You want <strong>least privilege</strong></li>
+<li>You must <strong>avoid granting access to the whole project</strong></li>
+<li>Only <strong>one specific resource</strong> should be accessible</li>
+</ul>
+<blockquote>
+<p>ACE exam keyword: <strong>“only”</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-common-gcp-resources-that-support-resource-level-iam">3️⃣ Common GCP resources that support resource-level IAM</h2>
+<p>These are <strong>very exam-relevant</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cloud Storage bucket</td>
+<td>Object-level access</td>
+</tr>
+<tr>
+<td>BigQuery dataset/table</td>
+<td>Data access isolation</td>
+</tr>
+<tr>
+<td>Cloud Run service</td>
+<td>Invoke permission</td>
+</tr>
+<tr>
+<td>Pub/Sub topic/subscription</td>
+<td>Publisher / Subscriber</td>
+</tr>
+<tr>
+<td>Secret Manager secret</td>
+<td>Read/write secrets</td>
+</tr>
+<tr>
+<td>Compute Engine instance</td>
+<td>(limited, less common)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-concrete-examples-with-cli">4️⃣ Concrete examples (with CLI)</h2>
+<h3 id="-example-1-grant-access-to-one-cloud-storage-bucket">🪣 Example 1: Grant access to ONE Cloud Storage bucket</h3>
+<p><strong>Requirement</strong></p>
+<blockquote>
+<p>“Allow a user to read objects in one bucket only”</p>
+</blockquote>
+<p>✅ Correct approach: <strong>Resource-level IAM</strong></p>
+<pre><code class="language-bash">gcloud storage buckets add-iam-policy-binding my-bucket \
+  --member=&quot;user:alice@example.com&quot; \
+  --role=&quot;roles/storage.objectViewer&quot;
+</code></pre>
+<p>✔️ No access to other buckets<br />
+✔️ No project-wide permission</p>
+<hr />
+<h3 id="-example-2-allow-invoking-one-cloud-run-service">🚀 Example 2: Allow invoking ONE Cloud Run service</h3>
+<p><strong>Requirement</strong></p>
+<blockquote>
+<p>“Allow a service to call a specific Cloud Run service”</p>
+</blockquote>
+<pre><code class="language-bash">gcloud run services add-iam-policy-binding my-service \
+  --member=&quot;serviceAccount:caller@project.iam.gserviceaccount.com&quot; \
+  --role=&quot;roles/run.invoker&quot; \
+  --region=us-central1
+</code></pre>
+<hr />
+<h3 id="-example-3-bigquery-dataset-access">📊 Example 3: BigQuery dataset access</h3>
+<p><strong>Requirement</strong></p>
+<blockquote>
+<p>“Grant analytics team access to only one dataset”</p>
+</blockquote>
+<pre><code class="language-bash">bq add-iam-policy-binding my_dataset \
+  --member=&quot;group:analytics@example.com&quot; \
+  --role=&quot;roles/bigquery.dataViewer&quot;
+</code></pre>
+<hr />
+<h2 id="5-resource-level-vs-project-level-exam-decision-table">5️⃣ Resource-level vs project-level (exam decision table)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Correct Level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Access to everything in project</td>
+<td>Project</td>
+</tr>
+<tr>
+<td>Access to one service</td>
+<td>Resource</td>
+</tr>
+<tr>
+<td>Least privilege</td>
+<td>Resource</td>
+</tr>
+<tr>
+<td>Many similar resources</td>
+<td>Project or Folder</td>
+</tr>
+<tr>
+<td>One-off exception</td>
+<td>Resource</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-ace-exam-traps-very-important">6️⃣ ACE exam traps (very important)</h2>
+<p>❌ “IAM can only be applied at project level” → <strong>False</strong><br />
+❌ “Use project IAM for a single bucket” → <strong>Over-privileged</strong><br />
+❌ “Resource-level IAM replaces project IAM” → <strong>False</strong></p>
+<p>✔️ <strong>Both can coexist</strong></p>
+<hr />
+<h2 id="7-how-the-ace-exam-phrases-this">7️⃣ How the ACE exam phrases this</h2>
+<p>Look for phrases like:</p>
+<ul>
+<li>“only this bucket”</li>
+<li>“single service”</li>
+<li>“specific resource”</li>
+<li>“without granting access to other resources”</li>
+</ul>
+<p>👉 These phrases <strong>strongly signal resource-level IAM</strong></p>
+<hr />
+<h2 id="-final-exam-memory-hook">🔑 Final exam memory hook</h2>
+<blockquote>
+<p><strong>IAM scope answers “HOW MUCH”</strong><br />
+<strong>Project = broad</strong><br />
+<strong>Resource = precise</strong></p>
+</blockquote>
+<hr />
+<p>If you have <strong>more IAM counter-questions</strong>, ask now.<br />
+Otherwise, give me the <strong>next bullet under Section 1.1</strong> when ready.</p>
+    </div>
+  </div>
+</body>
+
+</html>

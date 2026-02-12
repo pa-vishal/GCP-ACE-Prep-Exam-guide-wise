@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D. Establishing network connectivity</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-the-three-connectivity-options-high-level">2️⃣ The three connectivity options (high-level)</a></li>
+<li><a href="#3-cloud-vpn-most-common-ace-answer">3️⃣ Cloud VPN (MOST COMMON ACE ANSWER)</a></li>
+<li><a href="#4-vpc-network-peering-gcp--gcp">4️⃣ VPC Network Peering (GCP ↔ GCP)</a></li>
+<li><a href="#5-cloud-interconnect-high-end-option">5️⃣ Cloud Interconnect (HIGH-END OPTION)</a></li>
+<li><a href="#6-decision-table-memorize">6️⃣ Decision table (MEMORIZE)</a></li>
+<li><a href="#7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#8-common-ace-exam-traps">8️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.3 – Establishing network connectivity</strong></p>
+<p><em>(Cloud VPN, VPC Network Peering, Cloud Interconnect)</em></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Decision-Tree-Network-Connectivity_v09-18-.max-2000x2000.jpg" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/network-connectivity/docs/vpn/images/cloud-vpn-overview-01.svg" /></p>
+<p><img alt="Image" src="https://docs.aws.amazon.com/images/prescriptive-guidance/latest/integrate-third-party-services/images/p2_vpc-peering.png" /></p>
+<p><img alt="Image" src="https://docs.aws.amazon.com/images/vpc/latest/peering/images/peering-intro-diagram.png" /></p>
+<p>This bullet tests whether you can <strong>connect networks correctly based on distance, performance, cost, and reliability</strong>. The ACE exam is decision-heavy here: <strong>pick the simplest option that meets the requirements</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Choose <strong>VPN vs Peering vs Interconnect</strong></li>
+<li>Understand <strong>latency, bandwidth, and SLA tradeoffs</strong></li>
+<li>Avoid overengineering</li>
+<li>Recognize <strong>when connectivity is NOT required</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“What is being connected, how far apart are they, and how reliable must it be?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-the-three-connectivity-options-high-level">2️⃣ The three connectivity options (high-level)</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Connects</th>
+<th>Over the internet?</th>
+<th>SLA</th>
+<th>Typical bandwidth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cloud VPN</strong></td>
+<td>On-prem ↔ GCP</td>
+<td>Yes (encrypted)</td>
+<td>Yes (HA VPN)</td>
+<td>Up to ~3 Gbps per tunnel</td>
+</tr>
+<tr>
+<td><strong>VPC Peering</strong></td>
+<td>GCP VPC ↔ GCP VPC</td>
+<td>No (Google backbone)</td>
+<td>No</td>
+<td>High (no hard cap)</td>
+</tr>
+<tr>
+<td><strong>Cloud Interconnect</strong></td>
+<td>On-prem ↔ GCP</td>
+<td>No (private link)</td>
+<td>Yes</td>
+<td>10–100 Gbps</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-cloud-vpn-most-common-ace-answer">3️⃣ Cloud VPN (MOST COMMON ACE ANSWER)</h2>
+<h3 id="what-it-is">What it is</h3>
+<ul>
+<li>Encrypted IPSec tunnels over the public internet</li>
+<li>Quick to set up</li>
+<li>
+<p>Two main types:</p>
+</li>
+<li>
+<p><strong>Classic VPN</strong> (legacy)</p>
+</li>
+<li><strong>HA VPN</strong> (recommended)</li>
+</ul>
+<h3 id="use-when">Use when</h3>
+<ul>
+<li>Connecting <strong>on-premises</strong> to GCP</li>
+<li>Moderate bandwidth</li>
+<li>Cost-sensitive</li>
+<li>Fast setup required</li>
+</ul>
+<h3 id="exam-signals">Exam signals</h3>
+<ul>
+<li>“Hybrid connectivity”</li>
+<li>“On-premises to cloud”</li>
+<li>“Encrypted”</li>
+<li>“Quick setup”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+On-prem + simple + secure → <strong>Cloud VPN</strong></p>
+</blockquote>
+<hr />
+<h3 id="exam-awareness-ha-vpn">Exam awareness: HA VPN</h3>
+<ul>
+<li>Uses <strong>two tunnels</strong></li>
+<li>Requires <strong>two external IPs</strong></li>
+<li>Provides <strong>99.99% SLA</strong></li>
+</ul>
+<hr />
+<h2 id="4-vpc-network-peering-gcp--gcp">4️⃣ VPC Network Peering (GCP ↔ GCP)</h2>
+<h3 id="what-it-is_1">What it is</h3>
+<ul>
+<li>Private connectivity between <strong>two VPCs</strong></li>
+<li>Uses Google’s internal backbone</li>
+<li>No encryption needed (private network)</li>
+</ul>
+<h3 id="use-when_1">Use when</h3>
+<ul>
+<li>Connecting <strong>projects or VPCs inside GCP</strong></li>
+<li>Low latency, high bandwidth</li>
+<li>No transitive routing</li>
+</ul>
+<h3 id="exam-signals_1">Exam signals</h3>
+<ul>
+<li>“Two GCP projects”</li>
+<li>“Private communication”</li>
+<li>“No on-premises”</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+VPC Peering does <strong>not</strong> support:</p>
+<ul>
+<li>Transitive peering</li>
+<li>Overlapping CIDR ranges</li>
+</ul>
+</blockquote>
+<hr />
+<h2 id="5-cloud-interconnect-high-end-option">5️⃣ Cloud Interconnect (HIGH-END OPTION)</h2>
+<h3 id="what-it-is_2">What it is</h3>
+<ul>
+<li>Dedicated private physical connection to Google</li>
+<li>
+<p>Two flavors:</p>
+</li>
+<li>
+<p><strong>Dedicated Interconnect</strong></p>
+</li>
+<li><strong>Partner Interconnect</strong></li>
+</ul>
+<h3 id="use-when_2">Use when</h3>
+<ul>
+<li>Very high bandwidth</li>
+<li>Low latency</li>
+<li>Mission-critical workloads</li>
+<li>Long-term hybrid connectivity</li>
+</ul>
+<h3 id="exam-signals_2">Exam signals</h3>
+<ul>
+<li>“High throughput”</li>
+<li>“Low latency”</li>
+<li>“Enterprise”</li>
+<li>“Dedicated connection”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Only choose Interconnect when the question <strong>explicitly demands</strong> performance or SLA beyond VPN.</p>
+</blockquote>
+<hr />
+<h2 id="6-decision-table-memorize">6️⃣ Decision table (MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Best Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>On-prem ↔ GCP, simple</td>
+<td>Cloud VPN</td>
+</tr>
+<tr>
+<td>On-prem ↔ GCP, high bandwidth</td>
+<td>Cloud Interconnect</td>
+</tr>
+<tr>
+<td>GCP ↔ GCP private</td>
+<td>VPC Peering</td>
+</tr>
+<tr>
+<td>Fast, low cost</td>
+<td>Cloud VPN</td>
+</tr>
+<tr>
+<td>Enterprise, mission-critical</td>
+<td>Interconnect</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Company wants secure connectivity from on-prem to GCP quickly”</p>
+</blockquote>
+<p>✅ <strong>Cloud VPN</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Two projects must communicate privately within GCP”</p>
+</blockquote>
+<p>✅ <strong>VPC Network Peering</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Low-latency, high-throughput hybrid connectivity required”</p>
+</blockquote>
+<p>✅ <strong>Cloud Interconnect</strong></p>
+<hr />
+<h2 id="8-common-ace-exam-traps">8️⃣ Common ACE exam traps</h2>
+<p>❌ Using VPC Peering for on-prem<br />
+❌ Using Interconnect when VPN is sufficient<br />
+❌ Expecting peering to be transitive<br />
+❌ Overlooking CIDR overlap issues</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>On-prem → VPN or Interconnect</strong></li>
+<li><strong>GCP ↔ GCP → Peering</strong></li>
+<li><strong>High performance → Interconnect</strong></li>
+<li><strong>Simple &amp; fast → VPN</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

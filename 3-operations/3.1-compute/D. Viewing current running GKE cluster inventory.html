@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D. Viewing current running GKE cluster inventory</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#section-3.1--managing-compute-resources">Section 3.1 – Managing compute resources</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-prerequisite-often-implied-on-the-exam">2️⃣ Prerequisite (often implied on the exam)</a></li>
+<li><a href="#3-viewing-nodes-infrastructure-layer">3️⃣ Viewing nodes (INFRASTRUCTURE LAYER)</a></li>
+<li><a href="#4-viewing-pods-workload-layer">4️⃣ Viewing Pods (WORKLOAD LAYER)</a></li>
+<li><a href="#5-viewing-services-networking-layer">5️⃣ Viewing Services (NETWORKING LAYER)</a></li>
+<li><a href="#6-namespace-awareness-very-important">6️⃣ Namespace awareness (VERY important)</a></li>
+<li><a href="#7-inventory-layers-mental-model--memorize">7️⃣ Inventory layers (MENTAL MODEL – MEMORIZE)</a></li>
+<li><a href="#8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#9-common-ace-exam-traps">9️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿</p>
+<h3 id="section-3.1--managing-compute-resources"><strong>Section 3.1 – Managing compute resources</strong></h3>
+<h4 id="viewing-current-running-gke-cluster-inventory"><strong>Viewing current running GKE cluster inventory</strong></h4>
+<p><em>(nodes, Pods, Services)</em></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/kubernetes-engine/images/gke-architecture.svg" /></p>
+<p><img alt="Image" src="https://leading-bell-3e1c02e64d.media.strapiapp.com/Wa3_f4_9988b95743.png" /></p>
+<p><img alt="Image" src="https://21854652.fs1.hubspotusercontent-na1.net/hubfs/21854652/Imported_Blog_Media/gke-workload-identity.png" /></p>
+<p>This bullet tests whether you can <strong>quickly inspect what’s running inside a GKE cluster</strong> and <strong>separate infrastructure problems from application problems</strong>. On the ACE exam, this is classic <strong>triage</strong>: before fixing anything, <strong>see the inventory</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>View <strong>nodes</strong>, <strong>Pods</strong>, and <strong>Services</strong></li>
+<li>Understand <strong>scope</strong> (cluster-wide vs namespace)</li>
+<li>Use <strong>kubectl</strong> correctly after authentication</li>
+<li>Interpret basic status fields</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Is the problem the cluster, the nodes, or the workload?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-prerequisite-often-implied-on-the-exam">2️⃣ Prerequisite (often implied on the exam)</h2>
+<p>Before you can view inventory:</p>
+<ul>
+<li>You must have <strong>kubectl installed</strong></li>
+<li>You must have fetched <strong>cluster credentials</strong></li>
+</ul>
+<pre><code class="language-bash">gcloud container clusters get-credentials my-cluster \
+  --region=us-central1
+</code></pre>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+kubectl installed but not configured → inventory commands fail</p>
+</blockquote>
+<hr />
+<h2 id="3-viewing-nodes-infrastructure-layer">3️⃣ Viewing nodes (INFRASTRUCTURE LAYER)</h2>
+<h3 id="what-nodes-represent">What nodes represent</h3>
+<ul>
+<li>Worker machines running Pods</li>
+<li>Backed by Compute Engine VMs (Standard)</li>
+<li>Fully managed by Google (Autopilot)</li>
+</ul>
+<h3 id="list-nodes">List nodes</h3>
+<pre><code class="language-bash">kubectl get nodes
+</code></pre>
+<p><strong>Key fields to recognize</strong></p>
+<ul>
+<li><code>STATUS</code> → Ready / NotReady</li>
+<li><code>ROLES</code></li>
+<li><code>VERSION</code></li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+Pods failing across many services → check <strong>nodes first</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-viewing-pods-workload-layer">4️⃣ Viewing Pods (WORKLOAD LAYER)</h2>
+<h3 id="what-pods-represent">What Pods represent</h3>
+<ul>
+<li>Smallest deployable unit</li>
+<li>One or more containers</li>
+</ul>
+<h3 id="list-pods-current-namespace">List Pods (current namespace)</h3>
+<pre><code class="language-bash">kubectl get pods
+</code></pre>
+<h3 id="list-pods-across-all-namespaces">List Pods across all namespaces</h3>
+<pre><code class="language-bash">kubectl get pods --all-namespaces
+</code></pre>
+<p><strong>Key status values</strong></p>
+<ul>
+<li><code>Running</code></li>
+<li><code>Pending</code></li>
+<li><code>CrashLoopBackOff</code></li>
+<li><code>ImagePullBackOff</code></li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“App not responding” → check <strong>Pod status</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-viewing-services-networking-layer">5️⃣ Viewing Services (NETWORKING LAYER)</h2>
+<h3 id="what-services-represent">What Services represent</h3>
+<ul>
+<li>Stable networking endpoints for Pods</li>
+<li>Abstract Pod IP churn</li>
+</ul>
+<h3 id="list-services">List Services</h3>
+<pre><code class="language-bash">kubectl get services
+</code></pre>
+<p><strong>Key types</strong></p>
+<ul>
+<li><code>ClusterIP</code> – internal only</li>
+<li><code>LoadBalancer</code> – external access</li>
+<li><code>NodePort</code> – exposed via node IPs</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Pods running but app unreachable” → check <strong>Service</strong></p>
+</blockquote>
+<hr />
+<h2 id="6-namespace-awareness-very-important">6️⃣ Namespace awareness (VERY important)</h2>
+<p>By default:</p>
+<ul>
+<li>kubectl shows resources in the <strong>current namespace</strong></li>
+</ul>
+<h3 id="check-current-namespace">Check current namespace</h3>
+<pre><code class="language-bash">kubectl config view --minify | grep namespace
+</code></pre>
+<h3 id="list-resources-in-a-specific-namespace">List resources in a specific namespace</h3>
+<pre><code class="language-bash">kubectl get pods -n my-namespace
+</code></pre>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+“No Pods found” → wrong namespace</p>
+</blockquote>
+<hr />
+<h2 id="7-inventory-layers-mental-model--memorize">7️⃣ Inventory layers (MENTAL MODEL – MEMORIZE)</h2>
+<pre><code>Cluster
+ ├── Nodes (compute)
+ ├── Pods (workloads)
+ └── Services (networking)
+</code></pre>
+<p>Troubleshooting order:</p>
+<ol>
+<li>Nodes</li>
+<li>Pods</li>
+<li>Services</li>
+</ol>
+<hr />
+<h2 id="8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Application is down in GKE”</p>
+</blockquote>
+<p>✅ First steps:</p>
+<ul>
+<li><code>kubectl get nodes</code></li>
+<li><code>kubectl get pods</code></li>
+<li><code>kubectl get services</code></li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Cluster exists but no workloads appear”</p>
+</blockquote>
+<p>✅ Likely cause:</p>
+<ul>
+<li>Wrong namespace</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Pods stuck in Pending”</p>
+</blockquote>
+<p>✅ Likely causes:</p>
+<ul>
+<li>Insufficient node capacity</li>
+<li>Scheduling constraints</li>
+</ul>
+<hr />
+<h2 id="9-common-ace-exam-traps">9️⃣ Common ACE exam traps</h2>
+<p>❌ Using <code>gcloud</code> instead of <code>kubectl</code> for workload inventory<br />
+❌ Forgetting namespaces<br />
+❌ Assuming Autopilot nodes are visible/manageable<br />
+❌ Debugging Services before Pods</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Nodes = compute</strong></li>
+<li><strong>Pods = workloads</strong></li>
+<li><strong>Services = access</strong></li>
+<li><strong>Wrong namespace = empty results</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

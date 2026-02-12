@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I. Configuring and deploying Ops Agent</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#configuring-and-deploying-ops-agent">Configuring and deploying Ops Agent</a></li>
+<li><a href="#you-need-it-when">You need it when:</a></li>
+<li><a href="#you-do-not-need-it-for">You do NOT need it for:</a></li>
+<li><a href="#metrics">Metrics:</a></li>
+<li><a href="#logs">Logs:</a></li>
+<li><a href="#scenario-1">Scenario 1</a></li>
+<li><a href="#scenario-2">Scenario 2</a></li>
+<li><a href="#scenario-3">Scenario 3</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.4 – Monitoring and logging</strong></p>
+<h4 id="configuring-and-deploying-ops-agent"><strong>Configuring and deploying Ops Agent</strong></h4>
+<p>This bullet is about <strong>collecting metrics and logs from Compute Engine VMs</strong>.<br />
+The ACE exam tests whether you understand:</p>
+<ul>
+<li>Why the Ops Agent exists</li>
+<li>What it collects</li>
+<li>When it’s required</li>
+<li>How it differs from legacy agents</li>
+</ul>
+<hr />
+<h1 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h1>
+<p>You should be able to:</p>
+<ul>
+<li>Explain what the <strong>Ops Agent</strong> does</li>
+<li>Know when to install it</li>
+<li>
+<p>Distinguish it from:</p>
+</li>
+<li>
+<p>Built-in GCP metrics</p>
+</li>
+<li>Legacy monitoring agents</li>
+<li>Understand that it runs on <strong>Compute Engine VMs</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Why are VM logs or metrics missing?”</em></p>
+</blockquote>
+<hr />
+<h1 id="2-what-is-the-ops-agent">2️⃣ What is the Ops Agent?</h1>
+<p>The <strong>Ops Agent</strong> is a single unified agent that:</p>
+<ul>
+<li>Collects <strong>metrics</strong></li>
+<li>Collects <strong>logs</strong></li>
+<li>
+<p>Sends them to:</p>
+</li>
+<li>
+<p>Cloud Monitoring</p>
+</li>
+<li>Cloud Logging</li>
+</ul>
+<p>It replaces:</p>
+<ul>
+<li>Stackdriver Monitoring Agent</li>
+<li>Stackdriver Logging Agent</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Modern VMs → use <strong>Ops Agent</strong>, not legacy agents.</p>
+</blockquote>
+<hr />
+<h1 id="3-when-do-you-need-ops-agent">3️⃣ When do you need Ops Agent?</h1>
+<h3 id="you-need-it-when">You need it when:</h3>
+<ul>
+<li>
+<p>Collecting:</p>
+</li>
+<li>
+<p>Guest OS metrics (CPU inside OS, memory)</p>
+</li>
+<li>Application logs from VM</li>
+<li>Monitoring on-prem VMs via hybrid setup</li>
+<li>Collecting custom log files</li>
+</ul>
+<hr />
+<h3 id="you-do-not-need-it-for">You do NOT need it for:</h3>
+<ul>
+<li>Cloud Run</li>
+<li>GKE managed nodes</li>
+<li>Managed services (Cloud SQL, BigQuery)</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Ops Agent is for <strong>Compute Engine VMs</strong>, not serverless.</p>
+</blockquote>
+<hr />
+<h1 id="4-what-it-collects-must-know">4️⃣ What it collects (MUST KNOW)</h1>
+<h3 id="metrics">Metrics:</h3>
+<ul>
+<li>CPU usage (inside OS)</li>
+<li>Memory usage</li>
+<li>Disk usage</li>
+<li>Network metrics</li>
+<li>Custom application metrics (if configured)</li>
+</ul>
+<h3 id="logs">Logs:</h3>
+<ul>
+<li>Syslog</li>
+<li>Application logs</li>
+<li>Custom file paths</li>
+</ul>
+<hr />
+<h1 id="5-deployment-methods-exam-awareness">5️⃣ Deployment methods (Exam Awareness)</h1>
+<p>Common ways to deploy:</p>
+<ul>
+<li>Install manually on VM</li>
+<li>
+<p>Use:</p>
+</li>
+<li>
+<p>Startup scripts</p>
+</li>
+<li>VM templates</li>
+<li>Instance groups</li>
+<li>Automation tools</li>
+</ul>
+<p>You’re not tested on exact install commands — just awareness.</p>
+<hr />
+<h1 id="6-configuration">6️⃣ Configuration</h1>
+<p>Ops Agent uses configuration files to:</p>
+<ul>
+<li>Define log collection paths</li>
+<li>Define metric sources</li>
+<li>Enable/disable integrations</li>
+</ul>
+<p>Example scenarios:</p>
+<ul>
+<li>Collect <code>/var/log/app.log</code></li>
+<li>Monitor NGINX metrics</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Without configuration, custom logs won’t be collected.</p>
+</blockquote>
+<hr />
+<h1 id="7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</h1>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Memory metrics not visible for VM”</p>
+</blockquote>
+<p>✅ Likely:</p>
+<ul>
+<li>Ops Agent not installed</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Application logs from VM not appearing in Cloud Logging”</p>
+</blockquote>
+<p>✅ Check:</p>
+<ul>
+<li>Ops Agent installed?</li>
+<li>Log file path configured?</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Monitoring CPU for Cloud Run”</p>
+</blockquote>
+<p>❌ No Ops Agent needed<br />
+✅ Built-in metrics</p>
+<hr />
+<h1 id="8-ops-agent-vs-built-in-monitoring-important-distinction">8️⃣ Ops Agent vs Built-in Monitoring (IMPORTANT DISTINCTION)</h1>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Needs Ops Agent?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compute Engine</td>
+<td>Yes (for guest metrics/logs)</td>
+</tr>
+<tr>
+<td>GKE</td>
+<td>No (managed)</td>
+</tr>
+<tr>
+<td>Cloud Run</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Cloud SQL</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Don’t install Ops Agent on services that don’t support it.</p>
+</blockquote>
+<hr />
+<h1 id="9-common-ace-exam-traps">9️⃣ Common ACE exam traps</h1>
+<p>❌ Installing legacy Stackdriver agent<br />
+❌ Expecting VM logs without agent<br />
+❌ Trying to install Ops Agent on Cloud Run<br />
+❌ Confusing Monitoring metrics with OS-level metrics</p>
+<hr />
+<h1 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h1>
+<ul>
+<li><strong>Ops Agent = VM telemetry</strong></li>
+<li><strong>Compute Engine only</strong></li>
+<li><strong>Serverless doesn’t use it</strong></li>
+<li><strong>Guest metrics require agent</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

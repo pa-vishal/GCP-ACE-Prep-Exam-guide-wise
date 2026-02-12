@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L. Conguring autoscaling for a Cloud Run application</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#configuring-autoscaling-for-a-cloud-run-application">Configuring autoscaling for a Cloud Run application</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-how-cloud-run-autoscaling-works-mental-model">2️⃣ How Cloud Run autoscaling works (MENTAL MODEL)</a></li>
+<li><a href="#3-core-autoscaling-controls-must-know">3️⃣ Core autoscaling controls (MUST KNOW)</a></li>
+<li><a href="#4-autoscaling--pricing-exam-favorite">4️⃣ Autoscaling + pricing (EXAM FAVORITE)</a></li>
+<li><a href="#5-common-autoscaling-scenarios-exam-practice">5️⃣ Common autoscaling scenarios (EXAM PRACTICE)</a></li>
+<li><a href="#6-autoscaling-vs-other-platforms-exam-comparison">6️⃣ Autoscaling vs other platforms (EXAM COMPARISON)</a></li>
+<li><a href="#7-what-you-do-not-control-in-cloud-run-exam-trap">7️⃣ What you do NOT control in Cloud Run (EXAM TRAP)</a></li>
+<li><a href="#8-common-ace-exam-traps">8️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.1 – Managing compute resources</strong></p>
+<h4 id="configuring-autoscaling-for-a-cloud-run-application"><strong>Configuring autoscaling for a Cloud Run application</strong></h4>
+<p><img alt="Image" src="https://miro.medium.com/1%2A2gnIctgRQtHYoq6btZ7qYA.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/run/docs/images/billable-time-with-min-instances.svg" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/run/docs/images/cloud-run-security-arch.svg" /></p>
+<p>This bullet is <strong>very frequently tested</strong>. The ACE exam checks whether you understand <strong>how Cloud Run scales</strong>, <strong>which knobs you can control</strong>, and <strong>how scaling affects cost, performance, and availability</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Explain <strong>how Cloud Run autoscaling works</strong></li>
+<li>Configure <strong>min instances</strong>, <strong>max instances</strong>, and <strong>concurrency</strong></li>
+<li>Choose settings to balance <strong>cost vs latency</strong></li>
+<li>Diagnose <strong>cold starts</strong> and <strong>throttling</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“How do I handle variable traffic without managing servers?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-how-cloud-run-autoscaling-works-mental-model">2️⃣ How Cloud Run autoscaling works (MENTAL MODEL)</h2>
+<pre><code>Incoming requests
+ ↓
+Cloud Run creates instances
+ ↓
+Each instance handles N concurrent requests
+ ↓
+Scale out / scale in automatically
+</code></pre>
+<p>Key points:</p>
+<ul>
+<li>Scaling is <strong>request-driven</strong></li>
+<li>Instances are <strong>stateless</strong></li>
+<li>Scaling is <strong>automatic and fast</strong></li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+You never scale Cloud Run by CPU or memory directly—<strong>requests drive scaling</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="3-core-autoscaling-controls-must-know">3️⃣ Core autoscaling controls (MUST KNOW)</h2>
+<h3 id="a.-max-instances-very-important">A. <strong>Max instances</strong> (VERY IMPORTANT)</h3>
+<ul>
+<li>Upper limit on number of instances</li>
+<li>
+<p>Prevents:</p>
+</li>
+<li>
+<p>Cost explosions</p>
+</li>
+<li>Backend overload (DB, APIs)</li>
+</ul>
+<pre><code class="language-bash">gcloud run services update my-service \
+  --max-instances=50 \
+  --region=us-central1
+</code></pre>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Protect backend systems”</li>
+<li>“Limit cost”</li>
+</ul>
+<hr />
+<h3 id="b.-min-instances-cold-start-control">B. <strong>Min instances</strong> (COLD START CONTROL)</h3>
+<ul>
+<li>Keeps instances <strong>warm</strong></li>
+<li>Reduces cold-start latency</li>
+<li>Increases baseline cost</li>
+</ul>
+<pre><code class="language-bash">gcloud run services update my-service \
+  --min-instances=1 \
+  --region=us-central1
+</code></pre>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Low latency required”</li>
+<li>“Avoid cold starts”</li>
+</ul>
+<blockquote>
+<p><strong>ACE tradeoff:</strong><br />
+Min instances = better latency, higher cost</p>
+</blockquote>
+<hr />
+<h3 id="c.-concurrency-throughput-control">C. <strong>Concurrency</strong> (THROUGHPUT CONTROL)</h3>
+<ul>
+<li>Number of concurrent requests per instance</li>
+<li>Default: <strong>80</strong></li>
+<li>
+<p>Lower concurrency:</p>
+</li>
+<li>
+<p>More instances</p>
+</li>
+<li>Lower per-instance load</li>
+<li>
+<p>Higher concurrency:</p>
+</li>
+<li>
+<p>Fewer instances</p>
+</li>
+<li>More efficient CPU usage</li>
+</ul>
+<pre><code class="language-bash">gcloud run services update my-service \
+  --concurrency=20 \
+  --region=us-central1
+</code></pre>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“CPU-heavy requests”</li>
+<li>“Long-running requests”</li>
+</ul>
+<hr />
+<h2 id="4-autoscaling--pricing-exam-favorite">4️⃣ Autoscaling + pricing (EXAM FAVORITE)</h2>
+<p>Cloud Run billing is based on:</p>
+<ul>
+<li>CPU &amp; memory <strong>while requests are handled</strong></li>
+<li>Number of instances created</li>
+<li>Request duration</li>
+</ul>
+<p>Key implications:</p>
+<ul>
+<li>Overly low concurrency → more instances → higher cost</li>
+<li>High min instances → always-on cost</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Right-size concurrency before raising max instances.</p>
+</blockquote>
+<hr />
+<h2 id="5-common-autoscaling-scenarios-exam-practice">5️⃣ Common autoscaling scenarios (EXAM PRACTICE)</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Traffic spikes cause database overload”</p>
+</blockquote>
+<p>✅ Fix:</p>
+<ul>
+<li>Set <strong>max instances</strong></li>
+<li>Optionally lower concurrency</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Users complain about cold-start latency”</p>
+</blockquote>
+<p>✅ Fix:</p>
+<ul>
+<li>Set <strong>min instances ≥ 1</strong></li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“CPU-intensive requests time out”</p>
+</blockquote>
+<p>✅ Fix:</p>
+<ul>
+<li>Lower <strong>concurrency</strong></li>
+<li>Possibly increase CPU allocation</li>
+</ul>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Unpredictable traffic with cost sensitivity”</p>
+</blockquote>
+<p>✅ Fix:</p>
+<ul>
+<li>Keep <strong>min instances = 0</strong></li>
+<li>Tune <strong>concurrency</strong></li>
+</ul>
+<hr />
+<h2 id="6-autoscaling-vs-other-platforms-exam-comparison">6️⃣ Autoscaling vs other platforms (EXAM COMPARISON)</h2>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Scaling unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cloud Run</td>
+<td>Requests → instances</td>
+</tr>
+<tr>
+<td>GKE</td>
+<td>Pods &amp; nodes</td>
+</tr>
+<tr>
+<td>Compute Engine</td>
+<td>VMs (manual / MIG)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Do not apply GKE autoscaling logic to Cloud Run.</p>
+</blockquote>
+<hr />
+<h2 id="7-what-you-do-not-control-in-cloud-run-exam-trap">7️⃣ What you do NOT control in Cloud Run (EXAM TRAP)</h2>
+<p>❌ Node size<br />
+❌ Node autoscaling<br />
+❌ OS-level tuning</p>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Cloud Run abstracts infrastructure completely.</p>
+</blockquote>
+<hr />
+<h2 id="8-common-ace-exam-traps">8️⃣ Common ACE exam traps</h2>
+<p>❌ Expecting Cloud Run to scale on CPU metrics<br />
+❌ Forgetting min instances affect cost<br />
+❌ Setting max instances too high without backend capacity<br />
+❌ Treating concurrency as “threads” instead of requests</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Cloud Run scales on requests</strong></li>
+<li><strong>Max instances = cost &amp; backend protection</strong></li>
+<li><strong>Min instances = cold-start control</strong></li>
+<li><strong>Concurrency = efficiency knob</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

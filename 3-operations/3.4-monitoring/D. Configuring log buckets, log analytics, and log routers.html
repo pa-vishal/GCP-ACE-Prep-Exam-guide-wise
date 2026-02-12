@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D. Configuring log buckets, log analytics, and log routers</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#configuring-log-buckets-log-analytics-and-log-routers">Configuring log buckets, log analytics, and log routers</a></li>
+<li><a href="#what-is-a-log-bucket">What is a Log Bucket?</a></li>
+<li><a href="#retention-very-exam-relevant">Retention (VERY EXAM RELEVANT)</a></li>
+<li><a href="#regional-vs-global-buckets">Regional vs Global Buckets</a></li>
+<li><a href="#log-analytics-vs-bigquery-important-distinction">Log Analytics vs BigQuery (IMPORTANT DISTINCTION)</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.4 – Monitoring and logging</strong></p>
+<h4 id="configuring-log-buckets-log-analytics-and-log-routers"><strong>Configuring log buckets, log analytics, and log routers</strong></h4>
+<p>This bullet is about <strong>how logs are stored, routed, retained, and analyzed inside Google Cloud</strong>. The ACE exam checks whether you understand the <strong>internal flow of logs</strong>, not deep SIEM design.</p>
+<hr />
+<h1 id="1-big-picture-how-logs-flow-in-gcp">1️⃣ Big Picture: How Logs Flow in GCP</h1>
+<pre><code>Resources → Cloud Logging API → Log Router → Log Buckets → Analysis / Export
+</code></pre>
+<p>There are <strong>three key components</strong> here:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Log Router</td>
+<td>Decides where logs go</td>
+</tr>
+<tr>
+<td>Log Bucket</td>
+<td>Stores logs</td>
+</tr>
+<tr>
+<td>Log Analytics</td>
+<td>Lets you query logs using SQL</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Logs always pass through the <strong>Log Router</strong> first.</p>
+</blockquote>
+<hr />
+<h1 id="2-log-buckets-storage-layer">2️⃣ Log Buckets (Storage Layer)</h1>
+<h2 id="what-is-a-log-bucket">What is a Log Bucket?</h2>
+<p>A <strong>log bucket</strong>:</p>
+<ul>
+<li>Stores log entries</li>
+<li>
+<p>Has configurable:</p>
+</li>
+<li>
+<p><strong>Retention period</strong></p>
+</li>
+<li>Location (region)</li>
+<li>CMEK encryption (optional)</li>
+</ul>
+<p>By default:</p>
+<ul>
+<li>Logs go to the <code>_Default</code> bucket</li>
+<li>Audit logs may go to <code>_Required</code></li>
+</ul>
+<hr />
+<h2 id="retention-very-exam-relevant">Retention (VERY EXAM RELEVANT)</h2>
+<p>You can configure:</p>
+<ul>
+<li>Retention days (e.g., 30, 90, 365)</li>
+<li>Longer retention = higher cost</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Retain logs for 2 years” → configure log bucket retention.</p>
+</blockquote>
+<hr />
+<h2 id="regional-vs-global-buckets">Regional vs Global Buckets</h2>
+<ul>
+<li>You can create <strong>regional log buckets</strong></li>
+<li>
+<p>Helps with:</p>
+</li>
+<li>
+<p>Data residency requirements</p>
+</li>
+<li>Compliance</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Retention is configured at the bucket level, not per log entry.</p>
+</blockquote>
+<hr />
+<h1 id="3-log-router-routing-engine">3️⃣ Log Router (Routing Engine)</h1>
+<p>The <strong>Log Router</strong>:</p>
+<ul>
+<li>Automatically receives all logs</li>
+<li>
+<p>Routes logs to:</p>
+</li>
+<li>
+<p>Log buckets</p>
+</li>
+<li>Log sinks (BigQuery, GCS, Pub/Sub)</li>
+</ul>
+<p>You configure routing by:</p>
+<ul>
+<li>Creating log sinks</li>
+<li>Defining filters</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Router decides <strong>where logs go</strong>, not how they’re stored.</p>
+</blockquote>
+<hr />
+<h1 id="4-log-analytics-sql-on-logs">4️⃣ Log Analytics (SQL on Logs)</h1>
+<p>Log Analytics allows:</p>
+<ul>
+<li>SQL-style querying of logs</li>
+<li>BigQuery-like experience</li>
+<li>No need to export logs to BigQuery</li>
+</ul>
+<p>It operates directly on:</p>
+<ul>
+<li>Log buckets</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Query logs using SQL without exporting” → <strong>Log Analytics</strong></p>
+</blockquote>
+<hr />
+<h2 id="log-analytics-vs-bigquery-important-distinction">Log Analytics vs BigQuery (IMPORTANT DISTINCTION)</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Log Analytics</th>
+<th>BigQuery Export</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQL query</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>External BI tools</td>
+<td>Limited</td>
+<td>Full</td>
+</tr>
+<tr>
+<td>Cross-dataset joins</td>
+<td>Limited</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Long-term analytics</td>
+<td>Better in BigQuery</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Simple SQL on logs → Log Analytics<br />
+Complex analytics → BigQuery export</p>
+</blockquote>
+<hr />
+<h1 id="5-creating-custom-log-buckets-exam-awareness">5️⃣ Creating Custom Log Buckets (Exam Awareness)</h1>
+<p>You may:</p>
+<ul>
+<li>Create bucket in specific region</li>
+<li>Set retention</li>
+<li>Attach CMEK</li>
+<li>Route specific logs to it</li>
+</ul>
+<p>CLI example (conceptual):</p>
+<pre><code class="language-bash">gcloud logging buckets create my-secure-bucket \
+  --location=us-central1 \
+  --retention-days=365
+</code></pre>
+<blockquote>
+<p>You’re tested on <strong>what it accomplishes</strong>, not syntax.</p>
+</blockquote>
+<hr />
+<h1 id="6-common-ace-exam-scenarios">6️⃣ Common ACE Exam Scenarios</h1>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Logs must be retained for 7 years”</p>
+</blockquote>
+<p>✅ Create log bucket with extended retention.</p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Security logs must remain in EU region”</p>
+</blockquote>
+<p>✅ Create regional log bucket in EU.</p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Run SQL queries on logs without exporting to BigQuery”</p>
+</blockquote>
+<p>✅ Enable Log Analytics.</p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Only ERROR logs should be exported”</p>
+</blockquote>
+<p>✅ Configure log sink filter in router.</p>
+<hr />
+<h1 id="7-common-ace-exam-traps">7️⃣ Common ACE Exam Traps</h1>
+<p>❌ Confusing log bucket with Cloud Storage<br />
+❌ Exporting logs unnecessarily<br />
+❌ Forgetting retention settings<br />
+❌ Thinking Log Analytics replaces BigQuery<br />
+❌ Ignoring IAM on log buckets</p>
+<hr />
+<h1 id="8-monitoring-vs-logging-reminder">8️⃣ Monitoring vs Logging (Reminder)</h1>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Monitoring</td>
+<td>Metrics + alerts</td>
+</tr>
+<tr>
+<td>Logging</td>
+<td>Log entries</td>
+</tr>
+<tr>
+<td>Log Analytics</td>
+<td>SQL on logs</td>
+</tr>
+<tr>
+<td>Log Router</td>
+<td>Routing engine</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="-one-line-ace-memory-hooks">🔑 One-line ACE Memory Hooks</h1>
+<ul>
+<li><strong>Logs → Router → Bucket</strong></li>
+<li><strong>Retention set on bucket</strong></li>
+<li><strong>SQL on logs = Log Analytics</strong></li>
+<li><strong>Export = Log Sink</strong></li>
+<li><strong>Compliance → Regional bucket</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

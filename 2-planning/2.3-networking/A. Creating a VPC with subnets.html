@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A. Creating a VPC with subnets</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-core-concepts-you-must-lock-in">2️⃣ Core concepts you MUST lock in</a></li>
+<li><a href="#3-default-vpc-vs-custom-mode-vpc-very-exam-relevant">3️⃣ Default VPC vs Custom mode VPC (VERY exam-relevant)</a></li>
+<li><a href="#4-creating-a-custom-vpc-and-subnet-cli--exam-relevant">4️⃣ Creating a custom VPC and subnet (CLI – exam-relevant)</a></li>
+<li><a href="#5-shared-vpc-big-exam-concept">5️⃣ Shared VPC (BIG exam concept)</a></li>
+<li><a href="#6-when-the-ace-exam-expects-shared-vpc">6️⃣ When the ACE exam expects Shared VPC</a></li>
+<li><a href="#7-what-shared-vpc-is-not">7️⃣ What Shared VPC is NOT</a></li>
+<li><a href="#8-iam-implications-exam-awareness">8️⃣ IAM implications (exam awareness)</a></li>
+<li><a href="#9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#10-common-ace-exam-traps">10️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.3 – Creating a VPC with subnets</strong></p>
+<p><em>(custom mode VPC, Shared VPC)</em></p>
+<p><img alt="Image" src="https://d33wubrfki0l68.cloudfront.net/57750035ef2c7221ce9bdece3154ff503d5fdc9c/a0271/gcpimages/02-architecture/00-public-private-subnet.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/architecture/images/vpc-bps-multi-nic-shared-vpc.png" /></p>
+<p><img alt="Image" src="https://miro.medium.com/1%2A6HWT7WGREFABwDf8poEqCQ.jpeg" /></p>
+<p>This bullet is <strong>core networking foundation</strong>. The ACE exam tests whether you understand <strong>how Google Cloud networking is structured</strong>, <strong>when to choose custom mode</strong>, and <strong>when Shared VPC is the right architectural choice</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Create a <strong>VPC</strong> and <strong>subnets</strong> correctly</li>
+<li>Understand <strong>global VPC vs regional subnets</strong></li>
+<li>Choose <strong>custom mode</strong> over default for production</li>
+<li>Recognize <strong>Shared VPC</strong> use cases</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Who owns the network, where do IPs live, and who is allowed to use it?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-core-concepts-you-must-lock-in">2️⃣ Core concepts you MUST lock in</h2>
+<h3 id="-vpc-network">🌐 VPC network</h3>
+<ul>
+<li><strong>Global</strong> resource</li>
+<li>
+<p>Container for:</p>
+</li>
+<li>
+<p>Subnets</p>
+</li>
+<li>Routes</li>
+<li>Firewall rules</li>
+<li>Does <strong>not</strong> live in a region</li>
+</ul>
+<h3 id="-subnets">📍 Subnets</h3>
+<ul>
+<li><strong>Regional</strong></li>
+<li>Define IP ranges (CIDR)</li>
+<li>Live <strong>inside a VPC</strong></li>
+<li>Can be expanded (not shrunk)</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+VPC = global, subnet = regional</p>
+</blockquote>
+<hr />
+<h2 id="3-default-vpc-vs-custom-mode-vpc-very-exam-relevant">3️⃣ Default VPC vs Custom mode VPC (VERY exam-relevant)</h2>
+<h3 id="-default-vpc">❌ Default VPC</h3>
+<ul>
+<li>Automatically created</li>
+<li>One subnet per region</li>
+<li>Broad firewall rules</li>
+<li>Not production-friendly</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Learning</li>
+<li>Quick tests</li>
+<li>Demos</li>
+</ul>
+<hr />
+<h3 id="-custom-mode-vpc-exam-default-choice">✅ Custom mode VPC (EXAM DEFAULT CHOICE)</h3>
+<ul>
+<li>You create subnets explicitly</li>
+<li>
+<p>Full control over:</p>
+</li>
+<li>
+<p>Regions</p>
+</li>
+<li>CIDR ranges</li>
+<li>Firewall exposure</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Production workloads</li>
+<li>Security matters</li>
+<li>IP planning is required</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If the question says <em>production</em>, <em>secure</em>, or <em>controlled</em> → <strong>Custom VPC</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-creating-a-custom-vpc-and-subnet-cli--exam-relevant">4️⃣ Creating a custom VPC and subnet (CLI – exam-relevant)</h2>
+<h3 id="create-a-custom-mode-vpc">Create a custom-mode VPC</h3>
+<pre><code class="language-bash">gcloud compute networks create my-vpc \
+  --subnet-mode=custom
+</code></pre>
+<hr />
+<h3 id="create-a-subnet">Create a subnet</h3>
+<pre><code class="language-bash">gcloud compute networks subnets create app-subnet \
+  --network=my-vpc \
+  --region=us-central1 \
+  --range=10.10.0.0/24
+</code></pre>
+<hr />
+<h3 id="list-networks-and-subnets">List networks and subnets</h3>
+<pre><code class="language-bash">gcloud compute networks list
+gcloud compute networks subnets list
+</code></pre>
+<hr />
+<h2 id="5-shared-vpc-big-exam-concept">5️⃣ Shared VPC (BIG exam concept)</h2>
+<h3 id="what-shared-vpc-is">What Shared VPC is</h3>
+<p>Shared VPC lets you:</p>
+<ul>
+<li>Create a <strong>host project</strong> that owns the VPC</li>
+<li>Attach <strong>service projects</strong> that deploy resources</li>
+<li>Centralize <strong>network control</strong></li>
+</ul>
+<pre><code>Host Project (VPC owner)
+ ├── Subnets
+ ├── Firewall rules
+ └── Routes
+        ↑
+Service Projects
+ └── VMs, GKE, Cloud Run (via connectors)
+</code></pre>
+<hr />
+<h2 id="6-when-the-ace-exam-expects-shared-vpc">6️⃣ When the ACE exam expects Shared VPC</h2>
+<p>Use Shared VPC when:</p>
+<ul>
+<li>Multiple teams/projects</li>
+<li>Centralized networking team</li>
+<li>Separation of duties</li>
+<li>Strong governance</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Central networking team”</li>
+<li>“Multiple projects share same network”</li>
+<li>“Control networking centrally”</li>
+</ul>
+<hr />
+<h2 id="7-what-shared-vpc-is-not">7️⃣ What Shared VPC is NOT</h2>
+<p>❌ Not VPC Peering<br />
+❌ Not a VPN<br />
+❌ Not per-region</p>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Shared VPC = <strong>one VPC, many projects</strong></p>
+</blockquote>
+<hr />
+<h2 id="8-iam-implications-exam-awareness">8️⃣ IAM implications (exam awareness)</h2>
+<ul>
+<li>
+<p>Host project admins:</p>
+</li>
+<li>
+<p>Control subnets and firewalls</p>
+</li>
+<li>
+<p>Service project admins:</p>
+</li>
+<li>
+<p>Deploy resources <strong>into approved subnets</strong></p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Teams deploy without controlling the network” → <strong>Shared VPC</strong></p>
+</blockquote>
+<hr />
+<h2 id="9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Production network with tight IP control”</p>
+</blockquote>
+<p>✅ <strong>Custom mode VPC</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Multiple projects must share the same network”</p>
+</blockquote>
+<p>✅ <strong>Shared VPC</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Engineer cannot create VM due to subnet permission”</p>
+</blockquote>
+<p>✅ Missing:</p>
+<ul>
+<li>Shared VPC IAM role on subnet</li>
+</ul>
+<hr />
+<h2 id="10-common-ace-exam-traps">10️⃣ Common ACE exam traps</h2>
+<p>❌ Using default VPC for production<br />
+❌ Thinking subnets are global<br />
+❌ Confusing Shared VPC with peering<br />
+❌ Forgetting to create subnets in custom VPC</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>VPC = global</strong></li>
+<li><strong>Subnet = regional</strong></li>
+<li><strong>Custom VPC = production</strong></li>
+<li><strong>Shared VPC = central control</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

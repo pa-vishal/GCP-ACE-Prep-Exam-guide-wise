@@ -1,0 +1,358 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A. Creating a resource hierarchy</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#️⃣-what-is-a-resource-hierarchy">1️⃣ What is a resource hierarchy?</a></li>
+<li><a href="#️⃣-the-hierarchy-components-one-by-one">2️⃣ The hierarchy components (one by one)</a></li>
+<li><a href="#️⃣-how-hierarchy-affects-iam-very-exam-relevant">3️⃣ How hierarchy affects IAM (very exam-relevant)</a></li>
+<li><a href="#️⃣-how-hierarchy-affects-organization-policies">4️⃣ How hierarchy affects Organization Policies</a></li>
+<li><a href="#️⃣-billing--hierarchy-quick-clarity">5️⃣ Billing & hierarchy (quick clarity)</a></li>
+<li><a href="#️⃣-real-world-use-case">6️⃣ Real-world use case</a></li>
+<li><a href="#️⃣-exam-traps--misconceptions">7️⃣ Exam traps & misconceptions</a></li>
+<li><a href="#️⃣-one-line-exam-memory-hook">8️⃣ One-line exam memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <h3 id="section-1.1-–-creating-a-resource-hierarchy"><strong>Section 1.1 – Creating a resource hierarchy</strong></h3>
+<p><img src="https://d33wubrfki0l68.cloudfront.net/eaddeba5e864fe63444fe247f7a7277b427e42c2/ed88b/gcpimages/02-architecture/resource-hierarchy-overview.png" alt="Image"></p>
+<p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/cloud-hierarchy-1omgk.max-700x700.PNG" alt="Image"></p>
+<p>This is a <strong>foundational ACE topic</strong>. Many IAM, billing, and policy questions assume you <em>already understand this structure</em>.</p>
+<hr>
+<h2 id="️⃣-what-is-a-resource-hierarchy">1️⃣ What is a resource hierarchy?</h2>
+<p>In <strong>Google Cloud</strong>, every resource lives in a <strong>tree-like hierarchy</strong> that defines:</p>
+<ul>
+<li>
+<p><strong>Ownership</strong></p>
+</li>
+<li>
+<p><strong>Policy inheritance</strong></p>
+</li>
+<li>
+<p><strong>Billing scope</strong></p>
+</li>
+<li>
+<p><strong>Access control</strong></p>
+</li>
+</ul>
+<p>The hierarchy (top → bottom):</p>
+<pre><code>Organization
+ └── Folder(s)
+      └── Project(s)
+           └── Resources (VMs, GKE, Cloud SQL, Buckets, etc.)
+
+</code></pre>
+<blockquote>
+<p><strong>Key exam idea:</strong><br>
+Policies (IAM, org policies, budgets) <strong>flow downward</strong> unless explicitly overridden.</p>
+</blockquote>
+<hr>
+<h2 id="️⃣-the-hierarchy-components-one-by-one">2️⃣ The hierarchy components (one by one)</h2>
+<h3 id="a.-organization"><strong>A. Organization</strong></h3>
+<ul>
+<li>
+<p>Represents a <strong>company or institution</strong></p>
+</li>
+<li>
+<p>Created automatically when:</p>
+<ul>
+<li>You use <strong>Cloud Identity / Google Workspace</strong></li>
+</ul>
+</li>
+<li>
+<p>Acts as the <strong>root node</strong></p>
+</li>
+</ul>
+<p><strong>Why it matters</strong></p>
+<ul>
+<li>
+<p>Central place for:</p>
+<ul>
+<li>
+<p>Organization Policies</p>
+</li>
+<li>
+<p>Centralized IAM</p>
+</li>
+<li>
+<p>Folder structure</p>
+</li>
+<li>
+<p>Audit visibility</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Exam tip</strong></p>
+<blockquote>
+<p>If a question mentions <em>enterprise</em>, <em>company-wide policy</em>, or <em>central governance</em> → <strong>Organization level</strong></p>
+</blockquote>
+<hr>
+<h3 id="b.-folders"><strong>B. Folders</strong></h3>
+<ul>
+<li>
+<p>Optional but <strong>strongly recommended</strong></p>
+</li>
+<li>
+<p>Used to group projects logically</p>
+</li>
+</ul>
+<p><strong>Common folder strategies</strong></p>
+<ul>
+<li>
+<p>By environment: <code>prod / staging / dev</code></p>
+</li>
+<li>
+<p>By department: <code>finance / engineering / marketing</code></p>
+</li>
+<li>
+<p>By compliance boundary</p>
+</li>
+</ul>
+<p><strong>Why folders exist</strong></p>
+<ul>
+<li>
+<p>Apply IAM and org policies <strong>once</strong> to many projects</p>
+</li>
+<li>
+<p>Delegate control safely</p>
+</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code>Organization
+ └── Engineering
+      ├── Dev
+      │    └── dev-project-1
+      └── Prod
+           └── prod-project-1
+
+</code></pre>
+<p><strong>Exam trap</strong></p>
+<blockquote>
+<p>Folders are <strong>not required</strong>, but <strong>best practice</strong> in almost all real setups.</p>
+</blockquote>
+<hr>
+<h3 id="c.-projects"><strong>C. Projects</strong></h3>
+<ul>
+<li>
+<p><strong>Mandatory</strong></p>
+</li>
+<li>
+<p>Every GCP resource lives in <strong>exactly one project</strong></p>
+</li>
+<li>
+<p>Acts as:</p>
+<ul>
+<li>
+<p>Billing boundary</p>
+</li>
+<li>
+<p>API enablement boundary</p>
+</li>
+<li>
+<p>IAM boundary</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Project contains</strong></p>
+<ul>
+<li>
+<p>Compute Engine</p>
+</li>
+<li>
+<p>GKE</p>
+</li>
+<li>
+<p>Cloud SQL</p>
+</li>
+<li>
+<p>Buckets</p>
+</li>
+<li>
+<p>APIs</p>
+</li>
+<li>
+<p>Logs &amp; metrics</p>
+</li>
+</ul>
+<p><strong>Important</strong></p>
+<ul>
+<li>
+<p>Projects <strong>cannot contain other projects</strong></p>
+</li>
+<li>
+<p>Projects <strong>inherit</strong> from folder/org</p>
+</li>
+</ul>
+<hr>
+<h3 id="d.-resources"><strong>D. Resources</strong></h3>
+<ul>
+<li>
+<p>Actual services you deploy</p>
+</li>
+<li>
+<p>Always belong to <strong>one project only</strong></p>
+</li>
+</ul>
+<hr>
+<h2 id="️⃣-how-hierarchy-affects-iam-very-exam-relevant">3️⃣ How hierarchy affects IAM (very exam-relevant)</h2>
+<p>IAM roles can be granted at:</p>
+<ul>
+<li>
+<p>Organization level</p>
+</li>
+<li>
+<p>Folder level</p>
+</li>
+<li>
+<p>Project level</p>
+</li>
+<li>
+<p>Resource level</p>
+</li>
+</ul>
+<p><strong>Inheritance rule</strong></p>
+<ul>
+<li>Permissions granted <strong>higher</strong> apply <strong>lower</strong></li>
+</ul>
+<p><strong>Example</strong></p>
+<ul>
+<li>
+<p>IAM at folder → applies to all projects in that folder</p>
+</li>
+<li>
+<p>IAM at org → applies to everything</p>
+</li>
+</ul>
+<p><strong>ACE exam pattern</strong></p>
+<blockquote>
+<p>“Grant access to many projects without repeating configuration”<br>
+✔️ Use <strong>Folder-level IAM</strong></p>
+</blockquote>
+<hr>
+<h2 id="️⃣-how-hierarchy-affects-organization-policies">4️⃣ How hierarchy affects Organization Policies</h2>
+<p>Organization Policies:</p>
+<ul>
+<li>
+<p>Restrict behavior (e.g., no external IPs, allowed regions)</p>
+</li>
+<li>
+<p>Can be applied at:</p>
+<ul>
+<li>
+<p>Org</p>
+</li>
+<li>
+<p>Folder</p>
+</li>
+<li>
+<p>Project</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Inheritance</strong></p>
+<ul>
+<li>More restrictive policy wins</li>
+</ul>
+<p><strong>Example</strong></p>
+<ul>
+<li>
+<p>Org policy: allow all regions</p>
+</li>
+<li>
+<p>Folder policy: only <code>us-central1</code><br>
+→ Projects under folder limited to <code>us-central1</code></p>
+</li>
+</ul>
+<hr>
+<h2 id="️⃣-billing--hierarchy-quick-clarity">5️⃣ Billing &amp; hierarchy (quick clarity)</h2>
+<ul>
+<li>
+<p><strong>Billing account</strong> is <strong>linked to projects</strong></p>
+</li>
+<li>
+<p>Folder/org does <strong>not directly bill</strong></p>
+</li>
+<li>
+<p>But hierarchy helps:</p>
+<ul>
+<li>
+<p>Budget visibility</p>
+</li>
+<li>
+<p>Cost allocation</p>
+</li>
+<li>
+<p>Access control</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="️⃣-real-world-use-case">6️⃣ Real-world use case</h2>
+<p><strong>Scenario</strong></p>
+<blockquote>
+<p>A company wants:</p>
+<ul>
+<li>
+<p>Central security rules</p>
+</li>
+<li>
+<p>Separate dev/prod billing</p>
+</li>
+<li>
+<p>Delegated team access</p>
+</li>
+</ul>
+</blockquote>
+<p><strong>Correct setup</strong></p>
+<pre><code>Organization
+ └── Engineering
+      ├── Dev (folder)
+      │    └── dev-project (linked to dev billing)
+      └── Prod (folder)
+           └── prod-project (linked to prod billing)
+
+</code></pre>
+<hr>
+<h2 id="️⃣-exam-traps--misconceptions">7️⃣ Exam traps &amp; misconceptions</h2>
+<p>❌ “Folders are required” → <strong>False</strong><br>
+❌ “Projects can exist outside organization” → <strong>Rare, standalone only</strong><br>
+❌ “Billing is applied at folder” → <strong>Incorrect</strong><br>
+✔️ Projects are the <strong>unit of billing</strong></p>
+<hr>
+<h2 id="️⃣-one-line-exam-memory-hook">8️⃣ One-line exam memory hook</h2>
+<blockquote>
+<p><strong>Organization = governance</strong><br>
+<strong>Folder = grouping &amp; delegation</strong><br>
+<strong>Project = billing + IAM + APIs</strong><br>
+<strong>Resources = actual services</strong></p>
+</blockquote>
+<hr>
+<p>When you’re ready, give me <strong>the next bullet under Section 1.1</strong>.</p>
+
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G. Working with Kubernetes resources</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#working-with-kubernetes-resources">Working with Kubernetes resources</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-pods-the-smallest-unit">2️⃣ Pods (the smallest unit)</a></li>
+<li><a href="#3-services-stable-networking">3️⃣ Services (stable networking)</a></li>
+<li><a href="#4-statefulsets-stateful-workloads--high-yield">4️⃣ StatefulSets (STATEFUL workloads – HIGH-YIELD)</a></li>
+<li><a href="#5-pods-vs-services-vs-statefulsets-must-memorize">5️⃣ Pods vs Services vs StatefulSets (MUST MEMORIZE)</a></li>
+<li><a href="#6-typical-ace-exam-scenarios">6️⃣ Typical ACE exam scenarios</a></li>
+<li><a href="#7-common-ace-exam-traps">7️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.1 – Managing compute resources</strong></p>
+<h4 id="working-with-kubernetes-resources"><strong>Working with Kubernetes resources</strong></h4>
+<p><em>(Pods, Services, StatefulSets)</em></p>
+<p><img alt="Image" src="https://media.licdn.com/dms/image/v2/C5612AQEN5ubgCt9TcA/article-cover_image-shrink_600_2000/article-cover_image-shrink_600_2000/0/1622268066370?e=2147483647\&amp;t=X_NxUJ9xekdEojlymt3jR67Iiv2CPJCn0vOlQKuBDl8\&amp;v=beta" /></p>
+<p><img alt="Image" src="https://yqintl.alicdn.com/667b84088637bc056ce3df67d71b76fd06ba703f.png" /></p>
+<p><img alt="Image" src="https://assets.bytebytego.com/diagrams/0005-4-k8s-service-types.png" /></p>
+<p>This bullet checks whether you can <strong>identify, inspect, and reason about core Kubernetes objects</strong> and understand <strong>which object solves which problem</strong>. The ACE exam stays at a <strong>foundational level</strong>—you’re not expected to design complex manifests, but you <em>are</em> expected to pick the right resource.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Identify <strong>Pods</strong>, <strong>Services</strong>, and <strong>StatefulSets</strong></li>
+<li>Know <strong>when each is appropriate</strong></li>
+<li>Use <code>kubectl</code> to <strong>view status</strong></li>
+<li>Avoid confusing stateless vs stateful workloads</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Is this workload stateless or stateful, and how is it exposed?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-pods-the-smallest-unit">2️⃣ Pods (the smallest unit)</h2>
+<h3 id="what-a-pod-is">What a Pod is</h3>
+<ul>
+<li>The <strong>smallest deployable unit</strong> in Kubernetes</li>
+<li>
+<p>One or more containers that:</p>
+</li>
+<li>
+<p>Share networking (IP/ports)</p>
+</li>
+<li>Share storage volumes</li>
+<li>Pods are <strong>ephemeral</strong></li>
+</ul>
+<h3 id="key-properties-exam-relevant">Key properties (exam-relevant)</h3>
+<ul>
+<li>Pod IPs change when recreated</li>
+<li>Pods are <strong>not self-healing by themselves</strong></li>
+<li>Usually managed by higher-level controllers</li>
+</ul>
+<h3 id="view-pods">View Pods</h3>
+<pre><code class="language-bash">kubectl get pods
+kubectl get pods --all-namespaces
+</code></pre>
+<p><strong>Common Pod states</strong></p>
+<ul>
+<li><code>Running</code></li>
+<li><code>Pending</code></li>
+<li><code>CrashLoopBackOff</code></li>
+<li><code>ImagePullBackOff</code></li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Don’t deploy standalone Pods for production—use controllers.</p>
+</blockquote>
+<hr />
+<h2 id="3-services-stable-networking">3️⃣ Services (stable networking)</h2>
+<h3 id="what-a-service-is">What a Service is</h3>
+<ul>
+<li>A <strong>stable virtual IP</strong> in front of Pods</li>
+<li>Load-balances traffic to matching Pods</li>
+<li>Decouples networking from Pod lifecycle</li>
+</ul>
+<h3 id="why-services-exist">Why Services exist</h3>
+<ul>
+<li>Pods come and go</li>
+<li>Services provide <strong>stable access</strong></li>
+</ul>
+<h3 id="view-services">View Services</h3>
+<pre><code class="language-bash">kubectl get services
+</code></pre>
+<hr />
+<h3 id="service-types-very-exam-relevant">Service types (VERY exam-relevant)</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ClusterIP</strong></td>
+<td>Internal-only access (default)</td>
+</tr>
+<tr>
+<td><strong>NodePort</strong></td>
+<td>Expose via node IPs (basic)</td>
+</tr>
+<tr>
+<td><strong>LoadBalancer</strong></td>
+<td>External access via cloud LB</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+“Expose app externally” → <strong>Service type LoadBalancer</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-statefulsets-stateful-workloads--high-yield">4️⃣ StatefulSets (STATEFUL workloads – HIGH-YIELD)</h2>
+<h3 id="what-a-statefulset-is">What a StatefulSet is</h3>
+<ul>
+<li>Controller for <strong>stateful applications</strong></li>
+<li>
+<p>Guarantees:</p>
+</li>
+<li>
+<p>Stable Pod names</p>
+</li>
+<li>Stable network identities</li>
+<li>Stable storage</li>
+</ul>
+<h3 id="key-characteristics">Key characteristics</h3>
+<ul>
+<li>Pods are created <strong>in order</strong></li>
+<li>Each Pod gets its <strong>own PersistentVolume</strong></li>
+<li>Pods are not interchangeable</li>
+</ul>
+<h3 id="use-when">Use when</h3>
+<ul>
+<li>Databases</li>
+<li>Stateful services</li>
+<li>Ordered startup/shutdown matters</li>
+</ul>
+<h3 id="view-statefulsets">View StatefulSets</h3>
+<pre><code class="language-bash">kubectl get statefulsets
+</code></pre>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If the workload needs stable identity or storage → <strong>StatefulSet</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-pods-vs-services-vs-statefulsets-must-memorize">5️⃣ Pods vs Services vs StatefulSets (MUST MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Solves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pod</td>
+<td>Runs containers</td>
+</tr>
+<tr>
+<td>Service</td>
+<td>Stable access to Pods</td>
+</tr>
+<tr>
+<td>StatefulSet</td>
+<td>Stateful Pods with identity</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-typical-ace-exam-scenarios">6️⃣ Typical ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Application Pods restart and lose IPs”</p>
+</blockquote>
+<p>✅ Expected:</p>
+<ul>
+<li>Use a <strong>Service</strong></li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Database Pods need persistent identity and storage”</p>
+</blockquote>
+<p>✅ Expected:</p>
+<ul>
+<li><strong>StatefulSet</strong></li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Check why application is unreachable”</p>
+</blockquote>
+<p>✅ Steps:</p>
+<ol>
+<li><code>kubectl get pods</code></li>
+<li><code>kubectl get services</code></li>
+<li>Verify Service type</li>
+</ol>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Pods are running but app is not accessible externally”</p>
+</blockquote>
+<p>✅ Likely cause:</p>
+<ul>
+<li>Service type is <strong>ClusterIP</strong>, not <strong>LoadBalancer</strong></li>
+</ul>
+<hr />
+<h2 id="7-common-ace-exam-traps">7️⃣ Common ACE exam traps</h2>
+<p>❌ Using Pods directly instead of controllers<br />
+❌ Expecting Pods to keep IPs<br />
+❌ Using Deployment for databases<br />
+❌ Forgetting Services are required for networking<br />
+❌ Debugging networking before checking Pod status</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Pod = runs containers</strong></li>
+<li><strong>Service = stable access</strong></li>
+<li><strong>StatefulSet = state + identity</strong></li>
+<li><strong>External access = LoadBalancer Service</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

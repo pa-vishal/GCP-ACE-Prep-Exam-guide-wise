@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D. Estimating costs of data storage resources</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#estimating-costs-of-data-storage-resources">Estimating costs of data storage resources</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-universal-storage-cost-drivers-memorize">2️⃣ Universal storage cost drivers (MEMORIZE)</a></li>
+<li><a href="#3-cloud-storage-cost-estimation-very-high-yield">3️⃣ Cloud Storage cost estimation (VERY HIGH-YIELD)</a></li>
+<li><a href="#4-bigquery-cost-estimation">4️⃣ BigQuery cost estimation</a></li>
+<li><a href="#5-cloud-sql--alloydb-cost-estimation">5️⃣ Cloud SQL &amp; AlloyDB cost estimation</a></li>
+<li><a href="#6-spanner-cost-estimation-recognition-level">6️⃣ Spanner cost estimation (recognition-level)</a></li>
+<li><a href="#7-firestore--bigtable-cost-estimation">7️⃣ Firestore &amp; Bigtable cost estimation</a></li>
+<li><a href="#8-cost-estimation-tools-exam-awareness">8️⃣ Cost estimation tools (exam awareness)</a></li>
+<li><a href="#9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#-common-ace-exam-traps">🔟 Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.2 – Managing storage resources</strong></p>
+<h4 id="estimating-costs-of-data-storage-resources"><strong>Estimating costs of data storage resources</strong></h4>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/figure-two-pricing-blogl1vz.max-1000x1000.PNG" /></p>
+<p><img alt="Image" src="https://www.cloudkeeper.com/cms-assets/s3fs-public/2023-07/Table.jpg" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/1_packaging_option.max-1400x1400.jpg" /></p>
+<p><img alt="Image" src="https://cdn.prod.website-files.com/5e0096e310bfa7cae89f5e1b/643d6e190b11c45d7c9f6407_Screenshot%202023-04-17%20at%2019.34.08.png" /></p>
+<p>This bullet tests whether you can <strong>estimate and compare storage costs at a high level</strong> and <strong>choose cost-effective configurations</strong>. The ACE exam does <strong>not</strong> expect exact dollar math—it expects you to know <strong>what drives cost</strong> and <strong>how to reduce it</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Identify <strong>pricing dimensions</strong> for each storage service</li>
+<li>Compare <strong>cost drivers</strong> across services</li>
+<li>Choose <strong>cheaper alternatives</strong> when requirements allow</li>
+<li>Apply <strong>cost-control features</strong> (lifecycle rules, partitions, tiers)</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“What will make the bill go up—and how do I control it?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-universal-storage-cost-drivers-memorize">2️⃣ Universal storage cost drivers (MEMORIZE)</h2>
+<p>Almost all GCP storage costs come from:</p>
+<ol>
+<li><strong>Amount of data stored</strong> (GB/month)</li>
+<li><strong>Storage class or tier</strong></li>
+<li><strong>Access frequency</strong></li>
+<li><strong>Operations</strong> (reads/writes)</li>
+<li><strong>Network egress</strong> (leaving GCP)</li>
+</ol>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Ingress is usually free; <strong>egress costs money</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="3-cloud-storage-cost-estimation-very-high-yield">3️⃣ Cloud Storage cost estimation (VERY HIGH-YIELD)</h2>
+<h3 id="cost-components">Cost components</h3>
+<ul>
+<li><strong>Storage cost</strong> (per GB/month)</li>
+<li><strong>Operation cost</strong> (GET, PUT, LIST)</li>
+<li><strong>Data retrieval cost</strong> (Nearline/Coldline/Archive)</li>
+<li><strong>Egress cost</strong></li>
+</ul>
+<h3 id="storage-class-cost-order-cheapest-storage--most-expensive-access">Storage class cost order (cheapest storage → most expensive access)</h3>
+<pre><code>Archive → Coldline → Nearline → Standard
+</code></pre>
+<h3 id="exam-signals">Exam signals</h3>
+<ul>
+<li>“Rarely accessed backups” → <strong>Archive</strong></li>
+<li>“Infrequent access” → <strong>Coldline/Nearline</strong></li>
+<li>“Frequently accessed” → <strong>Standard</strong></li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Pick the <strong>cheapest class that still meets access needs</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="4-bigquery-cost-estimation">4️⃣ BigQuery cost estimation</h2>
+<h3 id="two-main-cost-areas">Two main cost areas</h3>
+<h4 id="a.-storage">A. Storage</h4>
+<ul>
+<li>Charged per GB/month</li>
+<li>Active vs long-term storage pricing</li>
+<li>Partitioned tables reduce cost</li>
+</ul>
+<h4 id="b.-query-processing">B. Query processing</h4>
+<ul>
+<li>Charged per <strong>data scanned</strong></li>
+<li>On-demand pricing or flat-rate</li>
+</ul>
+<h3 id="cost-control-features-exam-favorites">Cost-control features (EXAM FAVORITES)</h3>
+<ul>
+<li><strong>Partitioned tables</strong></li>
+<li><strong>Clustered tables</strong></li>
+<li><strong>Maximum bytes billed</strong></li>
+<li><strong>Views</strong> (logical abstraction)</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Unpartitioned tables = expensive scans.</p>
+</blockquote>
+<hr />
+<h2 id="5-cloud-sql--alloydb-cost-estimation">5️⃣ Cloud SQL &amp; AlloyDB cost estimation</h2>
+<h3 id="cost-components_1">Cost components</h3>
+<ul>
+<li>Instance size (CPU + memory)</li>
+<li>Storage size (GB)</li>
+<li>High availability (standby replica)</li>
+<li>Backups and snapshots</li>
+</ul>
+<h3 id="exam-signals_1">Exam signals</h3>
+<ul>
+<li>“HA enabled” → higher cost</li>
+<li>“Bigger machine type” → higher cost</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Right-size instances; HA doubles compute cost.</p>
+</blockquote>
+<hr />
+<h2 id="6-spanner-cost-estimation-recognition-level">6️⃣ Spanner cost estimation (recognition-level)</h2>
+<h3 id="cost-drivers">Cost drivers</h3>
+<ul>
+<li>Number of nodes or processing units</li>
+<li>Storage used</li>
+<li>Multi-region configuration</li>
+</ul>
+<h3 id="exam-awareness">Exam awareness</h3>
+<ul>
+<li>Spanner is <strong>expensive by design</strong></li>
+<li>Chosen for <strong>scale + consistency</strong>, not cost savings</li>
+</ul>
+<blockquote>
+<p><strong>ACE signal:</strong><br />
+If cost sensitivity is mentioned → <strong>Spanner is likely wrong</strong></p>
+</blockquote>
+<hr />
+<h2 id="7-firestore--bigtable-cost-estimation">7️⃣ Firestore &amp; Bigtable cost estimation</h2>
+<h3 id="firestore">Firestore</h3>
+<ul>
+<li>
+<p>Charged by:</p>
+</li>
+<li>
+<p>Reads</p>
+</li>
+<li>Writes</li>
+<li>Deletes</li>
+<li>Storage</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“High read/write frequency” → cost driven by ops</li>
+</ul>
+<hr />
+<h3 id="bigtable">Bigtable</h3>
+<ul>
+<li>
+<p>Charged by:</p>
+</li>
+<li>
+<p>Node count</p>
+</li>
+<li>Storage</li>
+<li>Not by queries</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Always-on nodes” → constant baseline cost</li>
+</ul>
+<hr />
+<h2 id="8-cost-estimation-tools-exam-awareness">8️⃣ Cost estimation tools (exam awareness)</h2>
+<h3 id="pricing-calculator">Pricing Calculator</h3>
+<ul>
+<li>
+<p>Used to:</p>
+</li>
+<li>
+<p>Estimate monthly cost</p>
+</li>
+<li>Compare options</li>
+</ul>
+<h3 id="budgets--alerts">Budgets &amp; alerts</h3>
+<ul>
+<li>Detect overspend</li>
+<li>Do <strong>not</strong> stop usage automatically</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Budgets = alerting, not enforcement.</p>
+</blockquote>
+<hr />
+<h2 id="9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Estimate cheapest way to store long-term backups”</p>
+</blockquote>
+<p>✅ <strong>Cloud Storage Archive</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Analytics costs are unexpectedly high”</p>
+</blockquote>
+<p>✅ Likely cause:</p>
+<ul>
+<li>Large unpartitioned BigQuery queries</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Relational DB cost doubled after enabling HA”</p>
+</blockquote>
+<p>✅ Expected:</p>
+<ul>
+<li>Standby instance cost</li>
+</ul>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Firestore bill spikes with traffic”</p>
+</blockquote>
+<p>✅ Cause:</p>
+<ul>
+<li>Increased read/write operations</li>
+</ul>
+<hr />
+<h2 id="-common-ace-exam-traps">🔟 Common ACE exam traps</h2>
+<p>❌ Choosing Standard storage for cold data<br />
+❌ Ignoring retrieval costs in Archive/Coldline<br />
+❌ Forgetting egress charges<br />
+❌ Using Spanner for cost-sensitive apps<br />
+❌ Expecting BigQuery storage cost to dominate query cost</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>GB/month + access = cost</strong></li>
+<li><strong>Cold data → cold storage</strong></li>
+<li><strong>BigQuery cost = data scanned</strong></li>
+<li><strong>HA doubles compute</strong></li>
+<li><strong>Egress costs money</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E. Q&amp;A</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#-question-1">🧪 Question 1</a></li>
+<li><a href="#-question-2">🧪 Question 2</a></li>
+<li><a href="#-question-3">🧪 Question 3</a></li>
+<li><a href="#-question-4">🧪 Question 4</a></li>
+<li><a href="#-question-5-final">🧪 Question 5 (final)</a></li>
+<li><a href="#-correct-answer">✅ Correct answer</a></li>
+<li><a href="#why-org-policy-is-not-the-best-answer-here">Why Org Policy is NOT the best answer here</a></li>
+<li><a href="#what-this-scenario-actually-represents">What this scenario actually represents</a></li>
+<li><a href="#how-an-org-policy-error-would-look-instead">How an Org Policy error would look instead</a></li>
+<li><a href="#final-comparison-exam-gold">Final comparison (EXAM GOLD)</a></li>
+<li><a href="#corrected-ace-failure-order-confirmation">Corrected ACE failure-order confirmation</a></li>
+<li><a href="#-one-line-ace-memory-hook-important">🔑 One-line ACE memory hook (IMPORTANT)</a></li>
+<li><a href="#-question-2_1">🧪 Question 2</a></li>
+<li><a href="#-question-2_2">🧪 Question 2</a></li>
+<li><a href="#-question-3_1">🧪 Question 3</a></li>
+<li><a href="#-question-4_1">🧪 Question 4</a></li>
+<li><a href="#-question-5-final_1">🧪 Question 5 (final)</a></li>
+<li><a href="#-correct-answer_1">✅ Correct answer</a></li>
+<li><a href="#why-org-policy-is-not-the-best-answer-here_1">Why Org Policy is NOT the best answer here</a></li>
+<li><a href="#what-this-scenario-actually-represents_1">What this scenario actually represents</a></li>
+<li><a href="#how-an-org-policy-error-would-look-instead_1">How an Org Policy error would look instead</a></li>
+<li><a href="#final-comparison-exam-gold_1">Final comparison (EXAM GOLD)</a></li>
+<li><a href="#corrected-ace-failure-order-confirmation_1">Corrected ACE failure-order confirmation</a></li>
+<li><a href="#-one-line-ace-memory-hook-important_1">🔑 One-line ACE memory hook (IMPORTANT)</a></li>
+<li><a href="#-hard-question-1">🧠 Hard Question 1</a></li>
+<li><a href="#-correct-ace-answer">✅ Correct ACE answer</a></li>
+<li><a href="#why-quota-is-not-the-best-answer-here">Why quota is NOT the best answer here</a></li>
+<li><a href="#what-likely-happened-exam-logic">What likely happened (exam logic)</a></li>
+<li><a href="#how-the-ace-exam-expects-you-to-think">How the ACE exam expects you to think</a></li>
+<li><a href="#-lock-in-rule-important">🔑 Lock-in rule (important)</a></li>
+<li><a href="#-hard-question-2">🧠 Hard Question 2</a></li>
+<li><a href="#-hard-question-3">🧠 Hard Question 3</a></li>
+<li><a href="#-hard-question-4">🧠 Hard Question 4</a></li>
+<li><a href="#-hard-question-5-final">🧠 Hard Question 5 (final)</a></li>
+<li><a href="#-correct-ace-answer_1">✅ Correct ACE answer</a></li>
+<li><a href="#why-external-ip-quota-is-not-the-best-answer">Why external IP quota is NOT the best answer</a></li>
+<li><a href="#what-actually-went-wrong-exam-logic">What actually went wrong (exam logic)</a></li>
+<li><a href="#how-cloud-nat-really-works-ace-level">How Cloud NAT really works (ACE-level)</a></li>
+<li><a href="#why-the-exam-wants-this-answer_5">Why the exam wants THIS answer</a></li>
+<li><a href="#-ace-lock-in-rule-important">🔑 ACE lock-in rule (IMPORTANT)</a></li>
+<li><a href="#-your-performance-on-hard-mode">📊 Your performance on HARD MODE</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿Perfect. This is <strong>exactly how you train for ACE</strong>.<br />
+I’ll give you <strong>5 exam-style scenarios</strong>, one at a time.<br />
+You answer with <strong>the most likely root cause</strong> (just the cause, not the fix).<br />
+After each, I’ll confirm and explain <strong>why the exam expects that answer</strong>.</p>
+<p>We’ll use the <strong>exact failure-order mental model</strong> you just learned.</p>
+<hr />
+<h2 id="-question-1">🧪 Question 1</h2>
+<p>A cloud engineer creates a <strong>brand-new Google Cloud project</strong>.<br />
+They grant themselves the <strong>Compute Admin</strong> role and immediately try to create a <strong>Compute Engine VM</strong>.</p>
+<p>The VM creation fails with a message indicating that the request cannot be completed.</p>
+<p>No other configuration changes have been made to the project.</p>
+<h3 id="-what-is-the-most-likely-root-cause">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(Answer in one line. Don’t overthink it.)</p>
+<p>✅ <strong>Correct. That is the expected ACE answer.</strong></p>
+<h3 id="why-this-is-the-right-root-cause">Why this is the right root cause</h3>
+<p>This scenario hits <strong>three classic ACE signals</strong>:</p>
+<ol>
+<li><strong>“Brand-new project”</strong></li>
+<li><strong>Correct IAM already granted</strong></li>
+<li><strong>Immediate failure on first resource creation</strong></li>
+</ol>
+<p>That combination almost always points to:</p>
+<blockquote>
+<p><strong>🚨 Project is not linked to a billing account</strong></p>
+</blockquote>
+<hr />
+<h3 id="why-the-exam-wants-this-answer-and-not-others">Why the exam wants THIS answer (and not others)</h3>
+<table>
+<thead>
+<tr>
+<th>Possible cause</th>
+<th>Why it’s NOT correct here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IAM missing</td>
+<td>Compute Admin already granted</td>
+</tr>
+<tr>
+<td>API not enabled</td>
+<td>The error wording is usually explicit about API</td>
+</tr>
+<tr>
+<td>Quota exhausted</td>
+<td>New project → no usage yet</td>
+</tr>
+<tr>
+<td>Region issue</td>
+<td>No region mentioned</td>
+</tr>
+<tr>
+<td>Org policy</td>
+<td>No policy/security context</td>
+</tr>
+</tbody>
+</table>
+<p>Billing is the <strong>first gate</strong>.</p>
+<hr />
+<h3 id="mental-reinforcement-lock-it-in">Mental reinforcement (lock it in)</h3>
+<blockquote>
+<p><strong>New project + resource fails = billing first</strong></p>
+</blockquote>
+<hr />
+<h2 id="-question-2">🧪 Question 2</h2>
+<p>A developer tries to deploy a <strong>Cloud Run service</strong> in an existing project.<br />
+Billing is enabled, and the developer has the correct IAM role.</p>
+<p>Deployment fails with an error stating:</p>
+<blockquote>
+<p>“Cloud Run API has not been used in this project before.”</p>
+</blockquote>
+<h3 id="-what-is-the-most-likely-root-cause_1">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)</p>
+<p>✅ <strong>Correct. Exactly what the ACE exam expects.</strong></p>
+<hr />
+<h3 id="why-this-is-the-right-root-cause_1">Why this is the right root cause</h3>
+<p>The key giveaway is the <strong>error wording</strong>:</p>
+<blockquote>
+<p><strong>“API has not been used in this project before”</strong></p>
+</blockquote>
+<p>This is <strong>textbook API enablement failure</strong>.</p>
+<hr />
+<h3 id="why-the-exam-wants-this-answer-and-not-others_1">Why the exam wants THIS answer (and not others)</h3>
+<table>
+<thead>
+<tr>
+<th>Possible cause</th>
+<th>Why it’s NOT correct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Billing</td>
+<td>Explicitly stated billing is enabled</td>
+</tr>
+<tr>
+<td>IAM</td>
+<td>Developer already has correct role</td>
+</tr>
+<tr>
+<td>Quota</td>
+<td>Quota errors say “limit exceeded”</td>
+</tr>
+<tr>
+<td>Region</td>
+<td>Cloud Run regions would error differently</td>
+</tr>
+<tr>
+<td>Org policy</td>
+<td>Would mention restriction or policy</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="exam-reflex-to-build">Exam reflex to build</h3>
+<blockquote>
+<p><strong>Any error mentioning “API” → check API enablement first</strong></p>
+</blockquote>
+<hr />
+<h3 id="correct-fix-for-your-mental-model">Correct fix (for your mental model)</h3>
+<pre><code class="language-bash">gcloud services enable run.googleapis.com --project=my-project
+</code></pre>
+<p>(Not required to answer on exam, but good to internalize.)</p>
+<hr />
+<h2 id="-question-3">🧪 Question 3</h2>
+<p>A team has been running <strong>Compute Engine VMs successfully for weeks</strong> in <code>us-central1</code>.<br />
+They attempt to <strong>scale up by adding more VMs</strong>, but now VM creation fails with an error:</p>
+<blockquote>
+<p>“Quota exceeded for CPUs in region us-central1.”</p>
+</blockquote>
+<h3 id="-what-is-the-most-likely-root-cause_2">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)</p>
+<p>✅ <strong>Correct — and phrased exactly how the exam expects.</strong></p>
+<hr />
+<h3 id="why-this-is-the-right-root-cause_2">Why this is the right root cause</h3>
+<p>The scenario contains <strong>three very strong quota signals</strong>:</p>
+<ol>
+<li><strong>“Worked for weeks”</strong> → not billing, not API</li>
+<li><strong>“Scaling up”</strong> → increasing resource consumption</li>
+<li><strong>Explicit “Quota exceeded” message</strong> → no ambiguity</li>
+</ol>
+<p>This is a <strong>regional quota exhaustion</strong> case.</p>
+<hr />
+<h3 id="why-the-exam-wants-this-answer">Why the exam wants THIS answer</h3>
+<table>
+<thead>
+<tr>
+<th>Possible cause</th>
+<th>Why it’s NOT correct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Billing</td>
+<td>Billing was already working</td>
+</tr>
+<tr>
+<td>API</td>
+<td>API already in use</td>
+</tr>
+<tr>
+<td>IAM</td>
+<td>IAM does not change over time</td>
+</tr>
+<tr>
+<td>Region availability</td>
+<td>Region existed before</td>
+</tr>
+<tr>
+<td>Org policy</td>
+<td>Would block from day one</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="ace-mental-lock-in">ACE mental lock-in</h3>
+<blockquote>
+<p><strong>Worked before + fails after scaling = quota</strong></p>
+</blockquote>
+<hr />
+<h2 id="-question-4">🧪 Question 4</h2>
+<p>An engineer tries to create a <strong>VM with an external IP address</strong> in a production project.<br />
+They have the correct IAM role, billing is enabled, and quotas are sufficient.</p>
+<p>The VM creation fails with a policy-related error.<br />
+Other projects in the organization show the same behavior.</p>
+<h3 id="-what-is-the-most-likely-root-cause_3">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)</p>
+<p>✅ <strong>Correct — this is an Org Policy enforcement scenario.</strong></p>
+<hr />
+<h3 id="why-this-is-the-right-root-cause_3">Why this is the right root cause</h3>
+<p>This question is deliberately constructed to push you <strong>past IAM and quota thinking</strong>:</p>
+<p>Key signals:</p>
+<ol>
+<li><strong>IAM correct</strong></li>
+<li><strong>Billing enabled</strong></li>
+<li><strong>Quotas sufficient</strong></li>
+<li><strong>Policy-related error</strong></li>
+<li><strong>Same behavior across multiple projects</strong></li>
+</ol>
+<p>That combination strongly points to:</p>
+<blockquote>
+<p><strong>🚫 Organization Policy restricting external IPs</strong></p>
+</blockquote>
+<hr />
+<h3 id="why-the-exam-wants-this-answer_1">Why the exam wants THIS answer</h3>
+<table>
+<thead>
+<tr>
+<th>Possible cause</th>
+<th>Why it’s NOT correct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IAM</td>
+<td>IAM errors mention permission denied</td>
+</tr>
+<tr>
+<td>Billing</td>
+<td>Billing failures are immediate</td>
+</tr>
+<tr>
+<td>Quota</td>
+<td>Quota errors say “quota exceeded”</td>
+</tr>
+<tr>
+<td>Region</td>
+<td>Would not affect all projects</td>
+</tr>
+<tr>
+<td>Firewall</td>
+<td>Firewall does not block resource creation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="typical-policy-behind-this-for-your-memory">Typical policy behind this (for your memory)</h3>
+<pre><code class="language-yaml">constraint: constraints/compute.vmExternalIpAccess
+booleanPolicy:
+  enforced: true
+</code></pre>
+<hr />
+<h3 id="ace-mental-hook">ACE mental hook</h3>
+<blockquote>
+<p><strong>Consistent failure across projects = Org Policy</strong></p>
+</blockquote>
+<hr />
+<h2 id="-question-5-final">🧪 Question 5 (final)</h2>
+<p>A developer attempts to deploy a <strong>GKE cluster</strong> in <code>europe-west3</code>.<br />
+The project has billing enabled, required APIs enabled, and sufficient quotas.</p>
+<p>Deployment fails with an error stating that the selected configuration is <strong>not supported in this location</strong>.</p>
+<h3 id="-what-is-the-most-likely-root-cause_4">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)</p>
+<p>❌ <strong>This is the one case where the <em>expected ACE answer is different</em></strong> — and this distinction matters a lot on the exam.</p>
+<hr />
+<h2 id="-correct-answer">✅ Correct answer</h2>
+<blockquote>
+<p><strong>Service / configuration not available in the selected region (location availability mismatch)</strong></p>
+</blockquote>
+<hr />
+<h2 id="why-org-policy-is-not-the-best-answer-here">Why <strong>Org Policy is NOT the best answer here</strong></h2>
+<p>Let’s dissect the <strong>exact wording</strong> (this is how the exam traps people):</p>
+<blockquote>
+<p><strong>“selected configuration is not supported in this location”</strong></p>
+</blockquote>
+<p>That phrasing points to <strong>service availability</strong>, not policy.</p>
+<h3 id="key-signals-in-the-question">Key signals in the question</h3>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Billing enabled</td>
+<td>Not billing</td>
+</tr>
+<tr>
+<td>APIs enabled</td>
+<td>Not API</td>
+</tr>
+<tr>
+<td>Quotas sufficient</td>
+<td>Not quota</td>
+</tr>
+<tr>
+<td>Error mentions <em>location support</em></td>
+<td>🚨 Availability issue</td>
+</tr>
+<tr>
+<td>Mentions <em>configuration</em></td>
+<td>Certain GKE modes/features</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-this-scenario-actually-represents">What this scenario actually represents</h2>
+<p>Common real causes:</p>
+<ul>
+<li>GKE <strong>Autopilot</strong> not available in that region (at that time)</li>
+<li>A specific <strong>machine type</strong> not supported</li>
+<li>A <strong>zonal vs regional mismatch</strong></li>
+<li>The region itself does not support that GKE configuration</li>
+</ul>
+<p>👉 These are <strong>product availability limitations</strong>, not Org Policies.</p>
+<hr />
+<h2 id="how-an-org-policy-error-would-look-instead">How an <strong>Org Policy error would look instead</strong></h2>
+<p>If it were an Org Policy:</p>
+<ul>
+<li>
+<p>Error would mention:</p>
+</li>
+<li>
+<p>“violates organization policy”</p>
+</li>
+<li>“restricted locations”</li>
+<li>“constraint gcp.resourceLocations”</li>
+<li>Failure would happen <strong>consistently</strong>, regardless of configuration details</li>
+</ul>
+<p>Your scenario says:</p>
+<blockquote>
+<p><strong>“configuration is not supported in this location”</strong></p>
+</blockquote>
+<p>That language is <strong>availability</strong>, not <strong>restriction</strong>.</p>
+<hr />
+<h2 id="final-comparison-exam-gold">Final comparison (EXAM GOLD)</h2>
+<table>
+<thead>
+<tr>
+<th>Error wording</th>
+<th>Root cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“Not supported in this location”</td>
+<td>✅ Service availability</td>
+</tr>
+<tr>
+<td>“Violates organization policy”</td>
+<td>Org Policy</td>
+</tr>
+<tr>
+<td>“Location is restricted”</td>
+<td>Org Policy</td>
+</tr>
+<tr>
+<td>“Quota exceeded”</td>
+<td>Quota</td>
+</tr>
+<tr>
+<td>“API has not been used”</td>
+<td>API</td>
+</tr>
+<tr>
+<td>“Billing account required”</td>
+<td>Billing</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="corrected-ace-failure-order-confirmation">Corrected ACE failure-order confirmation</h2>
+<p>This question correctly maps to:</p>
+<pre><code>5️⃣ Region / availability mismatch
+</code></pre>
+<p>—not step 6 (Org Policy).</p>
+<hr />
+<h2 id="-one-line-ace-memory-hook-important">🔑 One-line ACE memory hook (IMPORTANT)</h2>
+<blockquote>
+<p><strong>“Not supported” = availability</strong><br />
+<strong>“Not allowed” = policy</strong></p>
+</blockquote>
+<hr />
+<h3 id="-final-score-on-this-exercise">✅ Final score on this exercise</h3>
+<p>You got <strong>4 out of 5 exactly right</strong>, and the <strong>one miss is a very common ACE pitfall</strong> — now fixed.</p>
+<p>If you want next:</p>
+<ul>
+<li>I can give <strong>5 harder mixed questions</strong>, or</li>
+<li>We can <strong>move to the next bullet in Section 1.2</strong></li>
+</ul>
+<p>Tell me how you want to proceed.</p>
+<p>Excellent — now we move into ACE hard mode.<br />
+These are mixed, subtle, multi-signal questions where more than one thing could be wrong, but the exam wants the most likely first root cause.</p>
+<p>Same rules:</p>
+<p>You answer one line</p>
+<p>I confirm + explain</p>
+<p>Think exam probability, not theoretical possibility</p>
+<p>🧠 Hard Question 1</p>
+<p>A Cloud Run service deployed successfully yesterday.<br />
+Today, traffic to the service suddenly returns 403 errors.</p>
+<p>Billing is enabled</p>
+<p>APIs are enabled</p>
+<p>The service is still running</p>
+<p>No code changes were made</p>
+<p>👉 What is the most likely root cause?</p>
+<p>✅ <strong>Correct. That is the expected ACE answer.</strong></p>
+<h3 id="why-this-is-the-right-root-cause_4">Why this is the right root cause</h3>
+<p>This scenario hits <strong>three classic ACE signals</strong>:</p>
+<ol>
+<li><strong>“Brand-new project”</strong></li>
+<li><strong>Correct IAM already granted</strong></li>
+<li><strong>Immediate failure on first resource creation</strong></li>
+</ol>
+<p>That combination almost always points to:</p>
+<blockquote>
+<p><strong>🚨 Project is not linked to a billing account</strong></p>
+</blockquote>
+<hr />
+<h3 id="why-the-exam-wants-this-answer-and-not-others_2">Why the exam wants THIS answer (and not others)</h3>
+<table>
+<thead>
+<tr>
+<th>Possible cause</th>
+<th>Why it’s NOT correct here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IAM missing</td>
+<td>Compute Admin already granted</td>
+</tr>
+<tr>
+<td>API not enabled</td>
+<td>The error wording is usually explicit about API</td>
+</tr>
+<tr>
+<td>Quota exhausted</td>
+<td>New project → no usage yet</td>
+</tr>
+<tr>
+<td>Region issue</td>
+<td>No region mentioned</td>
+</tr>
+<tr>
+<td>Org policy</td>
+<td>No policy/security context</td>
+</tr>
+</tbody>
+</table>
+<p>Billing is the <strong>first gate</strong>.</p>
+<hr />
+<h3 id="mental-reinforcement-lock-it-in_1">Mental reinforcement (lock it in)</h3>
+<blockquote>
+<p><strong>New project + resource fails = billing first</strong></p>
+</blockquote>
+<hr />
+<h2 id="-question-2_1">🧪 Question 2</h2>
+<p>A developer tries to deploy a <strong>Cloud Run service</strong> in an existing project.<br />
+Billing is enabled, and the developer has the correct IAM role.</p>
+<p>Deployment fails with an error stating:</p>
+<blockquote>
+<p>“Cloud Run API has not been used in this project before.”</p>
+</blockquote>
+<h3 id="-what-is-the-most-likely-root-cause_5">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)</p>
+<p>✅ <strong>Correct. That is the expected ACE answer.</strong></p>
+<h3 id="why-this-is-the-right-root-cause_5">Why this is the right root cause</h3>
+<p>This scenario hits <strong>three classic ACE signals</strong>:</p>
+<ol>
+<li><strong>“Brand-new project”</strong></li>
+<li><strong>Correct IAM already granted</strong></li>
+<li><strong>Immediate failure on first resource creation</strong></li>
+</ol>
+<p>That combination almost always points to:</p>
+<blockquote>
+<p><strong>🚨 Project is not linked to a billing account</strong></p>
+</blockquote>
+<hr />
+<h3 id="why-the-exam-wants-this-answer-and-not-others_3">Why the exam wants THIS answer (and not others)</h3>
+<table>
+<thead>
+<tr>
+<th>Possible cause</th>
+<th>Why it’s NOT correct here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IAM missing</td>
+<td>Compute Admin already granted</td>
+</tr>
+<tr>
+<td>API not enabled</td>
+<td>The error wording is usually explicit about API</td>
+</tr>
+<tr>
+<td>Quota exhausted</td>
+<td>New project → no usage yet</td>
+</tr>
+<tr>
+<td>Region issue</td>
+<td>No region mentioned</td>
+</tr>
+<tr>
+<td>Org policy</td>
+<td>No policy/security context</td>
+</tr>
+</tbody>
+</table>
+<p>Billing is the <strong>first gate</strong>.</p>
+<hr />
+<h3 id="mental-reinforcement-lock-it-in_2">Mental reinforcement (lock it in)</h3>
+<blockquote>
+<p><strong>New project + resource fails = billing first</strong></p>
+</blockquote>
+<hr />
+<h2 id="-question-2_2">🧪 Question 2</h2>
+<p>A developer tries to deploy a <strong>Cloud Run service</strong> in an existing project.<br />
+Billing is enabled, and the developer has the correct IAM role.</p>
+<p>Deployment fails with an error stating:</p>
+<blockquote>
+<p>“Cloud Run API has not been used in this project before.”</p>
+</blockquote>
+<h3 id="-what-is-the-most-likely-root-cause_6">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)</p>
+<p>✅ <strong>Correct. Exactly what the ACE exam expects.</strong></p>
+<hr />
+<h3 id="why-this-is-the-right-root-cause_6">Why this is the right root cause</h3>
+<p>The key giveaway is the <strong>error wording</strong>:</p>
+<blockquote>
+<p><strong>“API has not been used in this project before”</strong></p>
+</blockquote>
+<p>This is <strong>textbook API enablement failure</strong>.</p>
+<hr />
+<h3 id="why-the-exam-wants-this-answer-and-not-others_4">Why the exam wants THIS answer (and not others)</h3>
+<table>
+<thead>
+<tr>
+<th>Possible cause</th>
+<th>Why it’s NOT correct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Billing</td>
+<td>Explicitly stated billing is enabled</td>
+</tr>
+<tr>
+<td>IAM</td>
+<td>Developer already has correct role</td>
+</tr>
+<tr>
+<td>Quota</td>
+<td>Quota errors say “limit exceeded”</td>
+</tr>
+<tr>
+<td>Region</td>
+<td>Cloud Run regions would error differently</td>
+</tr>
+<tr>
+<td>Org policy</td>
+<td>Would mention restriction or policy</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="exam-reflex-to-build_1">Exam reflex to build</h3>
+<blockquote>
+<p><strong>Any error mentioning “API” → check API enablement first</strong></p>
+</blockquote>
+<hr />
+<h3 id="correct-fix-for-your-mental-model_1">Correct fix (for your mental model)</h3>
+<pre><code class="language-bash">gcloud services enable run.googleapis.com --project=my-project
+</code></pre>
+<p>(Not required to answer on exam, but good to internalize.)</p>
+<hr />
+<h2 id="-question-3_1">🧪 Question 3</h2>
+<p>A team has been running <strong>Compute Engine VMs successfully for weeks</strong> in <code>us-central1</code>.<br />
+They attempt to <strong>scale up by adding more VMs</strong>, but now VM creation fails with an error:</p>
+<blockquote>
+<p>“Quota exceeded for CPUs in region us-central1.”</p>
+</blockquote>
+<h3 id="-what-is-the-most-likely-root-cause_7">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)</p>
+<p>✅ <strong>Correct — and phrased exactly how the exam expects.</strong></p>
+<hr />
+<h3 id="why-this-is-the-right-root-cause_7">Why this is the right root cause</h3>
+<p>The scenario contains <strong>three very strong quota signals</strong>:</p>
+<ol>
+<li><strong>“Worked for weeks”</strong> → not billing, not API</li>
+<li><strong>“Scaling up”</strong> → increasing resource consumption</li>
+<li><strong>Explicit “Quota exceeded” message</strong> → no ambiguity</li>
+</ol>
+<p>This is a <strong>regional quota exhaustion</strong> case.</p>
+<hr />
+<h3 id="why-the-exam-wants-this-answer_2">Why the exam wants THIS answer</h3>
+<table>
+<thead>
+<tr>
+<th>Possible cause</th>
+<th>Why it’s NOT correct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Billing</td>
+<td>Billing was already working</td>
+</tr>
+<tr>
+<td>API</td>
+<td>API already in use</td>
+</tr>
+<tr>
+<td>IAM</td>
+<td>IAM does not change over time</td>
+</tr>
+<tr>
+<td>Region availability</td>
+<td>Region existed before</td>
+</tr>
+<tr>
+<td>Org policy</td>
+<td>Would block from day one</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="ace-mental-lock-in_1">ACE mental lock-in</h3>
+<blockquote>
+<p><strong>Worked before + fails after scaling = quota</strong></p>
+</blockquote>
+<hr />
+<h2 id="-question-4_1">🧪 Question 4</h2>
+<p>An engineer tries to create a <strong>VM with an external IP address</strong> in a production project.<br />
+They have the correct IAM role, billing is enabled, and quotas are sufficient.</p>
+<p>The VM creation fails with a policy-related error.<br />
+Other projects in the organization show the same behavior.</p>
+<h3 id="-what-is-the-most-likely-root-cause_8">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)<br />
+✅ <strong>Correct — this is an Org Policy enforcement scenario.</strong></p>
+<hr />
+<h3 id="why-this-is-the-right-root-cause_8">Why this is the right root cause</h3>
+<p>This question is deliberately constructed to push you <strong>past IAM and quota thinking</strong>:</p>
+<p>Key signals:</p>
+<ol>
+<li><strong>IAM correct</strong></li>
+<li><strong>Billing enabled</strong></li>
+<li><strong>Quotas sufficient</strong></li>
+<li><strong>Policy-related error</strong></li>
+<li><strong>Same behavior across multiple projects</strong></li>
+</ol>
+<p>That combination strongly points to:</p>
+<blockquote>
+<p><strong>🚫 Organization Policy restricting external IPs</strong></p>
+</blockquote>
+<hr />
+<h3 id="why-the-exam-wants-this-answer_3">Why the exam wants THIS answer</h3>
+<table>
+<thead>
+<tr>
+<th>Possible cause</th>
+<th>Why it’s NOT correct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IAM</td>
+<td>IAM errors mention permission denied</td>
+</tr>
+<tr>
+<td>Billing</td>
+<td>Billing failures are immediate</td>
+</tr>
+<tr>
+<td>Quota</td>
+<td>Quota errors say “quota exceeded”</td>
+</tr>
+<tr>
+<td>Region</td>
+<td>Would not affect all projects</td>
+</tr>
+<tr>
+<td>Firewall</td>
+<td>Firewall does not block resource creation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="typical-policy-behind-this-for-your-memory_1">Typical policy behind this (for your memory)</h3>
+<pre><code class="language-yaml">constraint: constraints/compute.vmExternalIpAccess
+booleanPolicy:
+  enforced: true
+</code></pre>
+<hr />
+<h3 id="ace-mental-hook_1">ACE mental hook</h3>
+<blockquote>
+<p><strong>Consistent failure across projects = Org Policy</strong></p>
+</blockquote>
+<hr />
+<h2 id="-question-5-final_1">🧪 Question 5 (final)</h2>
+<p>A developer attempts to deploy a <strong>GKE cluster</strong> in <code>europe-west3</code>.<br />
+The project has billing enabled, required APIs enabled, and sufficient quotas.</p>
+<p>Deployment fails with an error stating that the selected configuration is <strong>not supported in this location</strong>.</p>
+<h3 id="-what-is-the-most-likely-root-cause_9">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)<br />
+❌ <strong>This is the one case where the <em>expected ACE answer is different</em></strong> — and this distinction matters a lot on the exam.</p>
+<hr />
+<h2 id="-correct-answer_1">✅ Correct answer</h2>
+<blockquote>
+<p><strong>Service / configuration not available in the selected region (location availability mismatch)</strong></p>
+</blockquote>
+<hr />
+<h2 id="why-org-policy-is-not-the-best-answer-here_1">Why <strong>Org Policy is NOT the best answer here</strong></h2>
+<p>Let’s dissect the <strong>exact wording</strong> (this is how the exam traps people):</p>
+<blockquote>
+<p><strong>“selected configuration is not supported in this location”</strong></p>
+</blockquote>
+<p>That phrasing points to <strong>service availability</strong>, not policy.</p>
+<h3 id="key-signals-in-the-question_1">Key signals in the question</h3>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Billing enabled</td>
+<td>Not billing</td>
+</tr>
+<tr>
+<td>APIs enabled</td>
+<td>Not API</td>
+</tr>
+<tr>
+<td>Quotas sufficient</td>
+<td>Not quota</td>
+</tr>
+<tr>
+<td>Error mentions <em>location support</em></td>
+<td>🚨 Availability issue</td>
+</tr>
+<tr>
+<td>Mentions <em>configuration</em></td>
+<td>Certain GKE modes/features</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-this-scenario-actually-represents_1">What this scenario actually represents</h2>
+<p>Common real causes:</p>
+<ul>
+<li>GKE <strong>Autopilot</strong> not available in that region (at that time)</li>
+<li>A specific <strong>machine type</strong> not supported</li>
+<li>A <strong>zonal vs regional mismatch</strong></li>
+<li>The region itself does not support that GKE configuration</li>
+</ul>
+<p>👉 These are <strong>product availability limitations</strong>, not Org Policies.</p>
+<hr />
+<h2 id="how-an-org-policy-error-would-look-instead_1">How an <strong>Org Policy error would look instead</strong></h2>
+<p>If it were an Org Policy:</p>
+<ul>
+<li>
+<p>Error would mention:</p>
+</li>
+<li>
+<p>“violates organization policy”</p>
+</li>
+<li>“restricted locations”</li>
+<li>“constraint gcp.resourceLocations”</li>
+<li>Failure would happen <strong>consistently</strong>, regardless of configuration details</li>
+</ul>
+<p>Your scenario says:</p>
+<blockquote>
+<p><strong>“configuration is not supported in this location”</strong></p>
+</blockquote>
+<p>That language is <strong>availability</strong>, not <strong>restriction</strong>.</p>
+<hr />
+<h2 id="final-comparison-exam-gold_1">Final comparison (EXAM GOLD)</h2>
+<table>
+<thead>
+<tr>
+<th>Error wording</th>
+<th>Root cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“Not supported in this location”</td>
+<td>✅ Service availability</td>
+</tr>
+<tr>
+<td>“Violates organization policy”</td>
+<td>Org Policy</td>
+</tr>
+<tr>
+<td>“Location is restricted”</td>
+<td>Org Policy</td>
+</tr>
+<tr>
+<td>“Quota exceeded”</td>
+<td>Quota</td>
+</tr>
+<tr>
+<td>“API has not been used”</td>
+<td>API</td>
+</tr>
+<tr>
+<td>“Billing account required”</td>
+<td>Billing</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="corrected-ace-failure-order-confirmation_1">Corrected ACE failure-order confirmation</h2>
+<p>This question correctly maps to:</p>
+<pre><code>5️⃣ Region / availability mismatch
+</code></pre>
+<p>—not step 6 (Org Policy).</p>
+<hr />
+<h2 id="-one-line-ace-memory-hook-important_1">🔑 One-line ACE memory hook (IMPORTANT)</h2>
+<blockquote>
+<p><strong>“Not supported” = availability</strong><br />
+<strong>“Not allowed” = policy</strong></p>
+</blockquote>
+<hr />
+<h3 id="-final-score-on-this-exercise_1">✅ Final score on this exercise</h3>
+<p>You got <strong>4 out of 5 exactly right</strong>, and the <strong>one miss is a very common ACE pitfall</strong> — now fixed.</p>
+<hr />
+<h2 id="-hard-question-1">🧠 Hard Question 1</h2>
+<p>A Cloud Run service deployed <strong>successfully yesterday</strong>.<br />
+Today, traffic to the service suddenly returns <strong>403 errors</strong>.</p>
+<ul>
+<li>Billing is enabled</li>
+<li>APIs are enabled</li>
+<li>The service is still running</li>
+<li>No code changes were made</li>
+</ul>
+<h3 id="-what-is-the-most-likely-root-cause_10">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)<br />
+❌ <strong>This is a reasonable <em>real-world</em> thought, but it is <em>not</em> the most likely ACE exam answer.</strong></p>
+<p>Let’s correct it cleanly — this distinction matters.</p>
+<hr />
+<h2 id="-correct-ace-answer">✅ Correct ACE answer</h2>
+<blockquote>
+<p><strong>IAM permission change affecting service invocation (loss of <code>run.invoker</code>)</strong></p>
+</blockquote>
+<hr />
+<h2 id="why-quota-is-not-the-best-answer-here">Why quota is NOT the best answer here</h2>
+<p>Look carefully at the <strong>signals</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Service deployed successfully</td>
+<td>Not billing / API</td>
+</tr>
+<tr>
+<td>Service still running</td>
+<td>Not deployment failure</td>
+</tr>
+<tr>
+<td>Traffic returns <strong>403</strong></td>
+<td>🚨 Authorization issue</td>
+</tr>
+<tr>
+<td>No code changes</td>
+<td>Infrastructure/config issue</td>
+</tr>
+<tr>
+<td>Sudden behavior change</td>
+<td>Permissions or policy</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-exam-clue">Key exam clue</h3>
+<blockquote>
+<p><strong>403 = permission denied</strong>, not capacity.</p>
+</blockquote>
+<p>Quota errors usually cause:</p>
+<ul>
+<li>429 (too many requests)</li>
+<li>5xx errors</li>
+<li>Scaling failures<br />
+  —not <strong>403</strong>.</li>
+</ul>
+<hr />
+<h2 id="what-likely-happened-exam-logic">What likely happened (exam logic)</h2>
+<ul>
+<li>The Cloud Run service <strong>lost its invoker permission</strong></li>
+<li>
+<p>Common causes:</p>
+</li>
+<li>
+<p>IAM policy change</p>
+</li>
+<li>Removed <code>allUsers</code> or service account binding</li>
+<li>Traffic now coming from an unauthenticated source</li>
+</ul>
+<p>Correct role involved:</p>
+<pre><code>roles/run.invoker
+</code></pre>
+<hr />
+<h2 id="how-the-ace-exam-expects-you-to-think">How the ACE exam expects you to think</h2>
+<blockquote>
+<p><strong>403 on Cloud Run = IAM</strong></p>
+<p>Not quota, not billing, not API.</p>
+</blockquote>
+<hr />
+<h2 id="-lock-in-rule-important">🔑 Lock-in rule (important)</h2>
+<blockquote>
+<p><strong>403 = permission problem</strong><br />
+<strong>429 / 5xx = capacity or quota</strong></p>
+</blockquote>
+<hr />
+<h2 id="-hard-question-2">🧠 Hard Question 2</h2>
+<p>A user with the <strong>Owner</strong> role on a project attempts to create a VM in <code>us-east1</code>.<br />
+They receive an error:</p>
+<blockquote>
+<p>“Creation of VM instances with external IPs is not allowed.”</p>
+</blockquote>
+<ul>
+<li>Billing is enabled</li>
+<li>Quotas are sufficient</li>
+<li>The same user can create VMs <strong>without external IPs</strong></li>
+</ul>
+<h3 id="-what-is-the-most-likely-root-cause_11">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)<br />
+✅ <strong>Correct. Exactly right.</strong></p>
+<hr />
+<h3 id="why-this-is-the-correct-ace-answer">Why this is the correct ACE answer</h3>
+<p>The question is packed with <strong>intentional signals</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Owner role</td>
+<td>Not IAM</td>
+</tr>
+<tr>
+<td>Billing enabled</td>
+<td>Not billing</td>
+</tr>
+<tr>
+<td>Quotas sufficient</td>
+<td>Not quota</td>
+</tr>
+<tr>
+<td>Can create VM <em>without</em> external IP</td>
+<td>🚨 Configuration-specific restriction</td>
+</tr>
+<tr>
+<td>Explicit wording “not allowed”</td>
+<td>🚨 Policy language</td>
+</tr>
+</tbody>
+</table>
+<p>This is a textbook case of:</p>
+<blockquote>
+<p><strong>Organization Policy restricting external IPs</strong><br />
+(<code>constraints/compute.vmExternalIpAccess</code>)</p>
+</blockquote>
+<hr />
+<h3 id="why-nothing-else-fits-better">Why nothing else fits better</h3>
+<table>
+<thead>
+<tr>
+<th>Alternative</th>
+<th>Why it’s wrong</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IAM</td>
+<td>Owner bypasses IAM issues</td>
+</tr>
+<tr>
+<td>Quota</td>
+<td>Quotas don’t selectively block features</td>
+</tr>
+<tr>
+<td>API</td>
+<td>API errors are explicit</td>
+</tr>
+<tr>
+<td>Region availability</td>
+<td>External IPs are widely available</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="ace-lock-in-rule">ACE lock-in rule</h3>
+<blockquote>
+<p><strong>Owner + blocked feature = Org Policy</strong></p>
+</blockquote>
+<hr />
+<h2 id="-hard-question-3">🧠 Hard Question 3</h2>
+<p>A CI/CD pipeline deploys infrastructure using Terraform in a new project.<br />
+The pipeline fails on the first run with an error indicating that <strong>resources cannot be created</strong>.</p>
+<ul>
+<li>The service account used by the pipeline has correct IAM roles</li>
+<li>Required APIs are enabled</li>
+<li>Terraform state is empty</li>
+<li>Error mentions that <strong>billing is required</strong></li>
+</ul>
+<h3 id="-what-is-the-most-likely-root-cause_12">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)<br />
+✅ <strong>Correct — and this is a classic ACE + Terraform trap.</strong></p>
+<hr />
+<h3 id="why-this-is-the-correct-answer">Why this is the correct answer</h3>
+<p>This question stacks <strong>multiple misdirection layers</strong>, but the key signal is:</p>
+<blockquote>
+<p><strong>“Error mentions that billing is required”</strong></p>
+</blockquote>
+<p>That immediately overrides everything else.</p>
+<hr />
+<h3 id="why-the-exam-wants-this-answer_4">Why the exam wants THIS answer</h3>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New project</td>
+<td>Billing often missing</td>
+</tr>
+<tr>
+<td>First Terraform run</td>
+<td>Nothing existed before</td>
+</tr>
+<tr>
+<td>IAM correct</td>
+<td>Not permissions</td>
+</tr>
+<tr>
+<td>APIs enabled</td>
+<td>Not API</td>
+</tr>
+<tr>
+<td>Explicit billing error</td>
+<td>🚨 Billing linkage</td>
+</tr>
+</tbody>
+</table>
+<p>Terraform <strong>cannot create billable resources</strong> unless billing is already linked.</p>
+<hr />
+<h3 id="ace-lock-in-rule_1">ACE lock-in rule</h3>
+<blockquote>
+<p><strong>Terraform does not fix billing problems — it exposes them</strong></p>
+</blockquote>
+<hr />
+<h2 id="-hard-question-4">🧠 Hard Question 4</h2>
+<p>An engineer deploys a <strong>GKE Autopilot cluster</strong> in <code>asia-south1</code>.<br />
+The deployment fails with:</p>
+<blockquote>
+<p>“This configuration is not supported in the selected location.”</p>
+</blockquote>
+<ul>
+<li>Billing is enabled</li>
+<li>APIs are enabled</li>
+<li>No org policies are configured</li>
+</ul>
+<h3 id="-what-is-the-most-likely-root-cause_13">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)<br />
+✅ <strong>Correct — and phrased perfectly for the ACE exam.</strong></p>
+<hr />
+<h3 id="why-this-is-the-correct-answer_1">Why this is the correct answer</h3>
+<p>This question is <strong>pure location/availability testing</strong>, and you caught the key signal:</p>
+<blockquote>
+<p><strong>“This configuration is not supported in the selected location.”</strong></p>
+</blockquote>
+<p>That wording is the exam’s way of saying:</p>
+<blockquote>
+<p><strong>The service <em>exists</em>, but this specific <em>mode/configuration</em> does not in that region</strong></p>
+</blockquote>
+<p>In this case:</p>
+<ul>
+<li>GKE exists in the region</li>
+<li><strong>GKE Autopilot</strong> (or a specific Autopilot feature) does <strong>not</strong></li>
+</ul>
+<hr />
+<h3 id="why-the-exam-does-not-want-other-answers">Why the exam does NOT want other answers</h3>
+<table>
+<thead>
+<tr>
+<th>Alternative</th>
+<th>Why it’s wrong</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Org Policy</td>
+<td>Explicitly says none are configured</td>
+</tr>
+<tr>
+<td>IAM</td>
+<td>IAM errors say “permission denied”</td>
+</tr>
+<tr>
+<td>Quota</td>
+<td>Quota errors say “quota exceeded”</td>
+</tr>
+<tr>
+<td>API</td>
+<td>API errors mention enablement</td>
+</tr>
+<tr>
+<td>Billing</td>
+<td>Billing already enabled</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="ace-mental-lock-in-important">ACE mental lock-in (important)</h3>
+<blockquote>
+<p><strong>“Not supported in this location” = product availability</strong><br />
+<strong>NOT policy, NOT quota, NOT IAM</strong></p>
+</blockquote>
+<hr />
+<h2 id="-hard-question-5-final">🧠 Hard Question 5 (final)</h2>
+<p>A VM in a project <strong>cannot access the internet</strong>.</p>
+<ul>
+<li>The VM has <strong>no external IP</strong></li>
+<li>A <strong>Cloud NAT</strong> gateway exists in the VPC</li>
+<li>Other VMs in the same subnet can reach the internet</li>
+<li>No firewall rules were recently changed</li>
+</ul>
+<h3 id="-what-is-the-most-likely-root-cause_14">👉 What is the <strong>most likely root cause</strong>?</h3>
+<p>(One line.)<br />
+❌ <strong>This is a very common instinct — but it’s not the ACE-correct answer.</strong><br />
+Let’s fix it cleanly and lock the lesson in.</p>
+<hr />
+<h2 id="-correct-ace-answer_1">✅ Correct ACE answer</h2>
+<blockquote>
+<p><strong>The VM is not using (or is not covered by) the Cloud NAT configuration</strong></p>
+</blockquote>
+<hr />
+<h2 id="why-external-ip-quota-is-not-the-best-answer">Why <strong>external IP quota</strong> is NOT the best answer</h2>
+<p>Look carefully at the <strong>signals</strong> the question gives you:</p>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>What it tells you</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VM has <strong>no external IP</strong></td>
+<td>It relies on <strong>Cloud NAT</strong></td>
+</tr>
+<tr>
+<td>Cloud NAT <strong>exists</strong></td>
+<td>NAT is intended to be used</td>
+</tr>
+<tr>
+<td>Other VMs in same subnet work</td>
+<td>Networking &amp; quotas are fine</td>
+</tr>
+<tr>
+<td>No firewall changes</td>
+<td>Not firewall-related</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-ace-logic">Key ACE logic</h3>
+<p>If <strong>other VMs in the same subnet can access the internet</strong>, then:</p>
+<ul>
+<li>External IP quota is <strong>not</strong> the issue</li>
+<li>NAT and routing work <strong>in general</strong></li>
+<li>The problem is <strong>VM-specific or configuration-specific</strong></li>
+</ul>
+<p>Quota issues are <strong>global or regional</strong>, not per-VM.</p>
+<hr />
+<h2 id="what-actually-went-wrong-exam-logic">What actually went wrong (exam logic)</h2>
+<p>Most likely causes the ACE exam expects you to infer:</p>
+<ul>
+<li>
+<p>The VM:</p>
+</li>
+<li>
+<p>Is in a subnet <strong>not selected</strong> in the Cloud NAT config, <strong>or</strong></p>
+</li>
+<li>Uses a <strong>different network / region</strong>, <strong>or</strong></li>
+<li>Has no route to the NAT gateway</li>
+</ul>
+<p>In short:</p>
+<blockquote>
+<p><strong>Cloud NAT is not applied to this VM</strong></p>
+</blockquote>
+<hr />
+<h2 id="how-cloud-nat-really-works-ace-level">How Cloud NAT really works (ACE-level)</h2>
+<p>Cloud NAT:</p>
+<ul>
+<li>Is attached to a <strong>Cloud Router</strong></li>
+<li>
+<p>Applies to:</p>
+</li>
+<li>
+<p>Specific <strong>VPC</strong></p>
+</li>
+<li>Specific <strong>region</strong></li>
+<li>Specific <strong>subnets or IP ranges</strong></li>
+</ul>
+<p>It is <strong>not automatic for all VMs</strong>.</p>
+<hr />
+<h2 id="why-the-exam-wants-this-answer_5">Why the exam wants THIS answer</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Why the exam rejects it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>External IP quota</td>
+<td>Other VMs working disproves it</td>
+</tr>
+<tr>
+<td>Firewall</td>
+<td>Explicitly ruled out</td>
+</tr>
+<tr>
+<td>Billing</td>
+<td>VM already exists</td>
+</tr>
+<tr>
+<td>API</td>
+<td>Networking already works</td>
+</tr>
+<tr>
+<td>Cloud NAT misconfiguration</td>
+<td>✅ Only option that fits all facts</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="-ace-lock-in-rule-important">🔑 ACE lock-in rule (IMPORTANT)</h2>
+<blockquote>
+<p><strong>If some VMs work and one doesn’t → not quota, not billing, not API</strong><br />
+<strong>It’s almost always configuration scope</strong></p>
+</blockquote>
+<hr />
+<h2 id="-your-performance-on-hard-mode">📊 Your performance on HARD MODE</h2>
+<p>You got:</p>
+<ul>
+<li><strong>3/5 perfectly</strong></li>
+<li><strong>2 misses that are VERY common ACE traps</strong></li>
+</ul>
+<p>Those two misses (403 vs quota, NAT vs quota) are:</p>
+<ul>
+<li>Exactly where many candidates lose points</li>
+<li>Now corrected with the right mental models</li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

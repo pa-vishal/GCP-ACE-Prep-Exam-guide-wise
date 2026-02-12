@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B. Applying organizational policies to the resource hierarchy</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#section-1.1--applying-organizational-policies-to-the-resource-hierarchy">Section 1.1 – Applying organizational policies to the resource hierarchy</a></li>
+<li><a href="#1-what-are-organization-policies">1️⃣ What are Organization Policies?</a></li>
+<li><a href="#2-how-org-policies-work-core-mechanics">2️⃣ How Org Policies work (core mechanics)</a></li>
+<li><a href="#3-types-of-constraints-very-exam-relevant">3️⃣ Types of constraints (VERY exam-relevant)</a></li>
+<li><a href="#4-where-policies-are-applied-decision-logic">4️⃣ Where policies are applied (decision logic)</a></li>
+<li><a href="#5-common-high-value-org-policy-use-cases">5️⃣ Common high-value org policy use cases</a></li>
+<li><a href="#6-how-this-differs-from-iam-frequent-exam-trap">6️⃣ How this differs from IAM (frequent exam trap)</a></li>
+<li><a href="#7-real-world-scenario">7️⃣ Real-world scenario</a></li>
+<li><a href="#8-exam-traps--misconceptions">8️⃣ Exam traps &amp; misconceptions</a></li>
+<li><a href="#9-one-line-exam-memory-hook">9️⃣ One-line exam memory hook</a></li>
+<li><a href="#1-what-does-the-ace-exam-actually-test-here">1️⃣ What does the ACE exam actually test here?</a></li>
+<li><a href="#2-real-organization-policy-sample-concrete">2️⃣ Real organization policy sample (concrete)</a></li>
+<li><a href="#3-applying-org-policy-via-cli-gcloud">3️⃣ Applying Org Policy via CLI (gcloud)</a></li>
+<li><a href="#4-list-constraint-example-regions">4️⃣ List constraint example (regions)</a></li>
+<li><a href="#5-how-org-policies-interact-with-folders-vs-projects-exam-gold">5️⃣ How Org Policies interact with folders vs projects (EXAM GOLD)</a></li>
+<li><a href="#6-iam-vs-org-policy-one-last-exam-lock-in">6️⃣ IAM vs Org Policy (one last exam lock-in)</a></li>
+<li><a href="#7-final-exam-ready-mental-model">7️⃣ Final exam-ready mental model</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿</p>
+<h3 id="section-1.1--applying-organizational-policies-to-the-resource-hierarchy"><strong>Section 1.1 – Applying organizational policies to the resource hierarchy</strong></h3>
+<p><img alt="Image" src="https://docs.cloud.google.com/resource-manager/img/org-policy-inheritance.svg" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/resource-manager/img/org-policy-concepts.svg" /></p>
+<p>This bullet is about <strong>preventing bad things from ever being created</strong>, not granting access. On the exam, this is often confused with IAM—<strong>they are different</strong>.</p>
+<hr />
+<h2 id="1-what-are-organization-policies">1️⃣ What are Organization Policies?</h2>
+<p><strong>Organization Policies (Org Policies)</strong> are <strong>guardrails</strong> that:</p>
+<ul>
+<li>Restrict <strong>what configurations are allowed</strong></li>
+<li>Apply across <strong>Organization → Folder → Project</strong></li>
+<li>Enforce <strong>compliance, security, and cost controls</strong></li>
+</ul>
+<blockquote>
+<p><strong>Think:</strong> “What is allowed or denied?”<br />
+Not “Who can do it?”</p>
+</blockquote>
+<hr />
+<h2 id="2-how-org-policies-work-core-mechanics">2️⃣ How Org Policies work (core mechanics)</h2>
+<h3 id="policy-structure">Policy structure</h3>
+<ul>
+<li>Defined using <strong>constraints</strong></li>
+<li>
+<p>Applied at:</p>
+</li>
+<li>
+<p>Organization</p>
+</li>
+<li>Folder</li>
+<li>Project</li>
+</ul>
+<h3 id="inheritance-model">Inheritance model</h3>
+<ul>
+<li>Policies <strong>inherit downward</strong></li>
+<li><strong>More restrictive</strong> policies override less restrictive ones</li>
+</ul>
+<pre><code>Org Policy
+ └── Folder Policy (stricter)
+      └── Project Policy (strictest wins)
+</code></pre>
+<hr />
+<h2 id="3-types-of-constraints-very-exam-relevant">3️⃣ Types of constraints (VERY exam-relevant)</h2>
+<h3 id="a.-boolean-constraints"><strong>A. Boolean constraints</strong></h3>
+<p>On / Off rules</p>
+<p><strong>Examples</strong></p>
+<ul>
+<li>Disable external IPs on VMs</li>
+<li>Disable service account key creation</li>
+<li>Disable serial port access</li>
+</ul>
+<p><strong>Example logic</strong></p>
+<blockquote>
+<p>“Do not allow external IPs on any VM in prod”</p>
+</blockquote>
+<hr />
+<h3 id="b.-list-constraints"><strong>B. List constraints</strong></h3>
+<p>Allow or deny <strong>specific values</strong></p>
+<p><strong>Examples</strong></p>
+<ul>
+<li>Allowed regions</li>
+<li>Allowed machine types</li>
+<li>Allowed load balancer types</li>
+</ul>
+<p><strong>Example</strong></p>
+<blockquote>
+<p>Only allow deployments in <code>us-central1</code> and <code>us-east1</code></p>
+</blockquote>
+<hr />
+<h2 id="4-where-policies-are-applied-decision-logic">4️⃣ Where policies are applied (decision logic)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Apply Policy At</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Company-wide rule</td>
+<td>Organization</td>
+</tr>
+<tr>
+<td>Environment-specific</td>
+<td>Folder</td>
+</tr>
+<tr>
+<td>Exception for one app</td>
+<td>Project</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exam pattern</strong></p>
+<blockquote>
+<p>“Enforce security for all projects except one”<br />
+✔️ Apply at <strong>folder</strong>, override at <strong>project</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-common-high-value-org-policy-use-cases">5️⃣ Common high-value org policy use cases</h2>
+<h3 id="-security">🔒 Security</h3>
+<ul>
+<li>Block external IPs</li>
+<li>Prevent public Cloud Storage buckets</li>
+<li>Restrict service account key creation</li>
+</ul>
+<h3 id="-cost-control">💰 Cost control</h3>
+<ul>
+<li>Limit regions</li>
+<li>Limit machine families</li>
+<li>Prevent large GPU types</li>
+</ul>
+<h3 id="-compliance">📜 Compliance</h3>
+<ul>
+<li>Restrict data residency</li>
+<li>Enforce CMEK usage</li>
+</ul>
+<hr />
+<h2 id="6-how-this-differs-from-iam-frequent-exam-trap">6️⃣ How this differs from IAM (frequent exam trap)</h2>
+<table>
+<thead>
+<tr>
+<th>IAM</th>
+<th>Org Policy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WHO can act</td>
+<td>WHAT is allowed</td>
+</tr>
+<tr>
+<td>Identity-based</td>
+<td>Configuration-based</td>
+</tr>
+<tr>
+<td>Grants permissions</td>
+<td>Restricts behavior</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>If the question says “prevent” or “restrict” → Org Policy</strong></p>
+</blockquote>
+<hr />
+<h2 id="7-real-world-scenario">7️⃣ Real-world scenario</h2>
+<p><strong>Scenario</strong></p>
+<blockquote>
+<p>A company must ensure that <strong>production workloads never have public IPs</strong>, but dev teams can experiment.</p>
+</blockquote>
+<p><strong>Correct solution</strong></p>
+<ul>
+<li>Org → no policy</li>
+<li>Dev folder → allow external IPs</li>
+<li>Prod folder → <strong>deny external IPs</strong></li>
+</ul>
+<p>This avoids manual policing and mistakes.</p>
+<hr />
+<h2 id="8-exam-traps--misconceptions">8️⃣ Exam traps &amp; misconceptions</h2>
+<p>❌ “Org policies replace IAM” → False<br />
+❌ “Org policies only work at org level” → False<br />
+❌ “Project policy can loosen an org restriction” → False</p>
+<p>✔️ <strong>Stricter always wins</strong></p>
+<hr />
+<h2 id="9-one-line-exam-memory-hook">9️⃣ One-line exam memory hook</h2>
+<blockquote>
+<p><strong>Org Policies = guardrails</strong><br />
+<strong>IAM = keys to the car</strong></p>
+</blockquote>
+<hr />
+<p>Great questions. These are <strong>exactly</strong> the angles the ACE exam tests on this bullet. I’ll answer them <strong>explicitly in exam terms</strong>, then give you <strong>real policy samples + CLI</strong>, and finally <strong>lock the folder vs project behavior</strong> so there’s no ambiguity. Everything below will be included in the <strong>Section 1 HTML</strong>.</p>
+<p>We are still inside:<br />
+<strong>Section 1.1 → Applying organizational policies to the resource hierarchy</strong></p>
+<hr />
+<h2 id="1-what-does-the-ace-exam-actually-test-here">1️⃣ What does the ACE exam <em>actually</em> test here?</h2>
+<p>The ACE exam does <strong>NOT</strong> test:</p>
+<ul>
+<li>
+<p>Writing complex YAML from memory</p>
+</li>
+<li>
+<p>Memorizing constraint names</p>
+</li>
+</ul>
+<p>The ACE exam <strong>DOES</strong> test whether you can:</p>
+<h3 id="-identify-when-to-use-org-policies-vs-iam">✅ Identify WHEN to use Org Policies (vs IAM)</h3>
+<p>Typical exam phrasing:</p>
+<ul>
+<li>
+<p>“Ensure resources <strong>cannot</strong> be created with X”</p>
+</li>
+<li>
+<p>“Prevent users from deploying Y”</p>
+</li>
+<li>
+<p>“Enforce company-wide restriction”</p>
+</li>
+</ul>
+<p>👉 Correct mental trigger: <strong>This is not IAM → this is Org Policy</strong></p>
+<hr />
+<h3 id="-choose-the-correct-level-org-vs-folder-vs-project">✅ Choose the CORRECT LEVEL (org vs folder vs project)</h3>
+<p>This is the <strong>core tested skill</strong>.</p>
+<p>Question wording</p>
+<p>Correct level</p>
+<p>“Across the entire company”</p>
+<p>Organization</p>
+<p>“Only for production”</p>
+<p>Folder</p>
+<p>“Exception for one workload”</p>
+<p>Project</p>
+<p>“Without changing each project individually”</p>
+<p>Folder or Org</p>
+<hr />
+<h3 id="-understand-inheritance--override-behavior">✅ Understand inheritance &amp; override behavior</h3>
+<p>Exam will test statements like:</p>
+<ul>
+<li>
+<p>“Can a project loosen an org restriction?” → <strong>NO</strong></p>
+</li>
+<li>
+<p>“Can a project be more restrictive?” → <strong>YES</strong></p>
+</li>
+</ul>
+<p>If you understand <strong>stricter always wins</strong>, you will get these right.</p>
+<hr />
+<h3 id="-what-the-exam-will-not-do">❌ What the exam will NOT do</h3>
+<ul>
+<li>
+<p>Ask you to remember exact constraint IDs</p>
+</li>
+<li>
+<p>Ask you to debug complex policy YAML</p>
+</li>
+<li>
+<p>Ask you to chain multiple policies</p>
+</li>
+</ul>
+<hr />
+<h2 id="2-real-organization-policy-sample-concrete">2️⃣ Real organization policy sample (concrete)</h2>
+<h3 id="example-requirement">Example requirement</h3>
+<blockquote>
+<p>“Prevent all VMs from having external IPs in production”</p>
+</blockquote>
+<p>This uses a <strong>Boolean constraint</strong>.</p>
+<h3 id="example-policy-conceptual">Example policy (conceptual)</h3>
+<pre><code class="language-yaml">constraint: compute.vmExternalIpAccess
+booleanPolicy:
+  enforced: true
+
+</code></pre>
+<p>Meaning:</p>
+<ul>
+<li>
+<p><code>true</code> = external IPs are <strong>blocked</strong></p>
+</li>
+<li>
+<p>Applies to <strong>all child resources</strong></p>
+</li>
+</ul>
+<hr />
+<h2 id="3-applying-org-policy-via-cli-gcloud">3️⃣ Applying Org Policy via CLI (gcloud)</h2>
+<h3 id="-step-1-identify-the-resource">🔹 Step 1: Identify the resource</h3>
+<p>You must know <strong>where</strong> you are applying it.</p>
+<p>Examples:</p>
+<ul>
+<li>
+<p>Organization: <code>organizations/123456789</code></p>
+</li>
+<li>
+<p>Folder: <code>folders/456789012</code></p>
+</li>
+<li>
+<p>Project: <code>projects/my-prod-project</code></p>
+</li>
+</ul>
+<hr />
+<h3 id="-step-2-create-policy-file-example">🔹 Step 2: Create policy file (example)</h3>
+<pre><code class="language-yaml">constraint: constraints/compute.vmExternalIpAccess
+booleanPolicy:
+  enforced: true
+
+</code></pre>
+<p>Save as: <code>deny-external-ip.yaml</code></p>
+<hr />
+<h3 id="-step-3-apply-using-gcloud">🔹 Step 3: Apply using gcloud</h3>
+<h4 id="apply-at-folder-level-most-common-exam-answer">Apply at folder level (most common exam answer)</h4>
+<pre><code class="language-bash">gcloud org-policies set-policy deny-external-ip.yaml \
+  --folder=456789012
+
+</code></pre>
+<h4 id="apply-at-project-level">Apply at project level</h4>
+<pre><code class="language-bash">gcloud org-policies set-policy deny-external-ip.yaml \
+  --project=my-prod-project
+
+</code></pre>
+<h4 id="apply-at-organization-level">Apply at organization level</h4>
+<pre><code class="language-bash">gcloud org-policies set-policy deny-external-ip.yaml \
+  --organization=123456789
+
+</code></pre>
+<hr />
+<h3 id="-step-4-verify">🔹 Step 4: Verify</h3>
+<pre><code class="language-bash">gcloud org-policies list --folder=456789012
+
+</code></pre>
+<hr />
+<h2 id="4-list-constraint-example-regions">4️⃣ List constraint example (regions)</h2>
+<h3 id="requirement">Requirement</h3>
+<blockquote>
+<p>“Only allow deployments in us-central1 and us-east1”</p>
+</blockquote>
+<h3 id="policy-example">Policy example</h3>
+<pre><code class="language-yaml">constraint: constraints/gcp.resourceLocations
+listPolicy:
+  allowedValues:
+    - in:us-central1
+    - in:us-east1
+
+</code></pre>
+<p>Apply using the <strong>same <code>gcloud org-policies set-policy</code> command</strong>.</p>
+<hr />
+<h2 id="5-how-org-policies-interact-with-folders-vs-projects-exam-gold">5️⃣ How Org Policies interact with folders vs projects (EXAM GOLD)</h2>
+<h3 id="inheritance-rule-absolute">Inheritance rule (absolute)</h3>
+<ul>
+<li>
+<p>Policies flow <strong>downward</strong></p>
+</li>
+<li>
+<p><strong>Stricter always wins</strong></p>
+</li>
+<li>
+<p>You can <strong>add restrictions</strong>, not remove them</p>
+</li>
+</ul>
+<hr />
+<h3 id="scenario-walkthrough-very-exam-like">Scenario walkthrough (very exam-like)</h3>
+<pre><code>Organization
+ └── Prod Folder
+      └── prod-project-1
+
+</code></pre>
+<h4 id="org-level">Org level</h4>
+<ul>
+<li>Allows all regions</li>
+</ul>
+<h4 id="folder-level-prod">Folder level (Prod)</h4>
+<ul>
+<li>Restricts to <code>us-central1</code></li>
+</ul>
+<h4 id="project-level">Project level</h4>
+<ul>
+<li>Tries to allow <code>europe-west1</code></li>
+</ul>
+<p>👉 <strong>Result</strong>:<br />
+❌ <code>europe-west1</code> is still <strong>blocked</strong></p>
+<hr />
+<h3 id="can-a-project-override">Can a project override?</h3>
+<p>Override type</p>
+<p>Allowed?</p>
+<p>Loosen restriction</p>
+<p>❌ No</p>
+<p>Make stricter</p>
+<p>✅ Yes</p>
+<p>Add exception</p>
+<p>❌ No</p>
+<blockquote>
+<p><strong>Exam phrase to remember</strong>:<br />
+<em>“Projects cannot escape parent policies.”</em></p>
+</blockquote>
+<hr />
+<h2 id="6-iam-vs-org-policy-one-last-exam-lock-in">6️⃣ IAM vs Org Policy (one last exam lock-in)</h2>
+<p>If the question says:</p>
+<p>Wording</p>
+<p>Answer</p>
+<p>“Prevent creation”</p>
+<p>Org Policy</p>
+<p>“Restrict configuration”</p>
+<p>Org Policy</p>
+<p>“Allow user to access”</p>
+<p>IAM</p>
+<p>“Grant permission”</p>
+<p>IAM</p>
+<hr />
+<h2 id="7-final-exam-ready-mental-model">7️⃣ Final exam-ready mental model</h2>
+<blockquote>
+<p><strong>Org Policies define what is POSSIBLE</strong><br />
+<strong>IAM defines who is ALLOWED</strong></p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

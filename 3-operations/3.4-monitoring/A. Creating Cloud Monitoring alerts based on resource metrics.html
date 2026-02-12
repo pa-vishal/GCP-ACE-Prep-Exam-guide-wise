@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A. Creating Cloud Monitoring alerts based on resource metrics</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#creating-cloud-monitoring-alerts-based-on-resource-metrics">Creating Cloud Monitoring alerts based on resource metrics</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-cloud-monitoring-basics-foundation">2️⃣ Cloud Monitoring basics (foundation)</a></li>
+<li><a href="#3-resource-metrics-vs-other-signals-must-know">3️⃣ Resource metrics vs other signals (MUST KNOW)</a></li>
+<li><a href="#4-alerting-policy-components-very-important">4️⃣ Alerting policy components (VERY IMPORTANT)</a></li>
+<li><a href="#5-creating-a-metric-based-alert-conceptual-steps">5️⃣ Creating a metric-based alert (conceptual steps)</a></li>
+<li><a href="#6-common-resource-metric-alerts-ace-favorites">6️⃣ Common resource-metric alerts (ACE FAVORITES)</a></li>
+<li><a href="#7-threshold-selection-exam-logic">7️⃣ Threshold selection (exam logic)</a></li>
+<li><a href="#8-notification-channels-exam-awareness">8️⃣ Notification channels (exam awareness)</a></li>
+<li><a href="#9-monitoring-vs-logging-common-exam-trap">9️⃣ Monitoring vs logging (COMMON EXAM TRAP)</a></li>
+<li><a href="#-common-ace-exam-scenarios">🔟 Common ACE exam scenarios</a></li>
+<li><a href="#11-common-ace-exam-traps">11️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.4 – Monitoring and logging</strong></p>
+<h4 id="creating-cloud-monitoring-alerts-based-on-resource-metrics"><strong>Creating Cloud Monitoring alerts based on resource metrics</strong></h4>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A1400/0%2AgP1M5_Er9ZyLX2XX.jpg" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/monitoring/images/recommended-alerts.png" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/pub_sub.max-700x700.jpg" /></p>
+<p>This is a <strong>core ACE topic</strong>. The exam is not testing advanced SRE design—it’s testing whether you can <strong>turn metrics into actionable alerts</strong>, choose the <strong>right signal</strong>, and avoid noisy or useless alerts.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Identify <strong>which metrics to alert on</strong></li>
+<li>Create an alert based on <strong>resource metrics</strong></li>
+<li>Choose <strong>thresholds and duration</strong></li>
+<li>Route alerts to <strong>notification channels</strong></li>
+<li>Avoid confusing <strong>monitoring vs logging</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“When something goes wrong, how do I get notified in time?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-cloud-monitoring-basics-foundation">2️⃣ Cloud Monitoring basics (foundation)</h2>
+<h3 id="what-cloud-monitoring-does">What Cloud Monitoring does</h3>
+<ul>
+<li>
+<p>Collects <strong>metrics</strong> from:</p>
+</li>
+<li>
+<p>Compute Engine</p>
+</li>
+<li>GKE</li>
+<li>Cloud Run</li>
+<li>Cloud SQL</li>
+<li>Load balancers</li>
+<li>Evaluates metrics against <strong>alerting policies</strong></li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+<strong>Metrics trigger alerts; logs do not (directly).</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-resource-metrics-vs-other-signals-must-know">3️⃣ Resource metrics vs other signals (MUST KNOW)</h2>
+<h3 id="resource-metrics">Resource metrics</h3>
+<ul>
+<li>CPU utilization</li>
+<li>Memory utilization</li>
+<li>Disk usage</li>
+<li>Network throughput</li>
+<li>Instance uptime</li>
+</ul>
+<p>These are the <strong>most tested</strong> metrics for ACE.</p>
+<h3 id="not-tested-deeply">Not tested deeply</h3>
+<ul>
+<li>Custom metrics</li>
+<li>Complex SLO-based alerting</li>
+</ul>
+<blockquote>
+<p><strong>ACE signal:</strong><br />
+“Alert when CPU is high” → <strong>resource metric alert</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-alerting-policy-components-very-important">4️⃣ Alerting policy components (VERY IMPORTANT)</h2>
+<p>Every alerting policy has <strong>four core parts</strong>:</p>
+<h3 id="1.-metric">1. <strong>Metric</strong></h3>
+<p>What you are measuring<br />
+Example: <code>compute.googleapis.com/instance/cpu/utilization</code></p>
+<hr />
+<h3 id="2.-condition">2. <strong>Condition</strong></h3>
+<p>When the alert should fire<br />
+Examples:</p>
+<ul>
+<li>CPU &gt; 80%</li>
+<li>Memory &gt; 90%</li>
+<li>Instance uptime &lt; expected</li>
+</ul>
+<hr />
+<h3 id="3.-duration">3. <strong>Duration</strong></h3>
+<p>How long the condition must hold<br />
+Example:</p>
+<ul>
+<li>CPU &gt; 80% for <strong>5 minutes</strong></li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+No duration = noisy alerts</p>
+</blockquote>
+<hr />
+<h3 id="4.-notification-channel">4. <strong>Notification channel</strong></h3>
+<p>Where the alert is sent<br />
+Examples:</p>
+<ul>
+<li>Email</li>
+<li>SMS</li>
+<li>PagerDuty</li>
+<li>Slack (via webhook)</li>
+</ul>
+<hr />
+<h2 id="5-creating-a-metric-based-alert-conceptual-steps">5️⃣ Creating a metric-based alert (conceptual steps)</h2>
+<p><strong>Console flow (exam-level awareness):</strong></p>
+<ol>
+<li>Cloud Monitoring → Alerting</li>
+<li>Create alerting policy</li>
+<li>Select <strong>resource metric</strong></li>
+<li>Set threshold + duration</li>
+<li>Choose notification channel</li>
+</ol>
+<blockquote>
+<p><strong>Exam note:</strong><br />
+You are tested on <strong>what you configure</strong>, not where you click.</p>
+</blockquote>
+<hr />
+<h2 id="6-common-resource-metric-alerts-ace-favorites">6️⃣ Common resource-metric alerts (ACE FAVORITES)</h2>
+<h3 id="compute-engine">Compute Engine</h3>
+<ul>
+<li>CPU utilization too high</li>
+<li>VM uptime unexpectedly low (crashes)</li>
+</ul>
+<h3 id="gke">GKE</h3>
+<ul>
+<li>Node CPU usage</li>
+<li>Pod restarts (derived metric)</li>
+</ul>
+<h3 id="cloud-sql">Cloud SQL</h3>
+<ul>
+<li>CPU usage</li>
+<li>Storage nearing limit</li>
+</ul>
+<h3 id="cloud-run">Cloud Run</h3>
+<ul>
+<li>Request latency</li>
+<li>Instance count spikes</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Alert on <strong>symptoms</strong>, not root causes.</p>
+</blockquote>
+<hr />
+<h2 id="7-threshold-selection-exam-logic">7️⃣ Threshold selection (exam logic)</h2>
+<h3 id="bad-alert">Bad alert</h3>
+<ul>
+<li>CPU &gt; 80% for 10 seconds</li>
+</ul>
+<h3 id="good-alert">Good alert</h3>
+<ul>
+<li>CPU &gt; 80% for 5 minutes</li>
+</ul>
+<blockquote>
+<p><strong>ACE signal:</strong><br />
+“Reduce alert noise” → increase <strong>duration</strong>, not threshold</p>
+</blockquote>
+<hr />
+<h2 id="8-notification-channels-exam-awareness">8️⃣ Notification channels (exam awareness)</h2>
+<ul>
+<li>Alerts do nothing unless someone sees them</li>
+<li>
+<p>Channels must be:</p>
+</li>
+<li>
+<p>Created first</p>
+</li>
+<li>Reused across policies</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Creating alerts without notification channels = useless</p>
+</blockquote>
+<hr />
+<h2 id="9-monitoring-vs-logging-common-exam-trap">9️⃣ Monitoring vs logging (COMMON EXAM TRAP)</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cloud Monitoring</strong></td>
+<td>Metrics, thresholds, alerts</td>
+</tr>
+<tr>
+<td><strong>Cloud Logging</strong></td>
+<td>Logs, errors, text entries</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+You <strong>cannot</strong> create a CPU alert from logs.</p>
+</blockquote>
+<hr />
+<h2 id="-common-ace-exam-scenarios">🔟 Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Notify admin if VM CPU is too high for 5 minutes”</p>
+</blockquote>
+<p>✅ <strong>Cloud Monitoring alert on CPU utilization</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Alert fires too often due to spikes”</p>
+</blockquote>
+<p>✅ <strong>Increase evaluation duration</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“User wants to be emailed when Cloud SQL storage is almost full”</p>
+</blockquote>
+<p>✅ <strong>Metric-based alert + email notification</strong></p>
+<hr />
+<h2 id="11-common-ace-exam-traps">11️⃣ Common ACE exam traps</h2>
+<p>❌ Using logs instead of metrics<br />
+❌ No duration set (alert storms)<br />
+❌ Alert without notification channel<br />
+❌ Alerting on non-actionable metrics<br />
+❌ Expecting Monitoring to auto-fix issues</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Metrics → alerts</strong></li>
+<li><strong>Threshold + duration</strong></li>
+<li><strong>Logs ≠ alerts</strong></li>
+<li><strong>No channel = no value</strong></li>
+<li><strong>Alert on symptoms</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

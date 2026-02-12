@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E. Configuring OS Login</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-os-login-is-exam-framing">1️⃣ What OS Login is (exam framing)</a></li>
+<li><a href="#2-what-the-ace-exam-actually-tests">2️⃣ What the ACE exam actually tests</a></li>
+<li><a href="#3-how-os-login-works-mental-model">3️⃣ How OS Login works (mental model)</a></li>
+<li><a href="#4-iam-roles-used-with-os-login-very-exam-relevant">4️⃣ IAM roles used with OS Login (VERY exam-relevant)</a></li>
+<li><a href="#5-enabling-os-login-cli--exam-relevant">5️⃣ Enabling OS Login (CLI – exam-relevant)</a></li>
+<li><a href="#6-disabling-legacy-ssh-keys-important-exam-nuance">6️⃣ Disabling legacy SSH keys (important exam nuance)</a></li>
+<li><a href="#7-os-login--ssh-workflow-what-actually-happens">7️⃣ OS Login + SSH workflow (what actually happens)</a></li>
+<li><a href="#8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#9-os-login-vs-ssh-keys-exam-comparison">9️⃣ OS Login vs SSH keys (exam comparison)</a></li>
+<li><a href="#10-common-ace-exam-traps">10️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hook">🔑 One-line ACE memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.1 – Configuring OS Login</strong></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/compute/docs/connect/ssh-best-practices/flowchart.svg" /></p>
+<p><img alt="Image" src="https://miro.medium.com/1%2A_jSrb1-26iNlGRLU7gC81A.png" /></p>
+<p>This bullet is <strong>high-yield for the ACE exam</strong> because it tests whether you can <strong>replace SSH key sprawl with IAM-based access</strong> and understand <strong>where OS Login is configured and enforced</strong>.</p>
+<hr />
+<h2 id="1-what-os-login-is-exam-framing">1️⃣ What OS Login is (exam framing)</h2>
+<p><strong>OS Login</strong> lets users <strong>SSH into Compute Engine VMs using IAM</strong>, instead of managing SSH keys manually.</p>
+<p><strong>What changes</strong></p>
+<ul>
+<li>SSH access is controlled by <strong>IAM roles</strong></li>
+<li>SSH keys are <strong>not stored</strong> in project or instance metadata</li>
+<li>Access is <strong>centralized, auditable, and revocable</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam rule to memorize:</strong><br />
+<strong>OS Login = IAM controls SSH</strong></p>
+</blockquote>
+<hr />
+<h2 id="2-what-the-ace-exam-actually-tests">2️⃣ What the ACE exam actually tests</h2>
+<p>You should be able to:</p>
+<h3 id="-identify-when-os-login-is-the-best-practice">✅ Identify when OS Login is the <strong>best practice</strong></h3>
+<ul>
+<li>Centralized access</li>
+<li>Auditable SSH</li>
+<li>Easy onboarding/offboarding</li>
+</ul>
+<h3 id="-know-how-os-login-is-enabled">✅ Know <strong>how OS Login is enabled</strong></h3>
+<ul>
+<li>Project-level metadata</li>
+<li>Instance-level override (rare)</li>
+</ul>
+<h3 id="-what-it-does-not-test">❌ What it does NOT test</h3>
+<ul>
+<li>Linux user management details</li>
+<li>PAM / NSS internals</li>
+<li>Custom OS Login troubleshooting</li>
+</ul>
+<hr />
+<h2 id="3-how-os-login-works-mental-model">3️⃣ How OS Login works (mental model)</h2>
+<pre><code>User → IAM Role → OS Login → VM SSH Access
+</code></pre>
+<ul>
+<li>IAM decides <strong>who can SSH</strong></li>
+<li>OS Login maps IAM users → Linux users</li>
+<li>SSH keys are <strong>ephemeral</strong></li>
+</ul>
+<hr />
+<h2 id="4-iam-roles-used-with-os-login-very-exam-relevant">4️⃣ IAM roles used with OS Login (VERY exam-relevant)</h2>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>What it allows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>roles/compute.osLogin</code></td>
+<td>SSH access (non-root)</td>
+</tr>
+<tr>
+<td><code>roles/compute.osAdminLogin</code></td>
+<td>SSH access with sudo</td>
+</tr>
+<tr>
+<td><code>roles/compute.admin</code></td>
+<td>Does NOT automatically grant SSH</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Compute Admin ≠ SSH access unless OS Login role is present</p>
+</blockquote>
+<hr />
+<h2 id="5-enabling-os-login-cli--exam-relevant">5️⃣ Enabling OS Login (CLI – exam-relevant)</h2>
+<h3 id="enable-at-project-level-recommended">Enable at <strong>project level</strong> (recommended)</h3>
+<pre><code class="language-bash">gcloud compute project-info add-metadata \
+  --metadata enable-oslogin=TRUE
+</code></pre>
+<p>This applies to <strong>all VMs</strong> in the project.</p>
+<hr />
+<h3 id="enable-at-instance-level-override">Enable at <strong>instance level</strong> (override)</h3>
+<pre><code class="language-bash">gcloud compute instances add-metadata my-vm \
+  --zone=us-central1-a \
+  --metadata enable-oslogin=TRUE
+</code></pre>
+<blockquote>
+<p>Use instance-level only for <strong>exceptions</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="6-disabling-legacy-ssh-keys-important-exam-nuance">6️⃣ Disabling legacy SSH keys (important exam nuance)</h2>
+<p>When OS Login is enabled:</p>
+<ul>
+<li>Project-wide SSH keys are <strong>ignored</strong></li>
+<li>Instance SSH keys are <strong>ignored</strong></li>
+<li>Access is <strong>only via IAM</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam clue:</strong><br />
+“User added SSH key but still can’t log in” → OS Login enabled</p>
+</blockquote>
+<hr />
+<h2 id="7-os-login--ssh-workflow-what-actually-happens">7️⃣ OS Login + SSH workflow (what actually happens)</h2>
+<ol>
+<li>User authenticates with Google account</li>
+<li>IAM role is evaluated</li>
+<li>OS Login provisions Linux user</li>
+<li>Temporary SSH key is injected</li>
+<li>User logs in</li>
+</ol>
+<hr />
+<h2 id="8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Centralized SSH access with easy revocation”</p>
+</blockquote>
+<p>✅ <strong>Enable OS Login</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“User removed from IAM should immediately lose SSH”</p>
+</blockquote>
+<p>✅ <strong>OS Login</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“User has Compute Admin but cannot SSH”</p>
+</blockquote>
+<p>✅ Missing:</p>
+<ul>
+<li><code>roles/compute.osLogin</code> or <code>roles/compute.osAdminLogin</code></li>
+</ul>
+<hr />
+<h2 id="9-os-login-vs-ssh-keys-exam-comparison">9️⃣ OS Login vs SSH keys (exam comparison)</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>OS Login</th>
+<th>SSH Keys</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Centralized</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Auditable</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>IAM-based</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Manual key mgmt</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-common-ace-exam-traps">10️⃣ Common ACE exam traps</h2>
+<p>❌ Assuming SSH works because user is Project Owner<br />
+❌ Forgetting OS Login ignores metadata SSH keys<br />
+❌ Granting Compute Admin instead of OS Login role<br />
+❌ Enabling OS Login on one VM but expecting project-wide effect</p>
+<hr />
+<h2 id="-one-line-ace-memory-hook">🔑 One-line ACE memory hook</h2>
+<blockquote>
+<p><strong>If the question says “centralized SSH” → OS Login</strong></p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

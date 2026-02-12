@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J. Confirming availability of products in geographical locations (e.g., regional, global)</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#section-1.1--confirming-availability-of-products-in-geographical-locations-e.g.-regional-global">Section 1.1 – Confirming availability of products in geographical locations (e.g., regional, global)</a></li>
+<li><a href="#1-what-this-bullet-really-means-exam-framing">1️⃣ What this bullet really means (exam framing)</a></li>
+<li><a href="#2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</a></li>
+<li><a href="#3-the-three-location-scopes-must-be-automatic">3️⃣ The three location scopes (must be automatic)</a></li>
+<li><a href="#4-why-this-matters-exam-logic">4️⃣ Why this matters (exam logic)</a></li>
+<li><a href="#5-how-to-confirm-availability-practical-ace-knowledge">5️⃣ How to confirm availability (practical ACE knowledge)</a></li>
+<li><a href="#6-common-service-location-pairings-exam-favorites">6️⃣ Common service-location pairings (exam favorites)</a></li>
+<li><a href="#7-real-exam-style-scenarios">7️⃣ Real exam-style scenarios</a></li>
+<li><a href="#8-common-exam-traps">8️⃣ Common exam traps</a></li>
+<li><a href="#-one-line-exam-memory-hook">🔑 One-line exam memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿</p>
+<h3 id="section-1.1--confirming-availability-of-products-in-geographical-locations-e.g.-regional-global"><strong>Section 1.1 – Confirming availability of products in geographical locations (e.g., regional, global)</strong></h3>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/docs/images/overview/regions-zones.svg" /></p>
+<p><img alt="Image" src="https://www.economize.cloud/resources/images/gcp-regions-zones.webp" /></p>
+<p>This bullet is <strong>quietly critical for the ACE exam</strong>. Many questions hinge on whether you understand <strong>where a service lives geographically</strong> and what that implies for <strong>latency, availability, and design choices</strong>.</p>
+<hr />
+<h2 id="1-what-this-bullet-really-means-exam-framing">1️⃣ What this bullet really means (exam framing)</h2>
+<p>“Confirming availability of products” means:</p>
+<ul>
+<li>
+<p>Knowing whether a service is:</p>
+</li>
+<li>
+<p><strong>Global</strong></p>
+</li>
+<li><strong>Regional</strong></li>
+<li><strong>Zonal</strong></li>
+<li>
+<p>Making sure the service:</p>
+</li>
+<li>
+<p>Exists in the required <strong>region</strong></p>
+</li>
+<li>Matches <strong>data residency</strong> or <strong>HA</strong> requirements</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Can this service run where I want it to run?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</h2>
+<p>The exam checks whether you can:</p>
+<h3 id="-identify-the-scope-of-a-service">✅ Identify the <strong>scope</strong> of a service</h3>
+<p>(Global vs Regional vs Zonal)</p>
+<h3 id="-choose-a-service-that-meets-availability--locality-requirements">✅ Choose a service that meets <strong>availability &amp; locality requirements</strong></h3>
+<h3 id="-what-it-does-not-test">❌ What it does NOT test</h3>
+<ul>
+<li>Exact region lists from memory</li>
+<li>Rare or newly launched regions</li>
+<li>Edge-case regional outages</li>
+</ul>
+<hr />
+<h2 id="3-the-three-location-scopes-must-be-automatic">3️⃣ The three location scopes (must be automatic)</h2>
+<h3 id="-global-services">🌍 Global services</h3>
+<ul>
+<li>No region selection</li>
+<li>Automatically span Google’s global infrastructure</li>
+<li>High availability by design</li>
+</ul>
+<p><strong>Examples</strong></p>
+<ul>
+<li>VPC networks</li>
+<li>Cloud Load Balancing (HTTP(S))</li>
+<li>Cloud IAM</li>
+<li>Cloud DNS (public)</li>
+<li>Artifact Registry (multi-region configs)</li>
+</ul>
+<blockquote>
+<p><strong>Exam clue:</strong><br />
+If no region is mentioned in setup → likely <strong>global</strong></p>
+</blockquote>
+<hr />
+<h3 id="-regional-services">📍 Regional services</h3>
+<ul>
+<li>Deployed in <strong>one region</strong></li>
+<li>High availability <strong>within that region</strong></li>
+<li>Must choose region explicitly</li>
+</ul>
+<p><strong>Examples</strong></p>
+<ul>
+<li>Cloud Run</li>
+<li>Cloud SQL (regional HA)</li>
+<li>GKE regional clusters</li>
+<li>Pub/Sub (regional)</li>
+<li>Subnets</li>
+</ul>
+<blockquote>
+<p><strong>Exam clue:</strong><br />
+“Highly available within a region” → <strong>Regional</strong></p>
+</blockquote>
+<hr />
+<h3 id="-zonal-services">🧱 Zonal services</h3>
+<ul>
+<li>Run in <strong>one zone</strong></li>
+<li>Lower availability unless replicated</li>
+</ul>
+<p><strong>Examples</strong></p>
+<ul>
+<li>Compute Engine VMs</li>
+<li>GKE zonal clusters</li>
+<li>Persistent Disk (zonal)</li>
+</ul>
+<blockquote>
+<p><strong>Exam clue:</strong><br />
+“Single VM” or “single zone” → <strong>Zonal</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-why-this-matters-exam-logic">4️⃣ Why this matters (exam logic)</h2>
+<h3 id="a.-high-availability-questions">A. High availability questions</h3>
+<blockquote>
+<p>“Service must survive a zone failure”</p>
+</blockquote>
+<p>❌ Zonal service alone<br />
+✅ Regional or multi-zone setup</p>
+<hr />
+<h3 id="b.-data-residency-questions">B. Data residency questions</h3>
+<blockquote>
+<p>“Data must remain in Europe”</p>
+</blockquote>
+<p>✅ Choose a <strong>region in Europe</strong><br />
+❌ Global service that stores data unpredictably</p>
+<hr />
+<h3 id="c.-latency-questions">C. Latency questions</h3>
+<blockquote>
+<p>“Users in Asia need low latency”</p>
+</blockquote>
+<p>✅ Deploy in Asia region<br />
+❌ Assume global service fixes latency automatically</p>
+<hr />
+<h2 id="5-how-to-confirm-availability-practical-ace-knowledge">5️⃣ How to confirm availability (practical ACE knowledge)</h2>
+<h3 id="-via-documentation--console-conceptual">🔹 Via documentation / console (conceptual)</h3>
+<ul>
+<li>
+<p>Service creation screen shows:</p>
+</li>
+<li>
+<p>Region selector</p>
+</li>
+<li>“Not available in this region” message</li>
+</ul>
+<h3 id="-via-cli-example-for-compute-engine-regions">🔹 Via CLI (example for Compute Engine regions)</h3>
+<pre><code class="language-bash">gcloud compute regions list
+</code></pre>
+<hr />
+<h3 id="-check-zones-in-a-region">🔹 Check zones in a region</h3>
+<pre><code class="language-bash">gcloud compute zones list --filter=&quot;region:us-central1&quot;
+</code></pre>
+<hr />
+<h3 id="-check-service-availability-conceptual">🔹 Check service availability (conceptual)</h3>
+<ul>
+<li>
+<p>Some services:</p>
+</li>
+<li>
+<p>Are <strong>not available in all regions</strong></p>
+</li>
+<li>Have <strong>limited regional rollout</strong></li>
+</ul>
+<blockquote>
+<p>ACE exam expects you to <strong>recognize the need to check</strong>, not memorize the list.</p>
+</blockquote>
+<hr />
+<h2 id="6-common-service-location-pairings-exam-favorites">6️⃣ Common service-location pairings (exam favorites)</h2>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VPC Network</td>
+<td>Global</td>
+</tr>
+<tr>
+<td>Subnet</td>
+<td>Regional</td>
+</tr>
+<tr>
+<td>VM</td>
+<td>Zonal</td>
+</tr>
+<tr>
+<td>Cloud Run</td>
+<td>Regional</td>
+</tr>
+<tr>
+<td>Cloud SQL HA</td>
+<td>Regional</td>
+</tr>
+<tr>
+<td>GKE Autopilot</td>
+<td>Regional</td>
+</tr>
+<tr>
+<td>BigQuery</td>
+<td>Multi-region or regional</td>
+</tr>
+<tr>
+<td>Cloud Storage</td>
+<td>Multi-region, dual-region, or regional</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-real-exam-style-scenarios">7️⃣ Real exam-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“A workload must survive a zone failure”</p>
+</blockquote>
+<p>✅ Correct:</p>
+<ul>
+<li>Regional Cloud Run</li>
+<li>Regional GKE</li>
+<li>Multi-zone MIG</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Application deployed without choosing region”</p>
+</blockquote>
+<p>✅ Explanation:</p>
+<ul>
+<li>Global service (e.g., VPC, IAM)</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Service not available in desired region”</p>
+</blockquote>
+<p>✅ Correct action:</p>
+<ul>
+<li>Choose another region</li>
+<li>Or choose another service with wider availability</li>
+</ul>
+<hr />
+<h2 id="8-common-exam-traps">8️⃣ Common exam traps</h2>
+<p>❌ Assume all services are global<br />
+❌ Confuse zonal with regional HA<br />
+❌ Forget subnets are regional<br />
+❌ Think global means zero latency everywhere</p>
+<hr />
+<h2 id="-one-line-exam-memory-hook">🔑 One-line exam memory hook</h2>
+<blockquote>
+<p><strong>VPC is global</strong><br />
+<strong>Subnets &amp; Cloud Run are regional</strong><br />
+<strong>VMs are zonal</strong></p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

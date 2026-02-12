@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E. Choosing and deploying load balancers</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#section-2.3--choosing-and-deploying-load-balancers">Section 2.3 – Choosing and deploying load balancers</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-the-load-balancer-families-lock-this-in">2️⃣ The load balancer families (lock this in)</a></li>
+<li><a href="#3-https-load-balancer-most-tested">3️⃣ HTTP(S) Load Balancer (MOST TESTED)</a></li>
+<li><a href="#4-internal-https-load-balancer">4️⃣ Internal HTTP(S) Load Balancer</a></li>
+<li><a href="#5-tcpudp-network-load-balancer">5️⃣ TCP/UDP Network Load Balancer</a></li>
+<li><a href="#6-internal-tcpudp-load-balancer">6️⃣ Internal TCP/UDP Load Balancer</a></li>
+<li><a href="#7-ssl-proxy--tcp-proxy-load-balancers-recognition-level">7️⃣ SSL Proxy / TCP Proxy Load Balancers (recognition-level)</a></li>
+<li><a href="#8-decision-table-memorize">8️⃣ Decision table (MEMORIZE)</a></li>
+<li><a href="#9-deployment-awareness-ace-level">9️⃣ Deployment awareness (ACE-level)</a></li>
+<li><a href="#-common-ace-exam-scenarios">🔟 Common ACE exam scenarios</a></li>
+<li><a href="#11-common-ace-exam-traps">11️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿</p>
+<h3 id="section-2.3--choosing-and-deploying-load-balancers"><strong>Section 2.3 – Choosing and deploying load balancers</strong></h3>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Figure_3._Network_Load_Balancing.max-1800x1800.png" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/GCLB_7.max-1300x1300.png" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/image001rx5.max-700x700.PNG" /></p>
+<p>This bullet is <strong>very high-yield</strong>. The ACE exam mostly tests <strong>which load balancer to choose</strong>, not how to tune it. If you identify <strong>traffic type (HTTP vs TCP)</strong> and <strong>scope (internal vs external, global vs regional)</strong> correctly, you’ll get these questions right.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Pick the <strong>correct load balancer type</strong></li>
+<li>Know <strong>global vs regional</strong> behavior</li>
+<li>Distinguish <strong>internal vs external</strong></li>
+<li>Avoid overengineering</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“What kind of traffic is this, and who needs to reach it?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-the-load-balancer-families-lock-this-in">2️⃣ The load balancer families (lock this in)</h2>
+<p>Google Cloud load balancers fall into <strong>two big buckets</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Application (Layer 7)</strong></td>
+<td>HTTP/HTTPS</td>
+</tr>
+<tr>
+<td><strong>Network (Layer 4)</strong></td>
+<td>TCP / UDP / SSL</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-https-load-balancer-most-tested">3️⃣ HTTP(S) Load Balancer (MOST TESTED)</h2>
+<h3 id="what-it-is">What it is</h3>
+<ul>
+<li>Global, Layer-7 load balancer</li>
+<li>
+<p>Routes traffic based on:</p>
+</li>
+<li>
+<p>URL paths</p>
+</li>
+<li>Hostnames</li>
+<li>Terminates TLS</li>
+</ul>
+<h3 id="key-characteristics">Key characteristics</h3>
+<ul>
+<li><strong>Global anycast IP</strong></li>
+<li>Built-in CDN</li>
+<li>Cross-region failover</li>
+</ul>
+<h3 id="use-when">Use when</h3>
+<ul>
+<li>Web applications</li>
+<li>REST APIs</li>
+<li>Global users</li>
+</ul>
+<h3 id="exam-signals">Exam signals</h3>
+<ul>
+<li>“HTTP/HTTPS traffic”</li>
+<li>“Global users”</li>
+<li>“URL-based routing”</li>
+<li>“High availability across regions”</li>
+</ul>
+<p>✅ <strong>Default answer for internet-facing web apps</strong></p>
+<hr />
+<h2 id="4-internal-https-load-balancer">4️⃣ Internal HTTP(S) Load Balancer</h2>
+<h3 id="what-it-is_1">What it is</h3>
+<ul>
+<li>Layer-7</li>
+<li><strong>Internal IP only</strong></li>
+<li>Regional</li>
+</ul>
+<h3 id="use-when_1">Use when</h3>
+<ul>
+<li>Internal microservices</li>
+<li>East-west traffic inside VPC</li>
+</ul>
+<h3 id="exam-signals_1">Exam signals</h3>
+<ul>
+<li>“Internal services”</li>
+<li>“Private access only”</li>
+<li>“No public exposure”</li>
+</ul>
+<hr />
+<h2 id="5-tcpudp-network-load-balancer">5️⃣ TCP/UDP Network Load Balancer</h2>
+<h3 id="what-it-is_2">What it is</h3>
+<ul>
+<li>Layer-4</li>
+<li>Regional</li>
+<li>Pass-through load balancing</li>
+</ul>
+<h3 id="use-when_2">Use when</h3>
+<ul>
+<li>Non-HTTP traffic</li>
+<li>Legacy protocols</li>
+<li>Low latency</li>
+</ul>
+<h3 id="exam-signals_2">Exam signals</h3>
+<ul>
+<li>“TCP traffic”</li>
+<li>“UDP”</li>
+<li>“Non-HTTP workload”</li>
+</ul>
+<hr />
+<h2 id="6-internal-tcpudp-load-balancer">6️⃣ Internal TCP/UDP Load Balancer</h2>
+<h3 id="what-it-is_3">What it is</h3>
+<ul>
+<li>Private, regional</li>
+<li>Layer-4</li>
+</ul>
+<h3 id="use-when_3">Use when</h3>
+<ul>
+<li>Internal databases</li>
+<li>Backend services</li>
+<li>Private workloads</li>
+</ul>
+<hr />
+<h2 id="7-ssl-proxy--tcp-proxy-load-balancers-recognition-level">7️⃣ SSL Proxy / TCP Proxy Load Balancers (recognition-level)</h2>
+<h3 id="what-they-do">What they do</h3>
+<ul>
+<li>Terminate SSL (SSL Proxy)</li>
+<li>Proxy TCP connections</li>
+</ul>
+<h3 id="exam-expectation">Exam expectation</h3>
+<ul>
+<li><strong>Know they exist</strong></li>
+<li>Rarely the best ACE answer unless explicitly mentioned</li>
+</ul>
+<hr />
+<h2 id="8-decision-table-memorize">8️⃣ Decision table (MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Best Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Internet-facing web app</td>
+<td>HTTP(S) Load Balancer</td>
+</tr>
+<tr>
+<td>Global users</td>
+<td>HTTP(S) Load Balancer</td>
+</tr>
+<tr>
+<td>Internal web services</td>
+<td>Internal HTTP(S) LB</td>
+</tr>
+<tr>
+<td>TCP/UDP traffic</td>
+<td>Network Load Balancer</td>
+</tr>
+<tr>
+<td>Internal TCP services</td>
+<td>Internal TCP/UDP LB</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-deployment-awareness-ace-level">9️⃣ Deployment awareness (ACE-level)</h2>
+<h3 id="typical-backend-types">Typical backend types</h3>
+<ul>
+<li>Managed Instance Groups</li>
+<li>GKE services</li>
+<li>Cloud Run services (via serverless NEG)</li>
+</ul>
+<blockquote>
+<p><strong>Exam note:</strong><br />
+You are <strong>not</strong> tested on full LB configuration steps—only <strong>selection logic</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="-common-ace-exam-scenarios">🔟 Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Serve HTTPS traffic to users worldwide with high availability”</p>
+</blockquote>
+<p>✅ <strong>HTTP(S) Load Balancer</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Expose internal microservices over HTTP”</p>
+</blockquote>
+<p>✅ <strong>Internal HTTP(S) Load Balancer</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Load balance TCP traffic to VMs”</p>
+</blockquote>
+<p>✅ <strong>Network Load Balancer</strong></p>
+<hr />
+<h2 id="11-common-ace-exam-traps">11️⃣ Common ACE exam traps</h2>
+<p>❌ Using Network LB for HTTP apps<br />
+❌ Forgetting internal vs external distinction<br />
+❌ Assuming all load balancers are global<br />
+❌ Choosing complex proxies when HTTP(S) LB fits</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>HTTP traffic → HTTP(S) LB</strong></li>
+<li><strong>Global users → HTTP(S) LB</strong></li>
+<li><strong>Internal only → Internal LB</strong></li>
+<li><strong>Non-HTTP → Network LB</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

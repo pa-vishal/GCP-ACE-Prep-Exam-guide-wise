@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A. Viewing and creating IAM policies</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#4.1-managing-identity-and-access-management-iam">4.1 Managing Identity and Access Management (IAM)</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿Perfect. We are now in:</p>
+<h1 id="section-4--configuring-access-and-security-20"><strong>Section 4 – Configuring access and security (~20%)</strong></h1>
+<h2 id="4.1-managing-identity-and-access-management-iam"><strong>4.1 Managing Identity and Access Management (IAM)</strong></h2>
+<h3 id="viewing-and-creating-iam-policies"><strong>Viewing and creating IAM policies</strong></h3>
+<p>This is <strong>core ACE territory</strong>. IAM is everywhere. Expect multiple questions from this subsection.</p>
+<hr />
+<h1 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h1>
+<p>You should be able to:</p>
+<ul>
+<li>
+<p>View IAM policies at:</p>
+</li>
+<li>
+<p>Organization</p>
+</li>
+<li>Folder</li>
+<li>Project</li>
+<li>Resource level</li>
+<li>Create or modify IAM bindings</li>
+<li>
+<p>Understand:</p>
+</li>
+<li>
+<p>Members</p>
+</li>
+<li>Roles</li>
+<li>Bindings</li>
+<li>Apply <strong>least privilege</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Who can do what on which resource?”</em></p>
+</blockquote>
+<hr />
+<h1 id="2-iam-policy-structure-must-memorize">2️⃣ IAM Policy Structure (MUST MEMORIZE)</h1>
+<p>An IAM policy consists of:</p>
+<pre><code>Policy
+ └── Bindings
+      ├── Role
+      └── Members
+</code></pre>
+<h3 id="binding-format">Binding format</h3>
+<pre><code class="language-yaml">bindings:
+- role: roles/storage.objectViewer
+  members:
+  - user:alice@example.com
+  - serviceAccount:my-sa@project.iam.gserviceaccount.com
+</code></pre>
+<hr />
+<h1 id="3-members-who">3️⃣ Members (Who)</h1>
+<p>IAM members can be:</p>
+<ul>
+<li><code>user:</code></li>
+<li><code>group:</code></li>
+<li><code>serviceAccount:</code></li>
+<li><code>domain:</code></li>
+<li><code>allUsers</code></li>
+<li><code>allAuthenticatedUsers</code></li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+<code>allUsers</code> = public access</p>
+</blockquote>
+<hr />
+<h1 id="4-roles-what">4️⃣ Roles (What)</h1>
+<p>Three categories:</p>
+<h3 id="1-basic-roles-avoid-in-production">1️⃣ Basic roles (avoid in production)</h3>
+<ul>
+<li>Owner</li>
+<li>Editor</li>
+<li>Viewer</li>
+</ul>
+<h3 id="2-predefined-roles-preferred">2️⃣ Predefined roles (preferred)</h3>
+<ul>
+<li><code>roles/compute.admin</code></li>
+<li><code>roles/storage.objectViewer</code></li>
+<li><code>roles/run.invoker</code></li>
+</ul>
+<h3 id="3-custom-roles-advanced-recognition-level">3️⃣ Custom roles (advanced; recognition-level)</h3>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Use predefined roles for least privilege.</p>
+</blockquote>
+<hr />
+<h1 id="5-viewing-iam-policies">5️⃣ Viewing IAM policies</h1>
+<h3 id="console">Console:</h3>
+<p>IAM &amp; Admin → IAM</p>
+<h3 id="cli">CLI:</h3>
+<pre><code class="language-bash">gcloud projects get-iam-policy PROJECT_ID
+</code></pre>
+<p>For specific resource:</p>
+<pre><code class="language-bash">gcloud storage buckets get-iam-policy gs://my-bucket
+</code></pre>
+<blockquote>
+<p><strong>Exam note:</strong><br />
+You’re tested on <strong>where policies live</strong>, not CLI memorization.</p>
+</blockquote>
+<hr />
+<h1 id="6-creating-or-modifying-iam-policies">6️⃣ Creating or Modifying IAM Policies</h1>
+<p>Conceptually, you:</p>
+<ul>
+<li>
+<p>Add a binding:</p>
+</li>
+<li>
+<p>Member + Role</p>
+</li>
+</ul>
+<p>CLI example:</p>
+<pre><code class="language-bash">gcloud projects add-iam-policy-binding PROJECT_ID \
+  --member=&quot;user:alice@example.com&quot; \
+  --role=&quot;roles/storage.objectViewer&quot;
+</code></pre>
+<hr />
+<h1 id="7-policy-hierarchy-very-important">7️⃣ Policy Hierarchy (VERY IMPORTANT)</h1>
+<p>IAM follows inheritance:</p>
+<pre><code>Organization
+  ↓
+Folder
+  ↓
+Project
+  ↓
+Resource
+</code></pre>
+<p>Permissions granted higher up:</p>
+<ul>
+<li>Apply downward</li>
+<li>Cannot be removed at lower level (only overridden via deny policy)</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Project-level policy does not override Org-level grants.</p>
+</blockquote>
+<hr />
+<h1 id="8-common-ace-exam-scenarios">8️⃣ Common ACE Exam Scenarios</h1>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“User cannot access resource”</p>
+</blockquote>
+<p>Check:</p>
+<ul>
+<li>IAM policy at project level</li>
+<li>Resource-level policy</li>
+<li>Inherited roles</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Grant read access to one bucket only”</p>
+</blockquote>
+<p>✅ Apply IAM at <strong>bucket level</strong>, not project level.</p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Multiple users need same permissions”</p>
+</blockquote>
+<p>✅ Use <strong>group</strong> instead of individual users.</p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Prevent over-privileged users”</p>
+</blockquote>
+<p>✅ Use predefined roles<br />
+❌ Avoid Owner/Editor</p>
+<hr />
+<h1 id="9-iam-policy-vs-role-vs-member-common-trap">9️⃣ IAM Policy vs Role vs Member (COMMON TRAP)</h1>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Policy</td>
+<td>Entire set of bindings</td>
+</tr>
+<tr>
+<td>Binding</td>
+<td>Role + Members</td>
+</tr>
+<tr>
+<td>Role</td>
+<td>Collection of permissions</td>
+</tr>
+<tr>
+<td>Member</td>
+<td>Identity</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="-common-ace-exam-traps">🔟 Common ACE exam traps</h1>
+<p>❌ Granting Owner unnecessarily<br />
+❌ Using user accounts instead of groups<br />
+❌ Forgetting inheritance<br />
+❌ Granting at project when resource-level is safer<br />
+❌ Confusing IAM with Organization Policy</p>
+<hr />
+<h1 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h1>
+<ul>
+<li><strong>Member + Role = Binding</strong></li>
+<li><strong>Policy = list of bindings</strong></li>
+<li><strong>Hierarchy inherits downward</strong></li>
+<li><strong>Least privilege wins</strong></li>
+<li><strong>Groups over users</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

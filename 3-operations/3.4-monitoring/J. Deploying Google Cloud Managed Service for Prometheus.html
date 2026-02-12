@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J. Deploying Google Cloud Managed Service for Prometheus</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#deploying-google-cloud-managed-service-for-prometheus">Deploying Google Cloud Managed Service for Prometheus</a></li>
+<li><a href="#scenario-1">Scenario 1</a></li>
+<li><a href="#scenario-2">Scenario 2</a></li>
+<li><a href="#scenario-3">Scenario 3</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.4 – Monitoring and logging</strong></p>
+<h4 id="deploying-google-cloud-managed-service-for-prometheus"><strong>Deploying Google Cloud Managed Service for Prometheus</strong></h4>
+<p>This bullet is about <strong>Kubernetes-native monitoring</strong> using Prometheus, but managed by Google.<br />
+The ACE exam tests whether you understand:</p>
+<ul>
+<li>What Managed Service for Prometheus (GMP) is</li>
+<li>Why it exists</li>
+<li>Where it runs</li>
+<li>How it integrates with Cloud Monitoring</li>
+</ul>
+<p>Not how to handcraft Helm charts.</p>
+<hr />
+<h1 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h1>
+<p>You should be able to:</p>
+<ul>
+<li>Explain what Managed Service for Prometheus does</li>
+<li>Know that it is <strong>for Kubernetes environments</strong></li>
+<li>
+<p>Understand that it:</p>
+</li>
+<li>
+<p>Scrapes metrics</p>
+</li>
+<li>Sends them to Cloud Monitoring</li>
+<li>Recognize when to use it instead of standalone Prometheus</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“We’re running Kubernetes and need Prometheus-style metrics — what’s the managed option?”</em></p>
+</blockquote>
+<hr />
+<h1 id="2-what-is-google-cloud-managed-service-for-prometheus">2️⃣ What is Google Cloud Managed Service for Prometheus?</h1>
+<p>It is:</p>
+<ul>
+<li>A <strong>fully managed Prometheus-compatible monitoring solution</strong></li>
+<li>
+<p>Designed for:</p>
+</li>
+<li>
+<p>GKE</p>
+</li>
+<li>Kubernetes workloads</li>
+<li>Integrated into <strong>Cloud Monitoring</strong></li>
+</ul>
+<p>It allows you to:</p>
+<ul>
+<li>Use Prometheus scraping</li>
+<li>Keep PromQL queries</li>
+<li>Avoid managing Prometheus infrastructure</li>
+</ul>
+<hr />
+<h1 id="3-why-not-run-your-own-prometheus-exam-logic">3️⃣ Why not run your own Prometheus? (EXAM LOGIC)</h1>
+<p>Running self-managed Prometheus requires:</p>
+<ul>
+<li>
+<p>Managing:</p>
+</li>
+<li>
+<p>Storage</p>
+</li>
+<li>Scaling</li>
+<li>Upgrades</li>
+<li>Handling high cardinality metrics</li>
+</ul>
+<p>Managed Service:</p>
+<ul>
+<li>Removes operational overhead</li>
+<li>Stores metrics in Cloud Monitoring backend</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If question says “reduce operational overhead” → Managed Service</p>
+</blockquote>
+<hr />
+<h1 id="4-how-it-works-high-level-flow">4️⃣ How it works (High-Level Flow)</h1>
+<pre><code>Kubernetes Pods
+   ↓
+Prometheus scraping
+   ↓
+Managed collectors
+   ↓
+Cloud Monitoring backend
+</code></pre>
+<p>Key points:</p>
+<ul>
+<li>Metrics become part of Cloud Monitoring</li>
+<li>
+<p>Can be used in:</p>
+</li>
+<li>
+<p>Dashboards</p>
+</li>
+<li>Alerts</li>
+<li>SLOs</li>
+</ul>
+<hr />
+<h1 id="5-where-it-is-used-very-important">5️⃣ Where it is used (VERY IMPORTANT)</h1>
+<p>Primarily used in:</p>
+<ul>
+<li><strong>GKE clusters</strong></li>
+<li>Kubernetes environments</li>
+</ul>
+<p>Not typically used for:</p>
+<ul>
+<li>Cloud Run</li>
+<li>Cloud SQL</li>
+<li>Compute Engine standalone VMs</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Prometheus service is for Kubernetes workloads.</p>
+</blockquote>
+<hr />
+<h1 id="6-prometheus-vs-cloud-monitoring-distinction">6️⃣ Prometheus vs Cloud Monitoring (DISTINCTION)</h1>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Prometheus</th>
+<th>Cloud Monitoring</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pull-based scraping</td>
+<td>Yes</td>
+<td>No (built-in metrics)</td>
+</tr>
+<tr>
+<td>PromQL support</td>
+<td>Yes</td>
+<td>Limited</td>
+</tr>
+<tr>
+<td>Managed by Google</td>
+<td>With GMP</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>Managed Service bridges both worlds.</p>
+<hr />
+<h1 id="7-typical-ace-exam-scenarios">7️⃣ Typical ACE exam scenarios</h1>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“GKE workloads expose Prometheus metrics endpoint”</p>
+</blockquote>
+<p>✅ Use Managed Service for Prometheus.</p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Avoid maintaining Prometheus servers manually”</p>
+</blockquote>
+<p>✅ Use managed service.</p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Create alerts based on Kubernetes custom metrics”</p>
+</blockquote>
+<p>✅ Prometheus metrics + Cloud Monitoring alerts.</p>
+<hr />
+<h1 id="8-integration-with-alerting">8️⃣ Integration with Alerting</h1>
+<p>Prometheus metrics ingested via GMP:</p>
+<ul>
+<li>Appear in Cloud Monitoring</li>
+<li>Can trigger alerting policies</li>
+<li>Can be visualized in dashboards</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Prometheus metrics become first-class Monitoring metrics.</p>
+</blockquote>
+<hr />
+<h1 id="9-common-ace-exam-traps">9️⃣ Common ACE exam traps</h1>
+<p>❌ Installing standalone Prometheus when managed service exists<br />
+❌ Using it for non-Kubernetes workloads<br />
+❌ Confusing it with Ops Agent<br />
+❌ Expecting it to monitor Cloud Run</p>
+<hr />
+<h1 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h1>
+<ul>
+<li><strong>Kubernetes metrics → Prometheus</strong></li>
+<li><strong>Managed Service = no infra to manage</strong></li>
+<li><strong>Integrates with Monitoring</strong></li>
+<li><strong>Reduces operational overhead</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

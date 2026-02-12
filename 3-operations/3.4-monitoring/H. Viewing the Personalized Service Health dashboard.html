@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H. Viewing the Personalized Service Health dashboard</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#viewing-the-personalized-service-health-dashboard">Viewing the Personalized Service Health dashboard</a></li>
+<li><a href="#scenario-1">Scenario 1</a></li>
+<li><a href="#scenario-2">Scenario 2</a></li>
+<li><a href="#scenario-3">Scenario 3</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.4 – Monitoring and logging</strong></p>
+<h4 id="viewing-the-personalized-service-health-dashboard"><strong>Viewing the Personalized Service Health dashboard</strong></h4>
+<p>This bullet is about <strong>distinguishing between your application’s problems and Google Cloud’s problems</strong>. The ACE exam wants to know if you can identify when an issue is caused by <strong>a Google service outage or degradation</strong>, not your configuration.</p>
+<hr />
+<h1 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h1>
+<p>You should be able to:</p>
+<ul>
+<li>Explain what the <strong>Personalized Service Health dashboard</strong> is</li>
+<li>
+<p>Know how it differs from:</p>
+</li>
+<li>
+<p>Monitoring alerts</p>
+</li>
+<li>Logs</li>
+<li>Public status page</li>
+<li>Use it to identify service disruptions affecting your project</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Is this our bug, or is Google having an incident?”</em></p>
+</blockquote>
+<hr />
+<h1 id="2-what-is-the-personalized-service-health-dashboard">2️⃣ What is the Personalized Service Health dashboard?</h1>
+<p>It is a <strong>project-specific view of Google Cloud service incidents</strong>.</p>
+<p>It shows:</p>
+<ul>
+<li>Active incidents</li>
+<li>Service disruptions</li>
+<li>Maintenance events</li>
+<li>Impacted resources</li>
+</ul>
+<p>It is different from:</p>
+<ul>
+<li>The public status page (which shows global outages)</li>
+</ul>
+<hr />
+<h1 id="3-personalized-vs-public-status-very-important">3️⃣ Personalized vs Public Status (VERY IMPORTANT)</h1>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Public Status Page</td>
+<td>Global service health</td>
+</tr>
+<tr>
+<td>Personalized Service Health</td>
+<td>Your project’s impacted services</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If the question says “affecting my project” → Personalized dashboard.</p>
+</blockquote>
+<hr />
+<h1 id="4-what-information-it-provides">4️⃣ What information it provides</h1>
+<ul>
+<li>Affected product (e.g., GKE, Cloud SQL)</li>
+<li>Impacted region</li>
+<li>Severity</li>
+<li>Time of incident</li>
+<li>Recommended action</li>
+</ul>
+<p>Example:</p>
+<ul>
+<li>“GKE cluster in us-central1 experiencing degraded control plane”</li>
+</ul>
+<hr />
+<h1 id="5-when-to-check-it-exam-scenarios">5️⃣ When to check it (EXAM SCENARIOS)</h1>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Application is down but no errors in logs”</p>
+</blockquote>
+<p>✅ Check:</p>
+<ul>
+<li>Personalized Service Health</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Multiple services failing simultaneously”</p>
+</blockquote>
+<p>✅ Likely:</p>
+<ul>
+<li>Regional service disruption</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Cloud SQL connection errors across region”</p>
+</blockquote>
+<p>✅ Check:</p>
+<ul>
+<li>Service Health dashboard</li>
+</ul>
+<hr />
+<h1 id="6-what-it-does-not-do-exam-traps">6️⃣ What it does NOT do (EXAM TRAPS)</h1>
+<p>❌ Does not fix issues automatically<br />
+❌ Does not replace Monitoring<br />
+❌ Does not show application bugs<br />
+❌ Does not show logs</p>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Do not confuse service outage with misconfiguration.</p>
+</blockquote>
+<hr />
+<h1 id="7-interaction-with-monitoring">7️⃣ Interaction with Monitoring</h1>
+<p>Monitoring alerts:</p>
+<ul>
+<li>Tell you something is wrong</li>
+</ul>
+<p>Personalized Service Health:</p>
+<ul>
+<li>Tells you if Google Cloud is experiencing an incident</li>
+</ul>
+<p>Combined workflow:</p>
+<pre><code>Alert fires
+↓
+Check logs
+↓
+Check metrics
+↓
+Check Personalized Service Health
+</code></pre>
+<hr />
+<h1 id="8-iam-awareness-exam-level">8️⃣ IAM awareness (exam level)</h1>
+<p>To view dashboard:</p>
+<ul>
+<li>Must have appropriate IAM role (e.g., Viewer)</li>
+</ul>
+<p>If user cannot see incident:</p>
+<ul>
+<li>Check project permissions</li>
+</ul>
+<hr />
+<h1 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h1>
+<ul>
+<li><strong>App issue? → Logs</strong></li>
+<li><strong>Metric spike? → Monitoring</strong></li>
+<li><strong>Regional outage? → Personalized Service Health</strong></li>
+<li><strong>Public page ≠ project-specific view</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

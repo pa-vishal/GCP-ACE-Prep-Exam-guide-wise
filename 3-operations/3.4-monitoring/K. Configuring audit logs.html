@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K. Configuring audit logs</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#configuring-audit-logs">Configuring audit logs</a></li>
+<li><a href="#1-admin-activity-logs-very-important">1️⃣ Admin Activity Logs (VERY IMPORTANT)</a></li>
+<li><a href="#2-data-access-logs-common-exam-trap">2️⃣ Data Access Logs (COMMON EXAM TRAP)</a></li>
+<li><a href="#3-system-event-logs">3️⃣ System Event Logs</a></li>
+<li><a href="#4-policy-denied-logs">4️⃣ Policy Denied Logs</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.4 – Monitoring and logging</strong></p>
+<h4 id="configuring-audit-logs"><strong>Configuring audit logs</strong></h4>
+<p>This is a <strong>high-confidence ACE topic</strong>. Audit logs are about <strong>who did what, when, and where</strong> in your Google Cloud environment.</p>
+<p>The exam tests whether you understand:</p>
+<ul>
+<li>The types of audit logs</li>
+<li>Which are enabled by default</li>
+<li>How to enable/disable certain types</li>
+<li>How to use them for security and compliance</li>
+</ul>
+<hr />
+<h1 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h1>
+<p>You should be able to:</p>
+<ul>
+<li>Identify the <strong>four types of audit logs</strong></li>
+<li>Know which ones are always enabled</li>
+<li>Enable Data Access logs when required</li>
+<li>Use audit logs to investigate IAM or resource changes</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Who changed this configuration?”</em></p>
+</blockquote>
+<hr />
+<h1 id="2-the-four-types-of-audit-logs-must-memorize">2️⃣ The Four Types of Audit Logs (MUST MEMORIZE)</h1>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Purpose</th>
+<th>Default State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Admin Activity</td>
+<td>Configuration changes</td>
+<td>Always enabled</td>
+</tr>
+<tr>
+<td>Data Access</td>
+<td>Data read/write operations</td>
+<td>Disabled (mostly)</td>
+</tr>
+<tr>
+<td>System Event</td>
+<td>Google internal system actions</td>
+<td>Always enabled</td>
+</tr>
+<tr>
+<td>Policy Denied</td>
+<td>Access denied events</td>
+<td>Always enabled</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-admin-activity-logs-very-important">1️⃣ Admin Activity Logs (VERY IMPORTANT)</h2>
+<p>Tracks:</p>
+<ul>
+<li>Creating/deleting resources</li>
+<li>IAM role changes</li>
+<li>Firewall rule updates</li>
+<li>Service enable/disable</li>
+</ul>
+<p>These:</p>
+<ul>
+<li>Cannot be disabled</li>
+<li>Are free</li>
+</ul>
+<blockquote>
+<p><strong>ACE signal:</strong><br />
+“Who deleted this VM?” → Admin Activity logs.</p>
+</blockquote>
+<hr />
+<h2 id="2-data-access-logs-common-exam-trap">2️⃣ Data Access Logs (COMMON EXAM TRAP)</h2>
+<p>Tracks:</p>
+<ul>
+<li>Reading data</li>
+<li>Writing data</li>
+<li>Calling APIs that access data</li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li>Reading BigQuery table</li>
+<li>Accessing Cloud Storage object</li>
+<li>Querying Cloud SQL</li>
+</ul>
+<p>By default:</p>
+<ul>
+<li>Often disabled</li>
+<li>Must be explicitly enabled</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Need visibility into data reads → enable Data Access logs.</p>
+</blockquote>
+<hr />
+<h2 id="3-system-event-logs">3️⃣ System Event Logs</h2>
+<p>Tracks:</p>
+<ul>
+<li>System-generated events</li>
+<li>Google-managed operations</li>
+<li>Failover events</li>
+</ul>
+<p>Always enabled.</p>
+<hr />
+<h2 id="4-policy-denied-logs">4️⃣ Policy Denied Logs</h2>
+<p>Tracks:</p>
+<ul>
+<li>IAM permission denials</li>
+<li>Access denied attempts</li>
+</ul>
+<p>Useful for:</p>
+<ul>
+<li>Security investigations</li>
+</ul>
+<hr />
+<h1 id="3-enabling-data-access-logs-exam-awareness">3️⃣ Enabling Data Access Logs (Exam Awareness)</h1>
+<p>You enable Data Access logs at:</p>
+<ul>
+<li>Organization</li>
+<li>Folder</li>
+<li>Project level</li>
+</ul>
+<p>Through:</p>
+<ul>
+<li>IAM policy configuration</li>
+</ul>
+<p>Conceptually:</p>
+<pre><code class="language-bash">gcloud projects get-iam-policy PROJECT_ID
+</code></pre>
+<p>(You’re not tested on exact CLI syntax — just where it's configured.)</p>
+<hr />
+<h1 id="4-cost-awareness-exam-favorite">4️⃣ Cost Awareness (EXAM FAVORITE)</h1>
+<p>Admin Activity logs:</p>
+<ul>
+<li>Free</li>
+</ul>
+<p>Data Access logs:</p>
+<ul>
+<li>May incur charges</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Don’t enable Data Access logs everywhere unless required.</p>
+</blockquote>
+<hr />
+<h1 id="5-audit-logs-vs-regular-logs-important-distinction">5️⃣ Audit Logs vs Regular Logs (IMPORTANT DISTINCTION)</h1>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Audit Logs</th>
+<th>Application Logs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tracks IAM changes</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Tracks API calls</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Tracks app output</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Governance issue → Audit Logs<br />
+Application issue → Logs Explorer</p>
+</blockquote>
+<hr />
+<h1 id="6-common-ace-exam-scenarios">6️⃣ Common ACE Exam Scenarios</h1>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Find who modified firewall rule”</p>
+</blockquote>
+<p>✅ Admin Activity logs</p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Audit which user read sensitive BigQuery table”</p>
+</blockquote>
+<p>✅ Enable Data Access logs</p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“User receives permission denied”</p>
+</blockquote>
+<p>✅ Check Policy Denied logs</p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Security requires logging all data reads”</p>
+</blockquote>
+<p>✅ Enable Data Access logs (project/org level)</p>
+<hr />
+<h1 id="7-audit-logs-flow">7️⃣ Audit Logs Flow</h1>
+<pre><code>API call
+↓
+Cloud Audit Logging
+↓
+Log bucket
+↓
+Logs Explorer / Export / Alert
+</code></pre>
+<p>You can:</p>
+<ul>
+<li>Export audit logs using log sinks</li>
+<li>Query them using Log Analytics</li>
+<li>Create log-based metrics</li>
+</ul>
+<hr />
+<h1 id="8-common-ace-exam-traps">8️⃣ Common ACE exam traps</h1>
+<p>❌ Thinking audit logs are disabled by default<br />
+❌ Forgetting Data Access logs must be enabled<br />
+❌ Confusing Admin Activity with Data Access<br />
+❌ Ignoring IAM scope (org vs project)<br />
+❌ Expecting audit logs to fix issues</p>
+<hr />
+<h1 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h1>
+<ul>
+<li><strong>Who did what? → Admin Activity</strong></li>
+<li><strong>Who accessed data? → Data Access</strong></li>
+<li><strong>Denied access? → Policy Denied</strong></li>
+<li><strong>Admin logs always on</strong></li>
+<li><strong>Data Access may cost money</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

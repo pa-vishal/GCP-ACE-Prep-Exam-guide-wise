@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C. Choosing the appropriate storage for Compute Engine</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-zonal-persistent-disk-pd">2️⃣ Zonal Persistent Disk (PD)</a></li>
+<li><a href="#3-regional-persistent-disk-pd">3️⃣ Regional Persistent Disk (PD)</a></li>
+<li><a href="#4-google-cloud-hyperdisk-performance-focused">4️⃣ Google Cloud Hyperdisk (performance-focused)</a></li>
+<li><a href="#5-disk-choice-decision-table-memorize">5️⃣ Disk choice decision table (MEMORIZE)</a></li>
+<li><a href="#6-attaching-disks-cli-awareness">6️⃣ Attaching disks (CLI awareness)</a></li>
+<li><a href="#7-availability-implications-exam-favorite">7️⃣ Availability implications (exam favorite)</a></li>
+<li><a href="#8-common-ace-exam-traps">8️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.1 – Choosing the appropriate storage for Compute Engine</strong></p>
+<p><em>(zonal Persistent Disk, regional Persistent Disk, Google Cloud Hyperdisk)</em></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/compute/images/repd-chart.png" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/AI-Hypercomputer-Architecture.max-2000x2000.jpg" /></p>
+<p><img alt="Image" src="https://media2.dev.to/dynamic/image/width%3D800%2Cheight%3D%2Cfit%3Dscale-down%2Cgravity%3Dauto%2Cformat%3Dauto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fngvseqw4438j99isv2m5.png" /></p>
+<p>This bullet tests whether you can <strong>match VM storage to availability, performance, and cost needs</strong>. The ACE exam focuses on <strong>zonal vs regional behavior</strong> and <strong>when higher-performance disks are justified</strong>—not on deep IOPS math.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Choose <strong>zonal vs regional</strong> disks correctly</li>
+<li>Understand <strong>availability implications</strong> during zone failures</li>
+<li>Recognize <strong>performance tiers</strong> (standard vs balanced vs SSD vs Hyperdisk)</li>
+<li>Avoid overengineering</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“If this VM or zone fails, what happens to the data—and how fast does it need to be?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-zonal-persistent-disk-pd">2️⃣ Zonal Persistent Disk (PD)</h2>
+<h3 id="what-it-is">What it is</h3>
+<ul>
+<li>Disk lives in <strong>one zone</strong></li>
+<li>Attached to VMs in the <strong>same zone</strong></li>
+<li>Most common and <strong>default choice</strong></li>
+</ul>
+<h3 id="characteristics">Characteristics</h3>
+<ul>
+<li>Lowest cost</li>
+<li>High reliability within a zone</li>
+<li>Not automatically available if the <strong>zone fails</strong></li>
+</ul>
+<h3 id="use-when">Use when</h3>
+<ul>
+<li>Single VM</li>
+<li>Non-critical workloads</li>
+<li>Can recreate data or restore from backup</li>
+</ul>
+<h3 id="exam-signals">Exam signals</h3>
+<ul>
+<li>“Single VM”</li>
+<li>“Cost-sensitive”</li>
+<li>“No strict HA requirement”</li>
+</ul>
+<hr />
+<h2 id="3-regional-persistent-disk-pd">3️⃣ Regional Persistent Disk (PD)</h2>
+<h3 id="what-it-is_1">What it is</h3>
+<ul>
+<li>Disk synchronously replicated across <strong>two zones in a region</strong></li>
+<li>Can attach to VMs in either zone (typically via MIG failover)</li>
+</ul>
+<h3 id="characteristics_1">Characteristics</h3>
+<ul>
+<li>Higher availability</li>
+<li>Higher cost than zonal PD</li>
+<li>Protects against <strong>zone failure</strong></li>
+</ul>
+<h3 id="use-when_1">Use when</h3>
+<ul>
+<li>Stateful workload</li>
+<li>Requires <strong>zone-level HA</strong></li>
+<li>Used with <strong>regional MIGs</strong></li>
+</ul>
+<h3 id="exam-signals_1">Exam signals</h3>
+<ul>
+<li>“Survive zone failure”</li>
+<li>“Stateful production workload”</li>
+<li>“High availability within a region”</li>
+</ul>
+<hr />
+<h2 id="4-google-cloud-hyperdisk-performance-focused">4️⃣ Google Cloud Hyperdisk (performance-focused)</h2>
+<h3 id="what-it-is_2">What it is</h3>
+<ul>
+<li>Next-generation block storage</li>
+<li>Designed for <strong>very high IOPS and throughput</strong></li>
+<li>Decouples performance from disk size</li>
+</ul>
+<h3 id="characteristics_2">Characteristics</h3>
+<ul>
+<li>Extremely high performance</li>
+<li>More expensive</li>
+<li>Best for performance-critical databases</li>
+</ul>
+<h3 id="use-when_2">Use when</h3>
+<ul>
+<li>Latency-sensitive or I/O-heavy workloads</li>
+<li>Databases with unpredictable spikes</li>
+</ul>
+<h3 id="exam-reality">Exam reality</h3>
+<blockquote>
+<p>Hyperdisk is <strong>rarely the default answer</strong> unless performance is explicitly mentioned.</p>
+</blockquote>
+<h3 id="exam-signals_2">Exam signals</h3>
+<ul>
+<li>“High IOPS”</li>
+<li>“Low latency storage”</li>
+<li>“Performance spikes”</li>
+</ul>
+<hr />
+<h2 id="5-disk-choice-decision-table-memorize">5️⃣ Disk choice decision table (MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Best Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cheapest, simple VM</td>
+<td>Zonal PD</td>
+</tr>
+<tr>
+<td>Survive zone failure</td>
+<td>Regional PD</td>
+</tr>
+<tr>
+<td>Stateful production VM</td>
+<td>Regional PD</td>
+</tr>
+<tr>
+<td>Extreme I/O performance</td>
+<td>Hyperdisk</td>
+</tr>
+<tr>
+<td>General purpose</td>
+<td>Zonal PD (balanced/SSD)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-attaching-disks-cli-awareness">6️⃣ Attaching disks (CLI awareness)</h2>
+<h3 id="create-a-vm-with-a-zonal-pd">Create a VM with a zonal PD</h3>
+<pre><code class="language-bash">gcloud compute instances create my-vm \
+  --zone=us-central1-a \
+  --boot-disk-size=100GB \
+  --boot-disk-type=pd-balanced
+</code></pre>
+<hr />
+<h3 id="create-a-regional-pd">Create a regional PD</h3>
+<pre><code class="language-bash">gcloud compute disks create my-regional-disk \
+  --region=us-central1 \
+  --replica-zones=us-central1-a,us-central1-b \
+  --size=200GB
+</code></pre>
+<hr />
+<h2 id="7-availability-implications-exam-favorite">7️⃣ Availability implications (exam favorite)</h2>
+<ul>
+<li><strong>Zonal PD</strong> + VM failure → data unavailable until zone recovers</li>
+<li><strong>Regional PD</strong> + zone failure → VM can fail over and reattach</li>
+<li><strong>Disk ≠ backup</strong> → snapshots are still required</li>
+</ul>
+<hr />
+<h2 id="8-common-ace-exam-traps">8️⃣ Common ACE exam traps</h2>
+<p>❌ Using zonal PD for stateful HA workloads<br />
+❌ Assuming regional PD protects against region failure<br />
+❌ Choosing Hyperdisk without performance justification<br />
+❌ Forgetting cost differences</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Zonal PD = cheap &amp; simple</strong></li>
+<li><strong>Regional PD = zone-level HA</strong></li>
+<li><strong>Hyperdisk = performance</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

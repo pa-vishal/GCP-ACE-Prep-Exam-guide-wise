@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H. Setting up standalone organizations</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#section-1.1--setting-up-standalone-organizations">Section 1.1 – Setting up standalone organizations</a></li>
+<li><a href="#1-what-a-standalone-organization-means">1️⃣ What a “standalone organization” means</a></li>
+<li><a href="#2-when-standalone-organizations-are-created">2️⃣ When standalone organizations are created</a></li>
+<li><a href="#3-what-the-ace-exam-actually-tests-here">3️⃣ What the ACE exam actually tests here</a></li>
+<li><a href="#4-key-differences-standalone-vs-domain-backed-org">4️⃣ Key differences: standalone vs domain-backed org</a></li>
+<li><a href="#5-iam-implications-very-exam-relevant">5️⃣ IAM implications (very exam-relevant)</a></li>
+<li><a href="#6-why-standalone-orgs-are-not-recommended-for-enterprises">6️⃣ Why standalone orgs are NOT recommended for enterprises</a></li>
+<li><a href="#7-converting-standalone--domain-backed-conceptual">7️⃣ Converting standalone → domain-backed (conceptual)</a></li>
+<li><a href="#8-real-exam-style-scenarios">8️⃣ Real exam-style scenarios</a></li>
+<li><a href="#9-common-exam-traps">9️⃣ Common exam traps</a></li>
+<li><a href="#-one-line-exam-memory-hook">🔑 One-line exam memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿</p>
+<h3 id="section-1.1--setting-up-standalone-organizations"><strong>Section 1.1 – Setting up standalone organizations</strong></h3>
+<p><img alt="Image" src="https://docs.cloud.google.com/resource-manager/img/multi-orgs.svg" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/resource-manager/img/cloud-hierarchy.svg" /></p>
+<p>This bullet is <strong>subtle but exam-relevant</strong>. It shows up when the exam wants to test your understanding of <strong>organizations without Google Workspace / Cloud Identity domains</strong>.</p>
+<hr />
+<h2 id="1-what-a-standalone-organization-means">1️⃣ What a “standalone organization” means</h2>
+<p>A <strong>standalone organization</strong> is a Google Cloud <strong>Organization resource</strong> that is:</p>
+<ul>
+<li><strong>Not linked</strong> to Google Workspace</li>
+<li><strong>Not linked</strong> to Cloud Identity</li>
+<li>Owned by a <strong>billing account</strong>, not a domain</li>
+</ul>
+<p>In short:</p>
+<blockquote>
+<p><strong>You get an Organization, but no managed users or groups</strong></p>
+</blockquote>
+<hr />
+<h2 id="2-when-standalone-organizations-are-created">2️⃣ When standalone organizations are created</h2>
+<p>A standalone organization is created when:</p>
+<ul>
+<li>You create projects <strong>without</strong> a Workspace or Cloud Identity domain</li>
+<li>You associate projects only with a <strong>billing account</strong></li>
+<li>No verified domain exists</li>
+</ul>
+<p>Typical users:</p>
+<ul>
+<li>Individuals</li>
+<li>Small teams</li>
+<li>Proof-of-concept environments</li>
+<li>Early-stage startups</li>
+</ul>
+<hr />
+<h2 id="3-what-the-ace-exam-actually-tests-here">3️⃣ What the ACE exam actually tests here</h2>
+<p>The exam checks whether you understand:</p>
+<h3 id="-organizations-can-exist-without-cloud-identity">✅ Organizations can exist <strong>without Cloud Identity</strong></h3>
+<h3 id="-standalone-orgs-have-limited-identity-features">✅ Standalone orgs have <strong>limited identity features</strong></h3>
+<h3 id="-some-enterprise-features-are-not-available">✅ Some enterprise features are <strong>not available</strong></h3>
+<p>It does <strong>not</strong> test the exact console steps.</p>
+<hr />
+<h2 id="4-key-differences-standalone-vs-domain-backed-org">4️⃣ Key differences: standalone vs domain-backed org</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Standalone Org</th>
+<th>Domain-backed Org</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Organization resource</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Cloud Identity / Workspace</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Managed users &amp; groups</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Folder hierarchy</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Org policies</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>IAM (users only)</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Groups in IAM</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Big exam takeaway</strong>:<br />
+<strong>No Cloud Identity → no groups</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-iam-implications-very-exam-relevant">5️⃣ IAM implications (very exam-relevant)</h2>
+<h3 id="in-a-standalone-organization">In a standalone organization:</h3>
+<ul>
+<li>
+<p>IAM members are:</p>
+</li>
+<li>
+<p>Google accounts (<code>user@gmail.com</code>)</p>
+</li>
+<li>
+<p>You <strong>cannot</strong>:</p>
+</li>
+<li>
+<p>Create groups</p>
+</li>
+<li>Sync directories</li>
+<li>Federate identities</li>
+</ul>
+<p><strong>Result</strong></p>
+<ul>
+<li>IAM becomes <strong>harder to manage at scale</strong></li>
+</ul>
+<hr />
+<h2 id="6-why-standalone-orgs-are-not-recommended-for-enterprises">6️⃣ Why standalone orgs are NOT recommended for enterprises</h2>
+<p>Problems:</p>
+<ul>
+<li>No centralized user lifecycle</li>
+<li>No group-based IAM</li>
+<li>Hard to offboard users</li>
+<li>Manual IAM everywhere</li>
+</ul>
+<p><strong>Exam signal</strong></p>
+<blockquote>
+<p>If the question mentions <em>enterprise</em>, <em>employees</em>, <em>central governance</em><br />
+❌ Standalone org is the <strong>wrong choice</strong></p>
+</blockquote>
+<hr />
+<h2 id="7-converting-standalone--domain-backed-conceptual">7️⃣ Converting standalone → domain-backed (conceptual)</h2>
+<p>You can:</p>
+<ul>
+<li>Attach a <strong>Cloud Identity / Workspace domain</strong></li>
+<li>Migrate projects under it</li>
+<li>
+<p>Gain:</p>
+</li>
+<li>
+<p>Groups</p>
+</li>
+<li>Federation</li>
+<li>Better IAM</li>
+</ul>
+<blockquote>
+<p>ACE exam expects you to know <strong>this is possible</strong>, not how to do it step-by-step.</p>
+</blockquote>
+<hr />
+<h2 id="8-real-exam-style-scenarios">8️⃣ Real exam-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“A single developer wants to use GCP with billing”</p>
+</blockquote>
+<p>✅ Standalone organization is acceptable</p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Company wants group-based IAM and centralized control”</p>
+</blockquote>
+<p>❌ Standalone organization<br />
+✅ Organization with Cloud Identity</p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“IAM becomes unmanageable as team grows”</p>
+</blockquote>
+<p>✅ Root cause:</p>
+<ul>
+<li>Standalone organization</li>
+<li>Missing Cloud Identity</li>
+</ul>
+<hr />
+<h2 id="9-common-exam-traps">9️⃣ Common exam traps</h2>
+<p>❌ Assume organizations require Workspace<br />
+❌ Assume standalone orgs support groups<br />
+❌ Confuse project-only setup with no organization<br />
+❌ Think standalone orgs block org policies</p>
+<hr />
+<h2 id="-one-line-exam-memory-hook">🔑 One-line exam memory hook</h2>
+<blockquote>
+<p><strong>Standalone org = organization without identity</strong></p>
+</blockquote>
+    </div>
+  </div>
+</body>
+
+</html>

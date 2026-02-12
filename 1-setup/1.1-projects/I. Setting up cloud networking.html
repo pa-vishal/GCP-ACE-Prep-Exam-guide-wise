@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I. Setting up cloud networking</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#section-1.1--setting-up-cloud-networking">Section 1.1 – Setting up cloud networking</a></li>
+<li><a href="#1-what-setting-up-cloud-networking-means-exam-framing">1️⃣ What “setting up cloud networking” means (exam framing)</a></li>
+<li><a href="#2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</a></li>
+<li><a href="#3-core-networking-components-you-must-know">3️⃣ Core networking components you must know</a></li>
+<li><a href="#4-default-vpc-vs-custom-vpc-exam-favorite">4️⃣ Default VPC vs Custom VPC (EXAM FAVORITE)</a></li>
+<li><a href="#5-creating-a-custom-vpc-cli">5️⃣ Creating a custom VPC (CLI)</a></li>
+<li><a href="#6-firewall-rules-basic-but-exam-relevant">6️⃣ Firewall rules (basic but exam-relevant)</a></li>
+<li><a href="#7-shared-vpc-conceptual-only-for-section-1.1">7️⃣ Shared VPC (conceptual only for Section 1.1)</a></li>
+<li><a href="#8-connectivity-basics-exam-awareness">8️⃣ Connectivity basics (exam awareness)</a></li>
+<li><a href="#9-common-exam-scenarios">9️⃣ Common exam scenarios</a></li>
+<li><a href="#10-common-exam-traps">10️⃣ Common exam traps</a></li>
+<li><a href="#-one-line-exam-memory-hook">🔑 One-line exam memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿</p>
+<h3 id="section-1.1--setting-up-cloud-networking"><strong>Section 1.1 – Setting up cloud networking</strong></h3>
+<p><img alt="Image" src="https://d33wubrfki0l68.cloudfront.net/57750035ef2c7221ce9bdece3154ff503d5fdc9c/a0271/gcpimages/02-architecture/00-public-private-subnet.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/architecture/images/vpc-bps-native-firewall-rules.svg" /></p>
+<p><img alt="Image" src="https://media2.dev.to/dynamic/image/width%3D1000%2Cheight%3D420%2Cfit%3Dcover%2Cgravity%3Dauto%2Cformat%3Dauto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fzplra525nwe9j4x6az2y.png" /></p>
+<p>This bullet is <strong>core ACE material</strong>. Networking is not tested deeply, but you are expected to <strong>set up the right primitives correctly</strong> and recognize <strong>default vs custom behavior</strong>.</p>
+<hr />
+<h2 id="1-what-setting-up-cloud-networking-means-exam-framing">1️⃣ What “setting up cloud networking” means (exam framing)</h2>
+<p>At the ACE level, this means being able to:</p>
+<ul>
+<li>Create and configure a <strong>VPC network</strong></li>
+<li>Design <strong>subnets</strong> correctly</li>
+<li>Understand <strong>global vs regional</strong> scope</li>
+<li>Enable basic connectivity for compute and managed services</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+You are wiring the foundation so workloads can communicate <strong>securely and predictably</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</h2>
+<p>The exam checks whether you can:</p>
+<h3 id="-choose-default-vpc-vs-custom-vpc">✅ Choose <strong>default VPC vs custom VPC</strong></h3>
+<h3 id="-create-subnets-with-correct-region--ip-ranges">✅ Create subnets with correct <strong>region &amp; IP ranges</strong></h3>
+<h3 id="-understand-global-vpc--regional-subnet-behavior">✅ Understand <strong>global VPC / regional subnet</strong> behavior</h3>
+<h3 id="-recognize-when-shared-vpc-is-appropriate-conceptually">✅ Recognize when <strong>Shared VPC</strong> is appropriate (conceptually)</h3>
+<h3 id="-what-it-does-not-test">❌ What it does NOT test</h3>
+<ul>
+<li>Advanced routing protocols</li>
+<li>Deep firewall optimization</li>
+<li>BGP tuning</li>
+<li>Packet-level debugging</li>
+</ul>
+<hr />
+<h2 id="3-core-networking-components-you-must-know">3️⃣ Core networking components you must know</h2>
+<h3 id="-vpc-network">🌐 VPC Network</h3>
+<ul>
+<li><strong>Global</strong> resource</li>
+<li>Container for subnets, routes, firewall rules</li>
+</ul>
+<p>Two types:</p>
+<ul>
+<li><strong>Default VPC</strong></li>
+<li><strong>Custom VPC</strong></li>
+</ul>
+<hr />
+<h3 id="-subnets">📍 Subnets</h3>
+<ul>
+<li><strong>Regional</strong></li>
+<li>IP ranges are <strong>CIDR blocks</strong></li>
+<li>Can be expanded (but not shrunk)</li>
+</ul>
+<hr />
+<h3 id="-firewall-rules">🔥 Firewall Rules</h3>
+<ul>
+<li>Apply at VPC level</li>
+<li>Control ingress/egress</li>
+<li>Required even for “internal” access</li>
+</ul>
+<hr />
+<h3 id="-routes">🧭 Routes</h3>
+<ul>
+<li>Control traffic flow</li>
+<li>Automatically created for subnets</li>
+<li>Can be customized</li>
+</ul>
+<hr />
+<h2 id="4-default-vpc-vs-custom-vpc-exam-favorite">4️⃣ Default VPC vs Custom VPC (EXAM FAVORITE)</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Default VPC</th>
+<th>Custom VPC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Auto-created</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Subnets</td>
+<td>One per region</td>
+<td>User-defined</td>
+</tr>
+<tr>
+<td>Firewall rules</td>
+<td>Open-ish</td>
+<td>Explicit</td>
+</tr>
+<tr>
+<td>Production-ready</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam rule</strong></p>
+<ul>
+<li>Learning / quick start → Default VPC</li>
+<li>Production / control → Custom VPC</li>
+</ul>
+</blockquote>
+<hr />
+<h2 id="5-creating-a-custom-vpc-cli">5️⃣ Creating a custom VPC (CLI)</h2>
+<h3 id="-create-a-vpc-custom-mode">🔹 Create a VPC (custom mode)</h3>
+<pre><code class="language-bash">gcloud compute networks create my-vpc \
+  --subnet-mode=custom
+</code></pre>
+<hr />
+<h3 id="-create-a-subnet">🔹 Create a subnet</h3>
+<pre><code class="language-bash">gcloud compute networks subnets create my-subnet \
+  --network=my-vpc \
+  --region=us-central1 \
+  --range=10.10.0.0/24
+</code></pre>
+<hr />
+<h3 id="-list-networks">🔹 List networks</h3>
+<pre><code class="language-bash">gcloud compute networks list
+</code></pre>
+<hr />
+<h3 id="-list-subnets">🔹 List subnets</h3>
+<pre><code class="language-bash">gcloud compute networks subnets list
+</code></pre>
+<hr />
+<h2 id="6-firewall-rules-basic-but-exam-relevant">6️⃣ Firewall rules (basic but exam-relevant)</h2>
+<h3 id="example-allow-ssh">Example: allow SSH</h3>
+<pre><code class="language-bash">gcloud compute firewall-rules create allow-ssh \
+  --network=my-vpc \
+  --allow=tcp:22 \
+  --source-ranges=0.0.0.0/0
+</code></pre>
+<blockquote>
+<p><strong>Exam warning:</strong><br />
+No firewall rule = <strong>no traffic</strong>, even inside VPC</p>
+</blockquote>
+<hr />
+<h2 id="7-shared-vpc-conceptual-only-for-section-1.1">7️⃣ Shared VPC (conceptual only for Section 1.1)</h2>
+<p><strong>Shared VPC</strong> allows:</p>
+<ul>
+<li>Central networking project (host)</li>
+<li>Other projects (service projects) use the same VPC</li>
+</ul>
+<p><strong>When exam expects Shared VPC</strong></p>
+<ul>
+<li>Multiple teams</li>
+<li>Centralized network control</li>
+<li>Separation of duties</li>
+</ul>
+<blockquote>
+<p>You are <strong>not expected</strong> to configure Shared VPC deeply at this stage — only recognize <strong>when it’s the right choice</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="8-connectivity-basics-exam-awareness">8️⃣ Connectivity basics (exam awareness)</h2>
+<ul>
+<li>VMs in same VPC → private IP communication works</li>
+<li>Different VPCs → need <strong>VPC Peering</strong></li>
+<li>On-prem → <strong>Cloud VPN / Interconnect</strong> (high level)</li>
+</ul>
+<hr />
+<h2 id="9-common-exam-scenarios">9️⃣ Common exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“VMs cannot communicate internally”</p>
+</blockquote>
+<p>✅ Root cause:</p>
+<ul>
+<li>Missing firewall rule</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Production network must restrict IP ranges”</p>
+</blockquote>
+<p>✅ Correct choice:</p>
+<ul>
+<li>Custom VPC with explicit subnets</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Multiple projects need same network”</p>
+</blockquote>
+<p>✅ Correct choice:</p>
+<ul>
+<li>Shared VPC</li>
+</ul>
+<hr />
+<h2 id="10-common-exam-traps">10️⃣ Common exam traps</h2>
+<p>❌ Assume default VPC is secure<br />
+❌ Forget subnets are regional<br />
+❌ Think firewall rules are optional<br />
+❌ Confuse VPC (global) with subnet (regional)</p>
+<hr />
+<h2 id="-one-line-exam-memory-hook">🔑 One-line exam memory hook</h2>
+<blockquote>
+<p><strong>VPC is global, subnets are regional, firewalls control everything</strong></p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

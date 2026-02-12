@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K. Adjusting application trac splitting parameters</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#adjusting-application-traffic-splitting-parameters">Adjusting application traffic-splitting parameters</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-platform-support-overview-must-know">2️⃣ Platform support overview (MUST KNOW)</a></li>
+<li><a href="#3-cloud-run-traffic-splitting-most-tested">3️⃣ Cloud Run traffic splitting (MOST TESTED)</a></li>
+<li><a href="#4-cloud-run-functions-traffic-behavior-exam-awareness">4️⃣ Cloud Run functions traffic behavior (exam awareness)</a></li>
+<li><a href="#5-gke-traffic-splitting-conceptual--exam-awareness">5️⃣ GKE traffic splitting (CONCEPTUAL – EXAM AWARENESS)</a></li>
+<li><a href="#6-bluegreen-vs-canary-must-recognize">6️⃣ Blue/Green vs Canary (MUST RECOGNIZE)</a></li>
+<li><a href="#7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#8-common-ace-exam-traps">8️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.1 – Managing compute resources</strong></p>
+<h4 id="adjusting-application-traffic-splitting-parameters"><strong>Adjusting application traffic-splitting parameters</strong></h4>
+<p><em>(Cloud Run, Cloud Run functions, GKE)</em></p>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A1400/0%2A_RHjDg-9VHr4egOR.png" /></p>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A2000/1%2AWG0jvAOdkOfER60FygS6qQ.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/run/docs/images/service-health-load-balancer.svg" /></p>
+<p>This bullet tests whether you understand <strong>how to safely route traffic between versions</strong> across <strong>serverless and Kubernetes platforms</strong>. The ACE exam focuses on <strong>which platform supports traffic splitting natively, how it’s controlled, and when to use it</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Identify <strong>which services support traffic splitting</strong></li>
+<li>Adjust traffic <strong>without redeploying</strong> (when possible)</li>
+<li>Choose the <strong>right rollout strategy</strong> (canary / blue-green)</li>
+<li>Avoid downtime during updates</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“How do I shift users to a new version safely?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-platform-support-overview-must-know">2️⃣ Platform support overview (MUST KNOW)</h2>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Traffic splitting support</th>
+<th>How it’s done</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cloud Run</strong></td>
+<td>✅ Native</td>
+<td>By <strong>revision</strong></td>
+</tr>
+<tr>
+<td><strong>Cloud Run functions</strong></td>
+<td>⚠️ Limited / indirect</td>
+<td>By <strong>versions</strong> (gen-dependent)</td>
+</tr>
+<tr>
+<td><strong>GKE</strong></td>
+<td>❌ Not native</td>
+<td>Via <strong>Service / Ingress / LB</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+<strong>Cloud Run is the simplest and most tested for traffic splitting.</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-cloud-run-traffic-splitting-most-tested">3️⃣ Cloud Run traffic splitting (MOST TESTED)</h2>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>Traffic is split <strong>across revisions</strong></li>
+<li>Percentages must total <strong>100%</strong></li>
+<li>Changes are <strong>instant</strong> and reversible</li>
+</ul>
+<h3 id="adjust-traffic-no-redeploy">Adjust traffic (no redeploy)</h3>
+<pre><code class="language-bash">gcloud run services update-traffic my-service \
+  --to-revisions=rev-v2=80,rev-v1=20 \
+  --region=us-central1
+</code></pre>
+<h3 id="common-use-cases">Common use cases</h3>
+<ul>
+<li>Canary deployments (e.g., 5–10%)</li>
+<li>Gradual rollouts</li>
+<li>Instant rollback</li>
+</ul>
+<blockquote>
+<p><strong>ACE signal:</strong><br />
+“Shift traffic gradually” → <strong>Cloud Run traffic splitting</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-cloud-run-functions-traffic-behavior-exam-awareness">4️⃣ Cloud Run functions traffic behavior (exam awareness)</h2>
+<p>Cloud Run functions (especially Gen 2):</p>
+<ul>
+<li>Are backed by <strong>Cloud Run</strong></li>
+<li>Support <strong>versioning</strong></li>
+<li>Traffic routing is <strong>less explicit</strong> than Cloud Run services</li>
+</ul>
+<h3 id="exam-expectation">Exam expectation</h3>
+<ul>
+<li>
+<p>Know that:</p>
+</li>
+<li>
+<p>New deployments create <strong>new versions</strong></p>
+</li>
+<li>Traffic typically moves to <strong>latest</strong></li>
+<li>Deep traffic-split commands are <strong>not tested</strong></li>
+</ul>
+<blockquote>
+<p><strong>ACE guidance:</strong><br />
+If the question mentions <strong>precise traffic percentages</strong>, Cloud Run (service) is the answer—not Functions.</p>
+</blockquote>
+<hr />
+<h2 id="5-gke-traffic-splitting-conceptual--exam-awareness">5️⃣ GKE traffic splitting (CONCEPTUAL – EXAM AWARENESS)</h2>
+<p>GKE does <strong>not</strong> split traffic by default at the workload level.</p>
+<h3 id="how-its-achieved">How it’s achieved</h3>
+<ul>
+<li>Multiple Deployments</li>
+<li>Single Service selecting multiple versions</li>
+<li>
+<p>Or:</p>
+</li>
+<li>
+<p>Ingress</p>
+</li>
+<li>HTTP(S) Load Balancer</li>
+<li>Service Mesh (advanced; recognition only)</li>
+</ul>
+<h3 id="typical-pattern">Typical pattern</h3>
+<pre><code>Users
+ ↓
+Load Balancer / Ingress
+ ↓
+Service
+ ├── Pods v1 (90%)
+ └── Pods v2 (10%)
+</code></pre>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Traffic splitting in GKE is <strong>infrastructure-driven</strong>, not Pod-driven.</p>
+</blockquote>
+<hr />
+<h2 id="6-bluegreen-vs-canary-must-recognize">6️⃣ Blue/Green vs Canary (MUST RECOGNIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Description</th>
+<th>Best used with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Blue/Green</strong></td>
+<td>Switch 100% traffic at once</td>
+<td>Cloud Run</td>
+</tr>
+<tr>
+<td><strong>Canary</strong></td>
+<td>Gradual % rollout</td>
+<td>Cloud Run, GKE</td>
+</tr>
+<tr>
+<td><strong>Rolling</strong></td>
+<td>Incremental Pod replacement</td>
+<td>GKE</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Test with small % of users” → <strong>Canary</strong></p>
+</blockquote>
+<hr />
+<h2 id="7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Route 10% of users to new version, 90% to old”</p>
+</blockquote>
+<p>✅ <strong>Cloud Run traffic splitting</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Instant rollback without redeploying”</p>
+</blockquote>
+<p>✅ <strong>Adjust traffic percentages</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Kubernetes app needs gradual rollout”</p>
+</blockquote>
+<p>✅ <strong>Ingress / Load Balancer–based traffic split</strong></p>
+<hr />
+<h2 id="8-common-ace-exam-traps">8️⃣ Common ACE exam traps</h2>
+<p>❌ Expecting GKE Pods to split traffic automatically<br />
+❌ Redeploying when traffic update is sufficient<br />
+❌ Assuming Functions support full traffic controls<br />
+❌ Forgetting traffic must total 100%</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Cloud Run = native traffic split</strong></li>
+<li><strong>Functions = limited</strong></li>
+<li><strong>GKE = LB/Ingress based</strong></li>
+<li><strong>Rollback = traffic shift, not redeploy</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

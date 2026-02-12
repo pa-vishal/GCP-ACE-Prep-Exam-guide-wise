@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G. Using cloud diagnostics to research an application issue</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#using-cloud-diagnostics-to-research-an-application-issue">Using Cloud Diagnostics to research an application issue</a></li>
+<li><a href="#what-it-does">What it does</a></li>
+<li><a href="#use-when">Use when</a></li>
+<li><a href="#what-it-does_1">What it does</a></li>
+<li><a href="#use-when_1">Use when</a></li>
+<li><a href="#what-it-does_2">What it does</a></li>
+<li><a href="#use-when_2">Use when</a></li>
+<li><a href="#what-it-does_3">What it does</a></li>
+<li><a href="#use-when_3">Use when</a></li>
+<li><a href="#scenario-app-is-failing">Scenario: App is failing</a></li>
+<li><a href="#scenario-app-is-slow">Scenario: App is slow</a></li>
+<li><a href="#scenario-1">Scenario 1</a></li>
+<li><a href="#scenario-2">Scenario 2</a></li>
+<li><a href="#scenario-3">Scenario 3</a></li>
+<li><a href="#scenario-4">Scenario 4</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.4 – Monitoring and logging</strong></p>
+<h4 id="using-cloud-diagnostics-to-research-an-application-issue"><strong>Using Cloud Diagnostics to research an application issue</strong></h4>
+<p>This bullet is about <strong>application-level troubleshooting</strong>, not infrastructure debugging.<br />
+The ACE exam tests whether you understand how to use <strong>Cloud Operations (formerly Stackdriver) tools together</strong> to investigate an issue.</p>
+<hr />
+<h1 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h1>
+<p>You should be able to:</p>
+<ul>
+<li>Identify which Cloud Diagnostics tool to use</li>
+<li>Correlate logs, metrics, traces, and errors</li>
+<li>Investigate latency, crashes, and performance problems</li>
+<li>Avoid using the wrong tool</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“The application is misbehaving — which diagnostic tool do I open first?”</em></p>
+</blockquote>
+<hr />
+<h1 id="2-what-cloud-diagnostics-includes">2️⃣ What “Cloud Diagnostics” includes</h1>
+<p>Cloud Diagnostics refers to a group of tools within <strong>Cloud Operations Suite</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cloud Logging</td>
+<td>View logs</td>
+</tr>
+<tr>
+<td>Cloud Monitoring</td>
+<td>View metrics</td>
+</tr>
+<tr>
+<td>Error Reporting</td>
+<td>Aggregate application errors</td>
+</tr>
+<tr>
+<td>Cloud Trace</td>
+<td>Analyze request latency</td>
+</tr>
+<tr>
+<td>Cloud Profiler</td>
+<td>CPU/memory profiling</td>
+</tr>
+<tr>
+<td>Cloud Debugger</td>
+<td>Snapshot application state</td>
+</tr>
+</tbody>
+</table>
+<p>You do NOT need deep syntax knowledge — just <strong>when to use what</strong>.</p>
+<hr />
+<h1 id="3-error-reporting-very-exam-favorite">3️⃣ Error Reporting (VERY EXAM FAVORITE)</h1>
+<h3 id="what-it-does">What it does</h3>
+<ul>
+<li>Aggregates application exceptions</li>
+<li>Groups identical stack traces</li>
+<li>Shows frequency trends</li>
+</ul>
+<h3 id="use-when">Use when</h3>
+<ul>
+<li>App crashes</li>
+<li>Exceptions occur</li>
+<li>Want to see error frequency</li>
+</ul>
+<blockquote>
+<p><strong>ACE signal:</strong><br />
+“Application throwing exceptions” → Error Reporting</p>
+</blockquote>
+<hr />
+<h1 id="4-cloud-trace-latency-analysis">4️⃣ Cloud Trace (Latency analysis)</h1>
+<h3 id="what-it-does_1">What it does</h3>
+<ul>
+<li>Shows request flow</li>
+<li>Identifies slow components</li>
+<li>Breaks down latency</li>
+</ul>
+<h3 id="use-when_1">Use when</h3>
+<ul>
+<li>App is slow</li>
+<li>Requests time out</li>
+<li>Need latency breakdown</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Slow app → Trace<br />
+Crashing app → Error Reporting</p>
+</blockquote>
+<hr />
+<h1 id="5-cloud-profiler-performance-tuning">5️⃣ Cloud Profiler (Performance tuning)</h1>
+<h3 id="what-it-does_2">What it does</h3>
+<ul>
+<li>Analyzes CPU usage</li>
+<li>Memory allocation</li>
+<li>Performance bottlenecks</li>
+</ul>
+<h3 id="use-when_2">Use when</h3>
+<ul>
+<li>High CPU</li>
+<li>Memory leaks</li>
+<li>Performance inefficiency</li>
+</ul>
+<blockquote>
+<p><strong>ACE awareness:</strong><br />
+Profiler is deeper performance analysis.</p>
+</blockquote>
+<hr />
+<h1 id="6-cloud-debugger-live-debugging">6️⃣ Cloud Debugger (Live debugging)</h1>
+<h3 id="what-it-does_3">What it does</h3>
+<ul>
+<li>Captures application snapshots</li>
+<li>No need to restart app</li>
+<li>Inspect variables at runtime</li>
+</ul>
+<h3 id="use-when_3">Use when</h3>
+<ul>
+<li>Need to inspect app state</li>
+<li>Hard-to-reproduce bugs</li>
+</ul>
+<blockquote>
+<p>Not heavily tested, but must recognize purpose.</p>
+</blockquote>
+<hr />
+<h1 id="7-typical-diagnostic-workflow-exam-logic">7️⃣ Typical diagnostic workflow (EXAM LOGIC)</h1>
+<h3 id="scenario-app-is-failing">Scenario: App is failing</h3>
+<ol>
+<li>Check <strong>Error Reporting</strong></li>
+<li>Review logs in <strong>Cloud Logging</strong></li>
+<li>Look at resource metrics in <strong>Monitoring</strong></li>
+</ol>
+<hr />
+<h3 id="scenario-app-is-slow">Scenario: App is slow</h3>
+<ol>
+<li>Check <strong>Monitoring metrics</strong></li>
+<li>Use <strong>Cloud Trace</strong></li>
+<li>Investigate CPU/memory via Profiler</li>
+</ol>
+<hr />
+<h1 id="8-logs--metrics--diagnostics-integration">8️⃣ Logs + Metrics + Diagnostics (Integration)</h1>
+<p>Example troubleshooting chain:</p>
+<pre><code>User reports slowness
+↓
+Monitoring shows high latency
+↓
+Trace identifies slow DB call
+↓
+Logs show connection errors
+↓
+Error Reporting groups stack traces
+</code></pre>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Diagnostics tools complement each other.</p>
+</blockquote>
+<hr />
+<h1 id="9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</h1>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Application latency spikes”</p>
+</blockquote>
+<p>✅ Cloud Trace</p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“App crashes intermittently”</p>
+</blockquote>
+<p>✅ Error Reporting</p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“CPU utilization unusually high”</p>
+</blockquote>
+<p>✅ Monitoring → possibly Profiler</p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Need to inspect variable value without redeploying”</p>
+</blockquote>
+<p>✅ Cloud Debugger</p>
+<hr />
+<h1 id="-common-ace-exam-traps">🔟 Common ACE exam traps</h1>
+<p>❌ Using Monitoring to find stack traces<br />
+❌ Using Logs when Error Reporting is better<br />
+❌ Expecting Trace to show logs<br />
+❌ Confusing infrastructure issue with app issue</p>
+<hr />
+<h1 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h1>
+<ul>
+<li><strong>Crashes → Error Reporting</strong></li>
+<li><strong>Slow → Trace</strong></li>
+<li><strong>CPU/memory tuning → Profiler</strong></li>
+<li><strong>Logs = raw events</strong></li>
+<li><strong>Monitoring = metrics</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

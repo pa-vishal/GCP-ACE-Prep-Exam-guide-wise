@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F. Differentiating Network Service Tiers</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-the-two-network-service-tiers-lock-this-in">2️⃣ The two Network Service Tiers (lock this in)</a></li>
+<li><a href="#3-hard-exam-rule-memorize">3️⃣ HARD exam rule (memorize)</a></li>
+<li><a href="#4-when-the-ace-exam-expects-each-tier">4️⃣ When the ACE exam expects each tier</a></li>
+<li><a href="#5-decision-table-memorize">5️⃣ Decision table (MEMORIZE)</a></li>
+<li><a href="#6-common-ace-exam-scenarios">6️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#7-common-ace-exam-traps">7️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.3 – Differentiating Network Service Tiers</strong></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Service-Tiers_v9-18-21_4XW7EzT.max-2000x2000.jpg" /></p>
+<p><img alt="Image" src="https://gcpnuggets.com/content/images/2023/06/tiers-choosing.svg" /></p>
+<p>This bullet is <strong>small in wording but high-yield on the ACE exam</strong>. The exam tests whether you understand <strong>performance vs cost tradeoffs</strong> and <strong>when Premium Tier is required by design</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Differentiate <strong>Premium Tier vs Standard Tier</strong></li>
+<li>Know which services <strong>require Premium</strong></li>
+<li>Choose the <strong>cheapest tier that still meets requirements</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Does this workload need Google’s global backbone?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-the-two-network-service-tiers-lock-this-in">2️⃣ The two Network Service Tiers (lock this in)</h2>
+<h3 id="-premium-tier">🌍 <strong>Premium Tier</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Traffic stays on <strong>Google’s global backbone</strong></li>
+<li>Uses Google’s edge locations</li>
+<li>Lowest latency, highest reliability</li>
+</ul>
+<p><strong>Key characteristics</strong></p>
+<ul>
+<li>Global anycast IPs</li>
+<li>Best performance</li>
+<li>Higher cost</li>
+</ul>
+<p><strong>Automatically used by</strong></p>
+<ul>
+<li>Global HTTP(S) Load Balancer</li>
+<li>Global external IPs</li>
+<li>Cloud CDN</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Global users”</li>
+<li>“Low latency worldwide”</li>
+<li>“High availability”</li>
+<li>“Global load balancing”</li>
+</ul>
+<hr />
+<h3 id="-standard-tier">🌐 <strong>Standard Tier</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Traffic uses <strong>public internet</strong></li>
+<li>Enters Google network at the region</li>
+<li>Lower cost, higher latency</li>
+</ul>
+<p><strong>Key characteristics</strong></p>
+<ul>
+<li>Regional IPs</li>
+<li>Cost-optimized</li>
+<li>Less predictable performance</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Cost-sensitive”</li>
+<li>“Regional users”</li>
+<li>“No global latency requirement”</li>
+</ul>
+<hr />
+<h2 id="3-hard-exam-rule-memorize">3️⃣ HARD exam rule (memorize)</h2>
+<blockquote>
+<p><strong>If a service is global, it MUST use Premium Tier</strong></p>
+</blockquote>
+<p>This is not optional.</p>
+<p>Examples:</p>
+<ul>
+<li>Global HTTP(S) Load Balancer → <strong>Premium only</strong></li>
+<li>Global external IP → <strong>Premium only</strong></li>
+</ul>
+<p>You cannot downgrade these to Standard.</p>
+<hr />
+<h2 id="4-when-the-ace-exam-expects-each-tier">4️⃣ When the ACE exam expects each tier</h2>
+<h3 id="use-premium-tier-when">Use <strong>Premium Tier</strong> when:</h3>
+<ul>
+<li>Internet-facing global apps</li>
+<li>Global load balancing</li>
+<li>Latency-sensitive workloads</li>
+<li>SLA requirements</li>
+</ul>
+<h3 id="use-standard-tier-when">Use <strong>Standard Tier</strong> when:</h3>
+<ul>
+<li>Regional workloads</li>
+<li>Cost is more important than latency</li>
+<li>No global distribution required</li>
+</ul>
+<hr />
+<h2 id="5-decision-table-memorize">5️⃣ Decision table (MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Tier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Global users</td>
+<td>Premium</td>
+</tr>
+<tr>
+<td>HTTP(S) Load Balancer</td>
+<td>Premium</td>
+</tr>
+<tr>
+<td>Lowest latency</td>
+<td>Premium</td>
+</tr>
+<tr>
+<td>Cost optimization</td>
+<td>Standard</td>
+</tr>
+<tr>
+<td>Regional-only access</td>
+<td>Standard</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-common-ace-exam-scenarios">6️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Serve users worldwide with minimal latency”</p>
+</blockquote>
+<p>✅ <strong>Premium Tier</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Internal regional service, cost-sensitive”</p>
+</blockquote>
+<p>✅ <strong>Standard Tier</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Global HTTP(S) Load Balancer in use”</p>
+</blockquote>
+<p>✅ <strong>Premium Tier (mandatory)</strong></p>
+<hr />
+<h2 id="7-common-ace-exam-traps">7️⃣ Common ACE exam traps</h2>
+<p>❌ Thinking Standard Tier can be used with global load balancers<br />
+❌ Choosing Premium when no global requirement exists<br />
+❌ Assuming Standard Tier is insecure<br />
+❌ Forgetting that tier impacts latency, not firewalling</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Global = Premium</strong></li>
+<li><strong>Regional &amp; cheap = Standard</strong></li>
+<li><strong>HTTP(S) LB = Premium only</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

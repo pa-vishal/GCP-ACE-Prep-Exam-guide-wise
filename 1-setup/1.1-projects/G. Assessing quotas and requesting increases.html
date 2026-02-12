@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G. Assessing quotas and requesting increases</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#section-1.1--assessing-quotas-and-requesting-increases">Section 1.1 – Assessing quotas and requesting increases</a></li>
+<li><a href="#1-what-quotas-are-exam-framing">1️⃣ What quotas are (exam framing)</a></li>
+<li><a href="#2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</a></li>
+<li><a href="#3-common-quota-types-exam-favorites">3️⃣ Common quota types (exam favorites)</a></li>
+<li><a href="#4-how-to-assess-quotas-cli--console">4️⃣ How to assess quotas (CLI + console)</a></li>
+<li><a href="#5-requesting-quota-increases-how-it-works">5️⃣ Requesting quota increases (how it works)</a></li>
+<li><a href="#6-quotas-vs-limits-vs-budgets-exam-clarity">6️⃣ Quotas vs limits vs budgets (exam clarity)</a></li>
+<li><a href="#7-regional-vs-global-quotas-very-exam-relevant">7️⃣ Regional vs global quotas (VERY exam-relevant)</a></li>
+<li><a href="#8-real-exam-style-scenarios">8️⃣ Real exam-style scenarios</a></li>
+<li><a href="#9-best-practices-ace-level">9️⃣ Best practices (ACE-level)</a></li>
+<li><a href="#10-common-exam-traps">10️⃣ Common exam traps</a></li>
+<li><a href="#-one-line-exam-memory-hook">🔑 One-line exam memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿</p>
+<h3 id="section-1.1--assessing-quotas-and-requesting-increases"><strong>Section 1.1 – Assessing quotas and requesting increases</strong></h3>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/monitoring/images/quota-filter-by-quota-metric-region.png" /></p>
+<p><img alt="Image" src="https://i.sstatic.net/PIsxL.png" /></p>
+<p>This bullet is <strong>quietly high-value on the ACE exam</strong>. Quotas are a <strong>very common root cause</strong> in scenario questions where “everything is configured correctly but still fails.”</p>
+<hr />
+<h2 id="1-what-quotas-are-exam-framing">1️⃣ What quotas are (exam framing)</h2>
+<p><strong>Quotas</strong> are <strong>hard limits</strong> Google Cloud enforces to:</p>
+<ul>
+<li>Prevent accidental overuse</li>
+<li>Protect shared infrastructure</li>
+<li>Control cost and abuse</li>
+</ul>
+<p>They apply to:</p>
+<ul>
+<li>API requests</li>
+<li>Resources (VMs, CPUs, IPs)</li>
+<li>Regional or global usage</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+If deployment fails <strong>without a permission error</strong>, think <strong>quota</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</h2>
+<p>The exam checks whether you can:</p>
+<h3 id="-identify-a-quota-related-failure">✅ Identify a quota-related failure</h3>
+<p>Typical phrases:</p>
+<ul>
+<li>“Quota exceeded”</li>
+<li>“Limit reached”</li>
+<li>“Request cannot be fulfilled”</li>
+<li>“Resource exhausted”</li>
+</ul>
+<h3 id="-know-where-quotas-are-applied">✅ Know <strong>where quotas are applied</strong></h3>
+<ul>
+<li>Project level</li>
+<li>Often <strong>per region</strong></li>
+<li>Sometimes global</li>
+</ul>
+<h3 id="-what-it-does-not-test">❌ What it does NOT test</h3>
+<ul>
+<li>Exact numeric limits</li>
+<li>Negotiation timelines</li>
+<li>Advanced quota automation</li>
+</ul>
+<hr />
+<h2 id="3-common-quota-types-exam-favorites">3️⃣ Common quota types (exam favorites)</h2>
+<h3 id="-compute-engine">🔹 Compute Engine</h3>
+<ul>
+<li>CPUs per region</li>
+<li>VM instances per region</li>
+<li>Static IP addresses</li>
+</ul>
+<h3 id="-gke">🔹 GKE</h3>
+<ul>
+<li>Node pool limits (CPU-based)</li>
+<li>Regional resource limits</li>
+</ul>
+<h3 id="-networking">🔹 Networking</h3>
+<ul>
+<li>Load balancers</li>
+<li>Forwarding rules</li>
+<li>VPN tunnels</li>
+</ul>
+<h3 id="-apis">🔹 APIs</h3>
+<ul>
+<li>Requests per minute/day</li>
+</ul>
+<hr />
+<h2 id="4-how-to-assess-quotas-cli--console">4️⃣ How to assess quotas (CLI + console)</h2>
+<h3 id="-view-project-quotas-cli">🔹 View project quotas (CLI)</h3>
+<pre><code class="language-bash">gcloud compute project-info describe \
+  --project=my-project
+</code></pre>
+<p>Look for:</p>
+<ul>
+<li><code>quotas</code></li>
+<li><code>usage</code> vs <code>limit</code></li>
+</ul>
+<hr />
+<h3 id="-view-quotas-for-a-specific-region">🔹 View quotas for a specific region</h3>
+<pre><code class="language-bash">gcloud compute regions describe us-central1 \
+  --project=my-project
+</code></pre>
+<hr />
+<h3 id="-view-enabled-api-quotas">🔹 View enabled API quotas</h3>
+<pre><code class="language-bash">gcloud services list --enabled --project=my-project
+</code></pre>
+<p>(API-specific quotas are viewed in the API’s quota page)</p>
+<hr />
+<h2 id="5-requesting-quota-increases-how-it-works">5️⃣ Requesting quota increases (how it works)</h2>
+<h3 id="-request-via-console-exam-level-understanding">🔹 Request via Console (exam-level understanding)</h3>
+<p>Flow:</p>
+<ol>
+<li>Go to <strong>IAM &amp; Admin → Quotas</strong></li>
+<li>Filter by service &amp; region</li>
+<li>Select quota</li>
+<li>Click <strong>Edit Quotas</strong></li>
+<li>Submit request</li>
+</ol>
+<blockquote>
+<p><strong>Important exam fact</strong><br />
+Quota increases are <strong>not instant</strong> and <strong>require billing account</strong>.</p>
+</blockquote>
+<hr />
+<h3 id="-requesting-quota-increases-via-cli">🔹 Requesting quota increases via CLI?</h3>
+<p>❌ <strong>Not supported directly</strong></p>
+<p>This is an exam trick:</p>
+<blockquote>
+<p>If asked “use CLI to request quota increase” → <strong>Incorrect</strong></p>
+</blockquote>
+<hr />
+<h2 id="6-quotas-vs-limits-vs-budgets-exam-clarity">6️⃣ Quotas vs limits vs budgets (exam clarity)</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Quota</td>
+<td>Hard enforced limit</td>
+</tr>
+<tr>
+<td>Limit</td>
+<td>General term (often quota)</td>
+</tr>
+<tr>
+<td>Budget</td>
+<td>Cost alert, <strong>not enforcement</strong></td>
+</tr>
+</tbody>
+</table>
+<p>❌ Budget alerts <strong>do not stop resource creation</strong></p>
+<hr />
+<h2 id="7-regional-vs-global-quotas-very-exam-relevant">7️⃣ Regional vs global quotas (VERY exam-relevant)</h2>
+<h3 id="example">Example</h3>
+<blockquote>
+<p>“VM creation fails in us-central1 but works in us-east1”</p>
+</blockquote>
+<p>✅ Correct explanation:</p>
+<ul>
+<li><strong>Regional quota exhausted</strong></li>
+</ul>
+<hr />
+<h3 id="compute-engine-cpu-quota-example">Compute Engine CPU quota example</h3>
+<ul>
+<li>24 CPUs allowed in <code>us-central1</code></li>
+<li>Try to create 8 more → fails</li>
+<li>Create in another region → works</li>
+</ul>
+<hr />
+<h2 id="8-real-exam-style-scenarios">8️⃣ Real exam-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“All permissions correct, API enabled, still cannot create VM”</p>
+</blockquote>
+<p>✅ Root cause:</p>
+<ul>
+<li>CPU quota exhausted</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Load balancer creation fails unexpectedly”</p>
+</blockquote>
+<p>✅ Root cause:</p>
+<ul>
+<li>Networking quota reached</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Project suddenly fails after scaling”</p>
+</blockquote>
+<p>✅ Root cause:</p>
+<ul>
+<li>Autoscaling hit quota limit</li>
+</ul>
+<hr />
+<h2 id="9-best-practices-ace-level">9️⃣ Best practices (ACE-level)</h2>
+<ul>
+<li>Check quotas <strong>before scaling</strong></li>
+<li>Request increases early</li>
+<li>Spread workloads across regions if needed</li>
+</ul>
+<hr />
+<h2 id="10-common-exam-traps">10️⃣ Common exam traps</h2>
+<p>❌ Confuse IAM errors with quota errors<br />
+❌ Assume quota increases are automatic<br />
+❌ Think budgets enforce limits<br />
+❌ Ignore regional nature of quotas</p>
+<hr />
+<h2 id="-one-line-exam-memory-hook">🔑 One-line exam memory hook</h2>
+<blockquote>
+<p><strong>If it fails without a permission error → check quota</strong></p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

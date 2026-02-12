@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A. Remotely connecting to a Compute Engine instance</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#remotely-connecting-to-a-compute-engine-instance">Remotely connecting to a Compute Engine instance</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-supported-remote-connection-methods-must-know">2️⃣ Supported remote connection methods (MUST KNOW)</a></li>
+<li><a href="#3-required-components-checklist-exam-gold">3️⃣ Required components checklist (EXAM GOLD)</a></li>
+<li><a href="#4-cli-connection-examples-ace-level">4️⃣ CLI connection examples (ACE-level)</a></li>
+<li><a href="#5-firewall-rules-for-ssh-very-common-failure">5️⃣ Firewall rules for SSH (VERY common failure)</a></li>
+<li><a href="#6-decision-table-memorize">6️⃣ Decision table (MEMORIZE)</a></li>
+<li><a href="#7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#8-common-ace-exam-traps">8️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.1 – Managing compute resources</strong></p>
+<h4 id="remotely-connecting-to-a-compute-engine-instance"><strong>Remotely connecting to a Compute Engine instance</strong></h4>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/compute/docs/connect/ssh-best-practices/flowchart.svg" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/enabling_beyondcorp.max-1200x1200.png" /></p>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A1358/format%3Awebp/1%2APIv8q2RIZDmBUc8MGzKEqw.png" /></p>
+<p>This bullet is <strong>very high-yield</strong>. The ACE exam repeatedly tests whether you can <strong>choose the correct remote access method</strong> based on <strong>network exposure, security posture, and permissions</strong>—not whether you can memorize SSH syntax.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Identify <strong>all supported ways</strong> to connect to a VM</li>
+<li>Choose the <strong>most secure</strong> method when prompted</li>
+<li>Diagnose <strong>why SSH fails</strong></li>
+<li>Understand <strong>how IAM, firewall rules, and networking interact</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Can the user reach the VM, and is it allowed?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-supported-remote-connection-methods-must-know">2️⃣ Supported remote connection methods (MUST KNOW)</h2>
+<h3 id="-a.-ssh-using-external-ip-most-basic">🔑 A. SSH using external IP (most basic)</h3>
+<p><strong>How it works</strong></p>
+<ul>
+<li>VM has an <strong>external IP</strong></li>
+<li>Firewall allows <strong>tcp:22</strong></li>
+<li>SSH key or OS Login used</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Simple setup</li>
+<li>Dev / test environments</li>
+<li>No strict security constraints</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“VM has external IP”</li>
+<li>“Quick access”</li>
+<li>“SSH from laptop”</li>
+</ul>
+<hr />
+<h3 id="-b.-ssh-via-iap-best-practice--exam-favorite">🌐 B. SSH via IAP (BEST PRACTICE &amp; EXAM FAVORITE)</h3>
+<p><strong>How it works</strong></p>
+<ul>
+<li>VM <strong>does NOT need an external IP</strong></li>
+<li>Traffic tunnels through <strong>Identity-Aware Proxy</strong></li>
+<li>Uses IAM permissions</li>
+</ul>
+<p><strong>Requirements</strong></p>
+<ul>
+<li>IAP TCP forwarding enabled</li>
+<li>Firewall allows <strong>tcp:22 from IAP IP range</strong></li>
+<li>
+<p>User has:</p>
+</li>
+<li>
+<p><code>roles/iap.tunnelResourceAccessor</code></p>
+</li>
+<li>SSH permission (OS Login or key)</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Production environments</li>
+<li>No public IPs allowed</li>
+<li>Secure, auditable access</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“No external IP”</li>
+<li>“Secure access”</li>
+<li>“Use IAM-based access”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If security is mentioned → <strong>IAP SSH</strong></p>
+</blockquote>
+<hr />
+<h3 id="-c.-browser-based-ssh-console">🖥️ C. Browser-based SSH (Console)</h3>
+<p><strong>How it works</strong></p>
+<ul>
+<li>Uses same backend as SSH/IAP</li>
+<li>Launched from Cloud Console</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Troubleshooting</li>
+<li>No local SSH tools available</li>
+</ul>
+<p><strong>Exam reality</strong></p>
+<ul>
+<li>Treated the same as SSH/IAP conceptually</li>
+</ul>
+<hr />
+<h3 id="-d.-os-login-authentication-method-not-transport">🔐 D. OS Login (authentication method, not transport)</h3>
+<p><strong>What it controls</strong></p>
+<ul>
+<li><strong>WHO</strong> can SSH (via IAM)</li>
+<li>Not <strong>HOW</strong> traffic reaches VM</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Centralized access”</li>
+<li>“Remove user access instantly”</li>
+<li>“Audit SSH access”</li>
+</ul>
+<blockquote>
+<p>OS Login is often paired with <strong>external IP SSH</strong> or <strong>IAP SSH</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-required-components-checklist-exam-gold">3️⃣ Required components checklist (EXAM GOLD)</h2>
+<p>For SSH to work, <strong>ALL must be true</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VM is running</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Network path exists</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Firewall allows tcp:22</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>User has SSH permission</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Authentication method valid</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+One missing item = connection fails</p>
+</blockquote>
+<hr />
+<h2 id="4-cli-connection-examples-ace-level">4️⃣ CLI connection examples (ACE-level)</h2>
+<h3 id="ssh-using-gcloud-auto-handles-keys">SSH using gcloud (auto-handles keys)</h3>
+<pre><code class="language-bash">gcloud compute ssh my-vm \
+  --zone=us-central1-a
+</code></pre>
+<hr />
+<h3 id="ssh-via-iap">SSH via IAP</h3>
+<pre><code class="language-bash">gcloud compute ssh my-vm \
+  --zone=us-central1-a \
+  --tunnel-through-iap
+</code></pre>
+<hr />
+<h2 id="5-firewall-rules-for-ssh-very-common-failure">5️⃣ Firewall rules for SSH (VERY common failure)</h2>
+<h3 id="allow-ssh-external-ip">Allow SSH (external IP)</h3>
+<pre><code class="language-bash">gcloud compute firewall-rules create allow-ssh \
+  --network=my-vpc \
+  --direction=INGRESS \
+  --rules=tcp:22 \
+  --source-ranges=0.0.0.0/0
+</code></pre>
+<h3 id="allow-ssh-from-iap">Allow SSH from IAP</h3>
+<ul>
+<li>Source range: <code>35.235.240.0/20</code></li>
+<li>Port: <code>22</code></li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“IAP SSH fails” → missing firewall rule</p>
+</blockquote>
+<hr />
+<h2 id="6-decision-table-memorize">6️⃣ Decision table (MEMORIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Best method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VM has external IP, simple access</td>
+<td>SSH</td>
+</tr>
+<tr>
+<td>VM has NO external IP</td>
+<td>IAP SSH</td>
+</tr>
+<tr>
+<td>Secure production access</td>
+<td>IAP + OS Login</td>
+</tr>
+<tr>
+<td>Centralized access control</td>
+<td>OS Login</td>
+</tr>
+<tr>
+<td>Quick troubleshooting</td>
+<td>Browser SSH</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-common-ace-exam-scenarios">7️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“VM has no external IP but must be accessed securely”</p>
+</blockquote>
+<p>✅ <strong>IAP SSH</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“User removed from IAM should lose SSH immediately”</p>
+</blockquote>
+<p>✅ <strong>OS Login</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“SSH times out despite correct credentials”</p>
+</blockquote>
+<p>✅ Likely cause:</p>
+<ul>
+<li>Firewall missing</li>
+<li>Wrong source range</li>
+<li>VM not running</li>
+</ul>
+<hr />
+<h2 id="8-common-ace-exam-traps">8️⃣ Common ACE exam traps</h2>
+<p>❌ Assuming SSH works without firewall rules<br />
+❌ Confusing OS Login with network connectivity<br />
+❌ Using external IP when security is required<br />
+❌ Forgetting IAP needs its own firewall rule</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>External IP = simple SSH</strong></li>
+<li><strong>No external IP = IAP</strong></li>
+<li><strong>Security = IAP + OS Login</strong></li>
+<li><strong>SSH fails → check firewall first</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E. Backing up and restoring database instances</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#backing-up-and-restoring-database-instances">Backing up and restoring database instances</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-core-rule-must-memorize">2️⃣ Core rule (MUST MEMORIZE)</a></li>
+<li><a href="#3-cloud-sql">3️⃣ Cloud SQL</a></li>
+<li><a href="#4-alloydb">4️⃣ AlloyDB</a></li>
+<li><a href="#5-firestore">5️⃣ Firestore</a></li>
+<li><a href="#6-spanner">6️⃣ Spanner</a></li>
+<li><a href="#7-bigtable">7️⃣ Bigtable</a></li>
+<li><a href="#8-comparison-table-very-important">8️⃣ Comparison table (VERY IMPORTANT)</a></li>
+<li><a href="#9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#-common-ace-exam-traps">🔟 Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.2 – Managing storage resources</strong></p>
+<h4 id="backing-up-and-restoring-database-instances"><strong>Backing up and restoring database instances</strong></h4>
+<p><em>(Cloud SQL, Firestore, Spanner, AlloyDB, Bigtable)</em></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/sql/images/restore-rate-tokens.png" /></p>
+<p><img alt="Image" src="https://estuary.dev/static/b0682e82e4befbac75f90333ac2e5334/09e10/01_Firestore_To_JSON_What_Is_Firestore_aad8bc0a94.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/spanner/docs/images/databoost-architecture.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/spanner/docs/images/spanner-graph-example-graph.png" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/bigquery_sketch.max-2000x2000.png" /></p>
+<p>This bullet tests whether you understand <strong>service-specific backup mechanisms</strong>, <strong>what backups protect against</strong>, and <strong>how restores are performed</strong>. The ACE exam emphasizes <strong>choosing the correct native backup feature</strong>, not scripting custom solutions.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Identify <strong>native backup options</strong> for each database</li>
+<li>Distinguish <strong>automatic vs manual</strong> backups</li>
+<li>Restore data <strong>to the same or a new instance</strong></li>
+<li>Avoid confusing <strong>backups with high availability</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“How do I recover data after deletion or corruption?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-core-rule-must-memorize">2️⃣ Core rule (MUST MEMORIZE)</h2>
+<blockquote>
+<p><strong>Backups protect data.<br />
+Replicas / HA protect availability.<br />
+They solve different problems.</strong></p>
+</blockquote>
+<p>This distinction is a <strong>frequent exam trap</strong>.</p>
+<hr />
+<h2 id="3-cloud-sql">3️⃣ Cloud SQL</h2>
+<h3 id="backup-options">Backup options</h3>
+<ul>
+<li><strong>Automated backups</strong> (recommended)</li>
+<li><strong>On-demand backups</strong></li>
+<li><strong>Binary logs</strong> (point-in-time recovery)</li>
+</ul>
+<h3 id="what-you-can-do">What you can do</h3>
+<ul>
+<li>
+<p>Restore to:</p>
+</li>
+<li>
+<p>Same instance</p>
+</li>
+<li>New instance</li>
+<li>Restore to a <strong>specific point in time</strong></li>
+</ul>
+<h3 id="exam-signals">Exam signals</h3>
+<ul>
+<li>“Accidental data deletion”</li>
+<li>“Restore to yesterday”</li>
+<li>“Point-in-time recovery”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Cloud SQL PITR requires <strong>binary logging enabled</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="4-alloydb">4️⃣ AlloyDB</h2>
+<h3 id="backup-model">Backup model</h3>
+<ul>
+<li><strong>Automated backups</strong> (continuous)</li>
+<li><strong>Manual backups</strong></li>
+</ul>
+<h3 id="restore-options">Restore options</h3>
+<ul>
+<li>
+<p>Restore to:</p>
+</li>
+<li>
+<p>New AlloyDB cluster</p>
+</li>
+<li>New instance</li>
+</ul>
+<h3 id="exam-awareness">Exam awareness</h3>
+<ul>
+<li>PostgreSQL-compatible</li>
+<li>Backup behavior similar in concept to Cloud SQL</li>
+</ul>
+<blockquote>
+<p><strong>ACE signal:</strong><br />
+“Enterprise PostgreSQL backup” → <strong>AlloyDB automated backups</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-firestore">5️⃣ Firestore</h2>
+<h3 id="backup-model_1">Backup model</h3>
+<ul>
+<li><strong>Export / Import</strong> to Cloud Storage</li>
+<li>No automatic point-in-time restore</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<pre><code>Firestore → Export → Cloud Storage
+Cloud Storage → Import → Firestore
+</code></pre>
+<h3 id="exam-signals_1">Exam signals</h3>
+<ul>
+<li>“Recover documents”</li>
+<li>“Export data”</li>
+<li>“Cross-project restore”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Firestore backups are <strong>file exports</strong>, not snapshots.</p>
+</blockquote>
+<hr />
+<h2 id="6-spanner">6️⃣ Spanner</h2>
+<h3 id="backup-model_2">Backup model</h3>
+<ul>
+<li><strong>Managed backups</strong></li>
+<li>Independent backup resources</li>
+<li>Configurable retention</li>
+</ul>
+<h3 id="restore-options_1">Restore options</h3>
+<ul>
+<li>
+<p>Restore to:</p>
+</li>
+<li>
+<p>New database</p>
+</li>
+<li>New instance</li>
+</ul>
+<h3 id="exam-signals_2">Exam signals</h3>
+<ul>
+<li>“Mission-critical”</li>
+<li>“Global relational database”</li>
+<li>“Strong consistency + backups”</li>
+</ul>
+<blockquote>
+<p><strong>ACE awareness:</strong><br />
+Spanner backups are <strong>separate resources</strong> and incur cost.</p>
+</blockquote>
+<hr />
+<h2 id="7-bigtable">7️⃣ Bigtable</h2>
+<h3 id="backup-model_3">Backup model</h3>
+<ul>
+<li><strong>Bigtable backups</strong></li>
+<li>Cluster-level</li>
+<li>Stored independently</li>
+</ul>
+<h3 id="restore-options_2">Restore options</h3>
+<ul>
+<li>
+<p>Restore to:</p>
+</li>
+<li>
+<p>Same cluster</p>
+</li>
+<li>Different cluster</li>
+</ul>
+<h3 id="exam-signals_3">Exam signals</h3>
+<ul>
+<li>“Time-series data recovery”</li>
+<li>“Large-scale NoSQL restore”</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Bigtable backups are <strong>fast and incremental</strong>, but not cross-row-atomic.</p>
+</blockquote>
+<hr />
+<h2 id="8-comparison-table-very-important">8️⃣ Comparison table (VERY IMPORTANT)</h2>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Backup method</th>
+<th>Point-in-time</th>
+<th>Restore target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cloud SQL</td>
+<td>Automated + on-demand</td>
+<td>✅</td>
+<td>Same / new instance</td>
+</tr>
+<tr>
+<td>AlloyDB</td>
+<td>Automated + manual</td>
+<td>⚠️ (engine-dependent)</td>
+<td>New cluster/instance</td>
+</tr>
+<tr>
+<td>Firestore</td>
+<td>Export to GCS</td>
+<td>❌</td>
+<td>Same / new project</td>
+</tr>
+<tr>
+<td>Spanner</td>
+<td>Managed backups</td>
+<td>❌ (backup time only)</td>
+<td>New database</td>
+</tr>
+<tr>
+<td>Bigtable</td>
+<td>Bigtable backups</td>
+<td>❌</td>
+<td>Same / new cluster</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Recover Cloud SQL data from 3 hours ago”</p>
+</blockquote>
+<p>✅ <strong>Point-in-time restore (Cloud SQL)</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Back up Firestore nightly for compliance”</p>
+</blockquote>
+<p>✅ <strong>Scheduled exports to Cloud Storage</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Restore Spanner data after accidental deletion”</p>
+</blockquote>
+<p>✅ <strong>Restore from Spanner backup</strong></p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Protect Bigtable data from corruption”</p>
+</blockquote>
+<p>✅ <strong>Bigtable backups</strong></p>
+<hr />
+<h2 id="-common-ace-exam-traps">🔟 Common ACE exam traps</h2>
+<p>❌ Using replicas as backups<br />
+❌ Expecting Firestore PITR<br />
+❌ Forgetting backups incur storage cost<br />
+❌ Assuming backups provide high availability<br />
+❌ Choosing manual scripts over native backups</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Backups ≠ HA</strong></li>
+<li><strong>Cloud SQL = PITR</strong></li>
+<li><strong>Firestore = export/import</strong></li>
+<li><strong>Spanner = managed backups</strong></li>
+<li><strong>Bigtable = cluster backups</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

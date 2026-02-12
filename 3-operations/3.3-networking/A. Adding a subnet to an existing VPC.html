@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A. Adding a subnet to an existing VPC</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#adding-a-subnet-to-an-existing-vpc">Adding a subnet to an existing VPC</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-core-networking-facts-must-know">2️⃣ Core networking facts (MUST KNOW)</a></li>
+<li><a href="#3-when-you-add-a-subnet-exam-scenarios">3️⃣ When you add a subnet (EXAM SCENARIOS)</a></li>
+<li><a href="#4-cidr-planning-very-important">4️⃣ CIDR planning (VERY IMPORTANT)</a></li>
+<li><a href="#5-adding-a-subnet-cli--exam-relevant">5️⃣ Adding a subnet (CLI – exam-relevant)</a></li>
+<li><a href="#6-what-does-not-change-when-adding-a-subnet">6️⃣ What does NOT change when adding a subnet</a></li>
+<li><a href="#7-adding-subnet-vs-expanding-subnet-exam-trap">7️⃣ Adding subnet vs expanding subnet (EXAM TRAP)</a></li>
+<li><a href="#8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#9-common-ace-exam-traps">9️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.3 – Managing networking resources</strong></p>
+<h4 id="adding-a-subnet-to-an-existing-vpc"><strong>Adding a subnet to an existing VPC</strong></h4>
+<p><img alt="Image" src="https://d33wubrfki0l68.cloudfront.net/57750035ef2c7221ce9bdece3154ff503d5fdc9c/a0271/gcpimages/02-architecture/00-public-private-subnet.png" /></p>
+<p><img alt="Image" src="https://miro.medium.com/1%2A6HWT7WGREFABwDf8poEqCQ.jpeg" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/VPC_network_subset.max-1700x1700.png" /></p>
+<p>This bullet tests whether you understand <strong>how VPCs and subnets actually work in Google Cloud</strong> and whether you can <strong>extend a network safely without breaking existing workloads</strong>. On the ACE exam, this often appears in <strong>growth or multi-region expansion scenarios</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Add a <strong>new subnet</strong> to an <strong>existing VPC</strong></li>
+<li>Understand <strong>global VPC vs regional subnets</strong></li>
+<li>Choose <strong>CIDR ranges correctly</strong></li>
+<li>Avoid conflicts and downtime</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“The VPC already exists—how do I extend it to a new region or workload?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-core-networking-facts-must-know">2️⃣ Core networking facts (MUST KNOW)</h2>
+<h3 id="vpc-vs-subnet">VPC vs Subnet</h3>
+<ul>
+<li><strong>VPC network</strong>: <strong>Global</strong></li>
+<li><strong>Subnet</strong>: <strong>Regional</strong></li>
+</ul>
+<p>This means:</p>
+<ul>
+<li>One VPC can have <strong>multiple subnets</strong></li>
+<li>Each subnet lives in <strong>exactly one region</strong></li>
+<li>Subnets <strong>do not overlap</strong></li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+You <strong>do not create a new VPC</strong> just to add a subnet.</p>
+</blockquote>
+<hr />
+<h2 id="3-when-you-add-a-subnet-exam-scenarios">3️⃣ When you add a subnet (EXAM SCENARIOS)</h2>
+<p>Add a subnet when:</p>
+<ul>
+<li>Expanding to a <strong>new region</strong></li>
+<li>Separating workloads (prod / dev)</li>
+<li>Needing a <strong>new IP range</strong></li>
+<li>Supporting new services (GKE, Cloud Run connectors, etc.)</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Expand to europe-west1”</li>
+<li>“New workload needs IPs”</li>
+<li>“Avoid changing existing subnets”</li>
+</ul>
+<hr />
+<h2 id="4-cidr-planning-very-important">4️⃣ CIDR planning (VERY IMPORTANT)</h2>
+<h3 id="rules-you-must-follow">Rules you must follow</h3>
+<ul>
+<li>CIDR ranges <strong>must not overlap</strong></li>
+<li>
+<p>Choose size based on:</p>
+</li>
+<li>
+<p>VM count</p>
+</li>
+<li>GKE Pods (if applicable)</li>
+<li>
+<p>Subnet CIDR:</p>
+</li>
+<li>
+<p>Can be <strong>expanded later</strong></p>
+</li>
+<li>Cannot be shrunk</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Overlapping CIDRs = subnet creation fails.</p>
+</blockquote>
+<hr />
+<h2 id="5-adding-a-subnet-cli--exam-relevant">5️⃣ Adding a subnet (CLI – exam-relevant)</h2>
+<h3 id="create-a-new-subnet-in-an-existing-vpc">Create a new subnet in an existing VPC</h3>
+<pre><code class="language-bash">gcloud compute networks subnets create app-subnet-eu \
+  --network=my-vpc \
+  --region=europe-west1 \
+  --range=10.20.0.0/24
+</code></pre>
+<p>What this does:</p>
+<ul>
+<li>Keeps the <strong>same VPC</strong></li>
+<li>Adds a <strong>new regional subnet</strong></li>
+<li>Does <strong>not impact existing subnets</strong></li>
+</ul>
+<hr />
+<h2 id="6-what-does-not-change-when-adding-a-subnet">6️⃣ What does NOT change when adding a subnet</h2>
+<p>Adding a subnet:</p>
+<ul>
+<li>❌ Does NOT cause downtime</li>
+<li>❌ Does NOT affect existing VMs</li>
+<li>❌ Does NOT change firewall rules automatically</li>
+</ul>
+<p>Firewall rules:</p>
+<ul>
+<li>Apply at the <strong>VPC level</strong></li>
+<li>May need updates to allow traffic to/from the new subnet</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“VMs in new subnet can’t communicate” → firewall rules</p>
+</blockquote>
+<hr />
+<h2 id="7-adding-subnet-vs-expanding-subnet-exam-trap">7️⃣ Adding subnet vs expanding subnet (EXAM TRAP)</h2>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Add new subnet</strong></td>
+<td>New region or isolation</td>
+</tr>
+<tr>
+<td><strong>Expand subnet CIDR</strong></td>
+<td>Same region, need more IPs</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+You <strong>cannot</strong> shrink a subnet, only expand it.</p>
+</blockquote>
+<hr />
+<h2 id="8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Deploy workloads in a new region using the same network”</p>
+</blockquote>
+<p>✅ <strong>Add a new subnet to the existing VPC</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Existing subnet ran out of IPs in us-central1”</p>
+</blockquote>
+<p>❌ Add new subnet (wrong)<br />
+✅ <strong>Expand the existing subnet CIDR</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“New subnet added but traffic is blocked”</p>
+</blockquote>
+<p>✅ Likely cause:</p>
+<ul>
+<li>Firewall rules not updated</li>
+</ul>
+<hr />
+<h2 id="9-common-ace-exam-traps">9️⃣ Common ACE exam traps</h2>
+<p>❌ Creating a new VPC instead of a subnet<br />
+❌ Overlapping CIDR ranges<br />
+❌ Forgetting subnets are regional<br />
+❌ Expecting firewall rules to auto-adjust<br />
+❌ Shrinking subnet CIDRs (not allowed)</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>VPC = global</strong></li>
+<li><strong>Subnet = regional</strong></li>
+<li><strong>No overlap</strong></li>
+<li><strong>Adding subnet = no downtime</strong></li>
+<li><strong>Firewall rules may need updates</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

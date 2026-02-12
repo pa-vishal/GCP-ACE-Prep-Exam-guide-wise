@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F. Provisioning and seing up products in Google Cloud Observability</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#section-1.1--provisioning-and-setting-up-products-in-google-cloud-observability">Section 1.1 – Provisioning and setting up products in Google Cloud Observability</a></li>
+<li><a href="#1-what-google-cloud-observability-actually-means">1️⃣ What “Google Cloud Observability” actually means</a></li>
+<li><a href="#2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</a></li>
+<li><a href="#3-what-is-automatic-vs-what-must-be-provisioned">3️⃣ What is automatic vs what must be provisioned</a></li>
+<li><a href="#4-enabling-observability-apis-via-cli-gcloud">4️⃣ Enabling observability APIs via CLI (gcloud)</a></li>
+<li><a href="#5-ops-agent-very-exam-relevant-for-vms">5️⃣ Ops Agent (VERY exam-relevant for VMs)</a></li>
+<li><a href="#6-observability-per-compute-type-exam-favorite">6️⃣ Observability per compute type (exam favorite)</a></li>
+<li><a href="#7-monitoring-alerts-conceptual">7️⃣ Monitoring alerts (conceptual)</a></li>
+<li><a href="#8-real-exam-style-scenarios">8️⃣ Real exam-style scenarios</a></li>
+<li><a href="#9-common-exam-traps">9️⃣ Common exam traps</a></li>
+<li><a href="#-one-line-exam-memory-hook">🔑 One-line exam memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿</p>
+<h3 id="section-1.1--provisioning-and-setting-up-products-in-google-cloud-observability"><strong>Section 1.1 – Provisioning and setting up products in Google Cloud Observability</strong></h3>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/1_Logging__Monitoring.max-1600x1600.jpg" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/image3_YN7Di28.max-2000x2000.png" /></p>
+<p>This bullet is <strong>very important for the ACE exam</strong>, but it is <strong>tested conceptually</strong>, not operationally. The exam checks whether you understand <strong>what to enable, when, and why</strong>, not how to tune dashboards like an SRE.</p>
+<hr />
+<h2 id="1-what-google-cloud-observability-actually-means">1️⃣ What “Google Cloud Observability” actually means</h2>
+<p><strong>Google Cloud Observability</strong> is the umbrella for services that let you:</p>
+<ul>
+<li><strong>See</strong> what’s happening</li>
+<li><strong>Detect</strong> problems</li>
+<li><strong>Troubleshoot</strong> performance issues</li>
+</ul>
+<p>It includes:</p>
+<table>
+<thead>
+<tr>
+<th>Product</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cloud Monitoring</td>
+<td>Metrics, dashboards, alerts</td>
+</tr>
+<tr>
+<td>Cloud Logging</td>
+<td>Logs from services &amp; apps</td>
+</tr>
+<tr>
+<td>Cloud Trace</td>
+<td>Request latency tracing</td>
+</tr>
+<tr>
+<td>Cloud Profiler</td>
+<td>CPU / memory profiling</td>
+</tr>
+<tr>
+<td>Error Reporting</td>
+<td>App error aggregation</td>
+</tr>
+<tr>
+<td>Ops Agent</td>
+<td>Unified metrics + logs agent</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam framing</strong>:<br />
+Observability = <strong>Monitoring + Logging + Diagnostics</strong></p>
+</blockquote>
+<hr />
+<h2 id="2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</h2>
+<p>The exam checks whether you can:</p>
+<h3 id="-identify-which-observability-product-to-use">✅ Identify which observability product to use</h3>
+<ul>
+<li>Metrics → Monitoring</li>
+<li>Logs → Logging</li>
+<li>Latency → Trace</li>
+<li>CPU/memory hotspots → Profiler</li>
+<li>App crashes → Error Reporting</li>
+</ul>
+<h3 id="-know-what-must-be-enabled-vs-what-is-automatic">✅ Know what must be enabled vs what is automatic</h3>
+<ul>
+<li>Some observability works <strong>out of the box</strong></li>
+<li>Some requires <strong>API enablement or agents</strong></li>
+</ul>
+<h3 id="-what-the-exam-does-not-test">❌ What the exam does NOT test</h3>
+<ul>
+<li>Writing advanced alerting expressions</li>
+<li>Custom dashboards in depth</li>
+<li>SRE-level tuning</li>
+</ul>
+<hr />
+<h2 id="3-what-is-automatic-vs-what-must-be-provisioned">3️⃣ What is automatic vs what must be provisioned</h2>
+<h3 id="-enabled-automatically-exam-relevant">🟢 Enabled automatically (exam-relevant)</h3>
+<ul>
+<li><strong>Cloud Logging</strong> (for most GCP services)</li>
+<li><strong>Basic Monitoring metrics</strong></li>
+<li><strong>Audit Logs</strong> (Admin Activity)</li>
+</ul>
+<blockquote>
+<p>New project → logging &amp; basic metrics already flow</p>
+</blockquote>
+<hr />
+<h3 id="-requires-explicit-setup--enablement">🟡 Requires explicit setup / enablement</h3>
+<table>
+<thead>
+<tr>
+<th>Product</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cloud Monitoring alerts</td>
+<td>You configure them</td>
+</tr>
+<tr>
+<td>Ops Agent</td>
+<td>Install on VM</td>
+</tr>
+<tr>
+<td>Cloud Trace</td>
+<td>Enable API</td>
+</tr>
+<tr>
+<td>Cloud Profiler</td>
+<td>Enable API + agent</td>
+</tr>
+<tr>
+<td>Error Reporting</td>
+<td>App integration</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-enabling-observability-apis-via-cli-gcloud">4️⃣ Enabling observability APIs via CLI (gcloud)</h2>
+<h3 id="-enable-core-observability-apis">🔹 Enable core observability APIs</h3>
+<pre><code class="language-bash">gcloud services enable \
+  monitoring.googleapis.com \
+  logging.googleapis.com \
+  cloudtrace.googleapis.com \
+  cloudprofiler.googleapis.com \
+  errorreporting.googleapis.com \
+  --project=my-project
+</code></pre>
+<blockquote>
+<p><strong>ACE exam tip</strong>:<br />
+If observability “doesn’t work” → first check <strong>API enablement</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-ops-agent-very-exam-relevant-for-vms">5️⃣ Ops Agent (VERY exam-relevant for VMs)</h2>
+<h3 id="what-ops-agent-does">What Ops Agent does</h3>
+<ul>
+<li>
+<p>Collects:</p>
+</li>
+<li>
+<p>Metrics (CPU, memory, disk)</p>
+</li>
+<li>Logs (system + app)</li>
+<li>Replaces legacy monitoring/logging agents</li>
+</ul>
+<hr />
+<h3 id="installing-ops-agent-on-a-vm">Installing Ops Agent on a VM</h3>
+<pre><code class="language-bash">curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+sudo bash add-google-cloud-ops-agent-repo.sh --also-install
+</code></pre>
+<blockquote>
+<p><strong>Exam pattern</strong>:<br />
+“VM metrics/logs not appearing” → <strong>Install Ops Agent</strong></p>
+</blockquote>
+<hr />
+<h2 id="6-observability-per-compute-type-exam-favorite">6️⃣ Observability per compute type (exam favorite)</h2>
+<table>
+<thead>
+<tr>
+<th>Compute</th>
+<th>Observability behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compute Engine</td>
+<td>Needs Ops Agent for full visibility</td>
+</tr>
+<tr>
+<td>GKE</td>
+<td>Metrics/logs mostly automatic</td>
+</tr>
+<tr>
+<td>Cloud Run</td>
+<td>Fully managed, auto-integrated</td>
+</tr>
+<tr>
+<td>Cloud Functions</td>
+<td>Auto-integrated</td>
+</tr>
+<tr>
+<td>App Engine</td>
+<td>Auto-integrated</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Serverless = observability by default</strong></p>
+</blockquote>
+<hr />
+<h2 id="7-monitoring-alerts-conceptual">7️⃣ Monitoring alerts (conceptual)</h2>
+<p>You can create alerts based on:</p>
+<ul>
+<li>CPU usage</li>
+<li>Memory usage</li>
+<li>Request latency</li>
+<li>Error rate</li>
+</ul>
+<p><strong>Exam-level understanding</strong></p>
+<ul>
+<li>Alerts = Monitoring</li>
+<li>Logs ≠ alerts</li>
+<li>Metrics drive alerts</li>
+</ul>
+<hr />
+<h2 id="8-real-exam-style-scenarios">8️⃣ Real exam-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“VM is running but no metrics appear in Monitoring”</p>
+</blockquote>
+<p>✅ Correct answer:</p>
+<ul>
+<li>Install <strong>Ops Agent</strong></li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Application latency troubleshooting is required”</p>
+</blockquote>
+<p>✅ Correct tool:</p>
+<ul>
+<li><strong>Cloud Trace</strong></li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Find which function is consuming most CPU”</p>
+</blockquote>
+<p>✅ Correct tool:</p>
+<ul>
+<li><strong>Cloud Profiler</strong></li>
+</ul>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“See application crashes across services”</p>
+</blockquote>
+<p>✅ Correct tool:</p>
+<ul>
+<li><strong>Error Reporting</strong></li>
+</ul>
+<hr />
+<h2 id="9-common-exam-traps">9️⃣ Common exam traps</h2>
+<p>❌ Confuse Logging with Monitoring<br />
+❌ Assume Ops Agent is automatic<br />
+❌ Use Trace when logs are needed<br />
+❌ Think alerts come from logs directly</p>
+<hr />
+<h2 id="-one-line-exam-memory-hook">🔑 One-line exam memory hook</h2>
+<blockquote>
+<p><strong>Metrics → Monitoring</strong><br />
+<strong>Logs → Logging</strong><br />
+<strong>Latency → Trace</strong><br />
+<strong>CPU hotspots → Profiler</strong></p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

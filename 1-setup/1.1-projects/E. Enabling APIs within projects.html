@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E. Enabling APIs within projects</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#section-1.1--enabling-apis-within-projects">Section 1.1 – Enabling APIs within projects</a></li>
+<li><a href="#1-what-enabling-apis-actually-means">1️⃣ What “enabling APIs” actually means</a></li>
+<li><a href="#2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</a></li>
+<li><a href="#3-common-services-that-require-api-enablement-exam-favorites">3️⃣ Common services that REQUIRE API enablement (exam favorites)</a></li>
+<li><a href="#4-enabling-apis-via-cli-gcloud--exam-ready">4️⃣ Enabling APIs via CLI (gcloud) — EXAM-READY</a></li>
+<li><a href="#5-enabling-apis-via-console-conceptual-flow">5️⃣ Enabling APIs via Console (conceptual flow)</a></li>
+<li><a href="#6-iam--api-enablement-interaction-very-important">6️⃣ IAM + API enablement interaction (very important)</a></li>
+<li><a href="#7-service-accounts--apis-common-confusion">7️⃣ Service accounts &amp; APIs (common confusion)</a></li>
+<li><a href="#8-real-exam-style-scenarios">8️⃣ Real exam-style scenarios</a></li>
+<li><a href="#9-automation--best-practice-ace-level">9️⃣ Automation &amp; best practice (ACE-level)</a></li>
+<li><a href="#-one-line-exam-memory-hook">🔑 One-line exam memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿</p>
+<h3 id="section-1.1--enabling-apis-within-projects"><strong>Section 1.1 – Enabling APIs within projects</strong></h3>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/api-gateway/docs/images/concepts-architecure.svg" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/image3_CNn09PW.max-2000x2000.png" /></p>
+<p>This bullet is <strong>simple on the surface but frequently tested indirectly</strong>. Many ACE questions fail candidates because they forget that <strong>services do not work unless their APIs are enabled</strong>.</p>
+<hr />
+<h2 id="1-what-enabling-apis-actually-means">1️⃣ What “enabling APIs” actually means</h2>
+<p>In Google Cloud, <strong>every managed service is exposed via an API</strong>.</p>
+<p>If the API is <strong>not enabled</strong> in a project:</p>
+<ul>
+<li>The service <strong>cannot be used</strong></li>
+<li>CLI / Console / SDK calls <strong>fail</strong></li>
+<li>IAM permissions alone are <strong>not sufficient</strong></li>
+</ul>
+<blockquote>
+<p><strong>Key rule</strong><br />
+<strong>IAM grants permission, but APIs grant capability</strong></p>
+</blockquote>
+<hr />
+<h2 id="2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</h2>
+<p>The exam checks whether you understand that:</p>
+<h3 id="-apis-are-enabled-per-project">✅ APIs are enabled <strong>per project</strong></h3>
+<ul>
+<li>Not per user</li>
+<li>Not per organization</li>
+<li>Not per folder</li>
+</ul>
+<h3 id="-many-failures-are-due-to-missing-api-enablement">✅ Many failures are due to <strong>missing API enablement</strong></h3>
+<p>Typical error patterns in questions:</p>
+<ul>
+<li>“Permission denied”</li>
+<li>“Service not found”</li>
+<li>“API has not been used in project before”</li>
+</ul>
+<h3 id="-what-the-exam-does-not-test">❌ What the exam does NOT test</h3>
+<ul>
+<li>Low-level API quotas</li>
+<li>Writing custom API clients</li>
+<li>REST endpoint syntax</li>
+</ul>
+<hr />
+<h2 id="3-common-services-that-require-api-enablement-exam-favorites">3️⃣ Common services that REQUIRE API enablement (exam favorites)</h2>
+<p>If you see these services mentioned, assume <strong>API enablement is required</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compute Engine</td>
+<td><code>compute.googleapis.com</code></td>
+</tr>
+<tr>
+<td>Cloud Storage</td>
+<td><code>storage.googleapis.com</code></td>
+</tr>
+<tr>
+<td>GKE</td>
+<td><code>container.googleapis.com</code></td>
+</tr>
+<tr>
+<td>Cloud Run</td>
+<td><code>run.googleapis.com</code></td>
+</tr>
+<tr>
+<td>Cloud SQL</td>
+<td><code>sqladmin.googleapis.com</code></td>
+</tr>
+<tr>
+<td>BigQuery</td>
+<td><code>bigquery.googleapis.com</code></td>
+</tr>
+<tr>
+<td>Pub/Sub</td>
+<td><code>pubsub.googleapis.com</code></td>
+</tr>
+<tr>
+<td>Cloud Functions</td>
+<td><code>cloudfunctions.googleapis.com</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-enabling-apis-via-cli-gcloud--exam-ready">4️⃣ Enabling APIs via CLI (gcloud) — EXAM-READY</h2>
+<h3 id="-enable-a-single-api">🔹 Enable a single API</h3>
+<pre><code class="language-bash">gcloud services enable compute.googleapis.com \
+  --project=my-project
+</code></pre>
+<hr />
+<h3 id="-enable-multiple-apis-at-once">🔹 Enable multiple APIs at once</h3>
+<pre><code class="language-bash">gcloud services enable \
+  compute.googleapis.com \
+  container.googleapis.com \
+  iam.googleapis.com \
+  --project=my-project
+</code></pre>
+<hr />
+<h3 id="-list-enabled-apis-in-a-project">🔹 List enabled APIs in a project</h3>
+<pre><code class="language-bash">gcloud services list --enabled --project=my-project
+</code></pre>
+<hr />
+<h3 id="-check-if-a-specific-api-is-enabled">🔹 Check if a specific API is enabled</h3>
+<pre><code class="language-bash">gcloud services list \
+  --enabled \
+  --filter=&quot;name:compute.googleapis.com&quot; \
+  --project=my-project
+</code></pre>
+<hr />
+<h2 id="5-enabling-apis-via-console-conceptual-flow">5️⃣ Enabling APIs via Console (conceptual flow)</h2>
+<ol>
+<li>Select <strong>Project</strong></li>
+<li>Go to <strong>APIs &amp; Services</strong></li>
+<li>Click <strong>Enable APIs and Services</strong></li>
+<li>Search service</li>
+<li>Click <strong>Enable</strong></li>
+</ol>
+<blockquote>
+<p>Exam will not test UI clicks — only <strong>understanding</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="6-iam--api-enablement-interaction-very-important">6️⃣ IAM + API enablement interaction (very important)</h2>
+<p>Both are required.</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IAM granted, API disabled</td>
+<td>❌ Fails</td>
+</tr>
+<tr>
+<td>API enabled, no IAM</td>
+<td>❌ Fails</td>
+</tr>
+<tr>
+<td>Both present</td>
+<td>✅ Works</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exam trap</strong></p>
+<blockquote>
+<p>“User has correct role but still cannot use service”<br />
+✔️ Missing API enablement</p>
+</blockquote>
+<hr />
+<h2 id="7-service-accounts--apis-common-confusion">7️⃣ Service accounts &amp; APIs (common confusion)</h2>
+<ul>
+<li>APIs are enabled <strong>at project level</strong></li>
+<li>Service accounts <strong>inherit enabled APIs</strong></li>
+<li>You do <strong>not</strong> enable APIs per service account</li>
+</ul>
+<blockquote>
+<p>If a Cloud Run service fails → check <strong>API enablement</strong>, not service account first</p>
+</blockquote>
+<hr />
+<h2 id="8-real-exam-style-scenarios">8️⃣ Real exam-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“A VM cannot be created despite correct IAM role”</p>
+</blockquote>
+<p>✅ Root cause:</p>
+<ul>
+<li>Compute Engine API not enabled</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Deploying GKE fails in a new project”</p>
+</blockquote>
+<p>✅ Fix:</p>
+<ul>
+<li>
+<p>Enable:</p>
+</li>
+<li>
+<p><code>container.googleapis.com</code></p>
+</li>
+<li><code>compute.googleapis.com</code></li>
+<li><code>iam.googleapis.com</code></li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Automation pipeline fails on first run”</p>
+</blockquote>
+<p>✅ Explanation:</p>
+<ul>
+<li>APIs must be enabled <strong>before</strong> automation</li>
+</ul>
+<hr />
+<h2 id="9-automation--best-practice-ace-level">9️⃣ Automation &amp; best practice (ACE-level)</h2>
+<p>In real projects:</p>
+<ul>
+<li>Enable APIs early</li>
+<li>Enable via CLI or IaC</li>
+<li>Avoid enabling unused APIs (security &amp; cost)</li>
+</ul>
+<hr />
+<h2 id="-one-line-exam-memory-hook">🔑 One-line exam memory hook</h2>
+<blockquote>
+<p><strong>No API = no service</strong><br />
+<strong>IAM alone is never enough</strong></p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

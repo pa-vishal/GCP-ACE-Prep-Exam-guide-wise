@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A. Selecting appropriate compute choices for a given workload (e.g., Compute Engine, Google Kubernetes Engine [GKE], Cloud Run, Cloud Run functions, Knative serving)</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-the-ace-exam-is-really-testing-here">1️⃣ What the ACE exam is REALLY testing here</a></li>
+<li><a href="#2-the-five-compute-options-exam-level-definitions">2️⃣ The five compute options (exam-level definitions)</a></li>
+<li><a href="#3-the-ace-decision-table-memorize-this">3️⃣ The ACE decision table (MEMORIZE THIS)</a></li>
+<li><a href="#4-the-most-important-exam-pattern">4️⃣ The MOST IMPORTANT exam pattern</a></li>
+<li><a href="#5-real-ace-style-scenarios-with-reasoning">5️⃣ Real ACE-style scenarios (with reasoning)</a></li>
+<li><a href="#6-common-ace-traps-very-important">6️⃣ Common ACE traps (VERY IMPORTANT)</a></li>
+<li><a href="#7-one-line-ace-memory-hooks">7️⃣ One-line ACE memory hooks</a></li>
+<li><a href="#8-how-this-bullet-expands-later-in-section-2.1">8️⃣ How this bullet expands later in Section 2.1</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.1 – Selecting appropriate compute choices for a given workload</strong></p>
+<p><em>(Compute Engine, GKE, Cloud Run, Cloud Run functions, Knative serving)</em></p>
+<p><img alt="Image" src="https://media.licdn.com/dms/image/v2/C5612AQHSUWNe_5LTXA/article-cover_image-shrink_600_2000/article-cover_image-shrink_600_2000/0/1627360695999?e=2147483647\&amp;t=J9zZi8Pkcjig4cHyaePknZoDFTvVVYOHjQ2xN9ag9jo\&amp;v=beta" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/CvKvRvF_v10-07-21.max-2000x2000.jpg" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Choosing_between_Cloud_Functions_and_Cloud.max-1500x1500.jpg" /></p>
+<p>This is <strong>one of the most heavily tested bullets in the entire ACE exam</strong>.<br />
+The exam is not testing <em>how</em> to deploy yet — it’s testing whether you can <strong>choose the right compute abstraction</strong> given workload requirements.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-really-testing-here">1️⃣ What the ACE exam is REALLY testing here</h2>
+<p>The exam wants to see if you can map:</p>
+<ul>
+<li><strong>Workload characteristics</strong><br />
+  → to</li>
+<li><strong>Correct compute service</strong></li>
+</ul>
+<p>This bullet is about <strong>decision-making</strong>, not configuration.</p>
+<blockquote>
+<p><strong>If you pick the wrong compute option, everything else is wrong.</strong></p>
+</blockquote>
+<hr />
+<h2 id="2-the-five-compute-options-exam-level-definitions">2️⃣ The five compute options (exam-level definitions)</h2>
+<h3 id="-compute-engine-vms">🖥️ <strong>Compute Engine (VMs)</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Raw virtual machines</li>
+<li>Full OS control</li>
+<li>You manage patching, scaling, availability</li>
+</ul>
+<p><strong>Key traits</strong></p>
+<ul>
+<li>Zonal or regional (with MIG)</li>
+<li>Long-running</li>
+<li>Stateful workloads allowed</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>You need OS-level control</li>
+<li>Legacy applications</li>
+<li>Custom software not containerized</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Custom OS”</li>
+<li>“Install custom software”</li>
+<li>“Lift-and-shift”</li>
+<li>“Persistent disk attached”</li>
+</ul>
+<hr />
+<h3 id="-google-kubernetes-engine-gke">☸️ <strong>Google Kubernetes Engine (GKE)</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Managed Kubernetes</li>
+<li>You manage containers and cluster behavior</li>
+<li>Google manages control plane</li>
+</ul>
+<p><strong>Key traits</strong></p>
+<ul>
+<li>High flexibility</li>
+<li>Supports complex microservices</li>
+<li>Steeper operational overhead than serverless</li>
+</ul>
+<p><strong>Variants (exam awareness)</strong></p>
+<ul>
+<li><strong>Standard</strong> → more control</li>
+<li><strong>Autopilot</strong> → Google manages nodes</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Microservices</li>
+<li>Multiple containers</li>
+<li>Advanced orchestration</li>
+<li>Need portability across environments</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Kubernetes”</li>
+<li>“Pods / services”</li>
+<li>“Microservices platform”</li>
+<li>“Container orchestration”</li>
+</ul>
+<hr />
+<h3 id="-cloud-run">🚀 <strong>Cloud Run</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Fully managed <strong>container-based serverless</strong></li>
+<li>You deploy a container</li>
+<li>Google manages everything else</li>
+</ul>
+<p><strong>Key traits</strong></p>
+<ul>
+<li>Scales to zero</li>
+<li>Stateless</li>
+<li>HTTP-driven</li>
+<li>No cluster management</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Containerized app</li>
+<li>Event-driven or web APIs</li>
+<li>Want minimal ops</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Containerized application”</li>
+<li>“HTTP endpoint”</li>
+<li>“Scale to zero”</li>
+<li>“No infrastructure management”</li>
+</ul>
+<hr />
+<h3 id="-cloud-run-functions-formerly-cloud-functions">⚡ <strong>Cloud Run functions</strong> <em>(formerly Cloud Functions)</em></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Function-as-a-Service (FaaS)</li>
+<li>Single-purpose code</li>
+<li>Triggered by events</li>
+</ul>
+<p><strong>Key traits</strong></p>
+<ul>
+<li>No container management</li>
+<li>Short-lived execution</li>
+<li>Strong event integration</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Small pieces of logic</li>
+<li>Event-driven workloads</li>
+<li>Glue code</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Triggered by Pub/Sub”</li>
+<li>“Triggered by Cloud Storage”</li>
+<li>“Single-purpose function”</li>
+<li>“Minimal code”</li>
+</ul>
+<hr />
+<h3 id="-knative-serving">🔗 <strong>Knative serving</strong></h3>
+<p><strong>What it is</strong></p>
+<ul>
+<li>Open-source serverless layer</li>
+<li>Underlies Cloud Run</li>
+<li>Often runs on GKE</li>
+</ul>
+<p><strong>Key traits</strong></p>
+<ul>
+<li>Kubernetes-native serverless</li>
+<li>More control than Cloud Run</li>
+<li>More ops than Cloud Run</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>You want Cloud Run–like behavior</li>
+<li>But need Kubernetes integration or customization</li>
+</ul>
+<p><strong>Exam reality</strong></p>
+<blockquote>
+<p><strong>Rarely the best ACE answer unless explicitly mentioned</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-the-ace-decision-table-memorize-this">3️⃣ The ACE decision table (MEMORIZE THIS)</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Best Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full OS control</td>
+<td>Compute Engine</td>
+</tr>
+<tr>
+<td>Legacy app</td>
+<td>Compute Engine</td>
+</tr>
+<tr>
+<td>Containers + orchestration</td>
+<td>GKE</td>
+</tr>
+<tr>
+<td>Containers + no ops</td>
+<td>Cloud Run</td>
+</tr>
+<tr>
+<td>Event-driven small logic</td>
+<td>Cloud Run functions</td>
+</tr>
+<tr>
+<td>Kubernetes-native serverless</td>
+<td>Knative serving</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-the-most-important-exam-pattern">4️⃣ The MOST IMPORTANT exam pattern</h2>
+<blockquote>
+<p><strong>Default to the HIGHEST abstraction that meets requirements</strong></p>
+</blockquote>
+<p>Meaning:</p>
+<ul>
+<li>Don’t choose GKE if Cloud Run works</li>
+<li>Don’t choose VMs if serverless works</li>
+</ul>
+<hr />
+<h2 id="5-real-ace-style-scenarios-with-reasoning">5️⃣ Real ACE-style scenarios (with reasoning)</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“A legacy app needs a custom OS and runs continuously”</p>
+</blockquote>
+<p>✅ <strong>Compute Engine</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“A REST API packaged as a container, low traffic, minimal ops”</p>
+</blockquote>
+<p>✅ <strong>Cloud Run</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Event-driven image processing when files are uploaded”</p>
+</blockquote>
+<p>✅ <strong>Cloud Run functions</strong></p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Dozens of microservices with service mesh requirements”</p>
+</blockquote>
+<p>✅ <strong>GKE</strong></p>
+<hr />
+<h3 id="scenario-5">Scenario 5</h3>
+<blockquote>
+<p>“Serverless containers tightly integrated with Kubernetes”</p>
+</blockquote>
+<p>✅ <strong>Knative serving</strong></p>
+<hr />
+<h2 id="6-common-ace-traps-very-important">6️⃣ Common ACE traps (VERY IMPORTANT)</h2>
+<p>❌ Choosing GKE “because it’s powerful”<br />
+❌ Using VMs when serverless fits<br />
+❌ Using Cloud Functions for long-running jobs<br />
+❌ Forgetting Cloud Run supports containers<br />
+❌ Ignoring operational overhead</p>
+<hr />
+<h2 id="7-one-line-ace-memory-hooks">7️⃣ One-line ACE memory hooks</h2>
+<ul>
+<li><strong>VM = control</strong></li>
+<li><strong>GKE = orchestration</strong></li>
+<li><strong>Cloud Run = containers without ops</strong></li>
+<li><strong>Functions = events</strong></li>
+<li><strong>Knative = Kubernetes serverless</strong></li>
+</ul>
+<hr />
+<h2 id="8-how-this-bullet-expands-later-in-section-2.1">8️⃣ How this bullet expands later in Section 2.1</h2>
+<p>This bullet is the <strong>decision foundation</strong> for upcoming bullets:</p>
+<ul>
+<li>Launching compute instances</li>
+<li>GKE cluster deployment</li>
+<li>Serverless event processing</li>
+</ul>
+<p>If you get this wrong, everything else cascades.</p>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

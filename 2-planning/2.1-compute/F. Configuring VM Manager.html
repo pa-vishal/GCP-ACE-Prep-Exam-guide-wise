@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F. Configuring VM Manager</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-vm-manager-is-exam-framing">1️⃣ What VM Manager is (exam framing)</a></li>
+<li><a href="#2-what-the-ace-exam-actually-tests">2️⃣ What the ACE exam actually tests</a></li>
+<li><a href="#3-core-vm-manager-capabilities-must-know">3️⃣ Core VM Manager capabilities (must know)</a></li>
+<li><a href="#4-how-vm-manager-works-mental-model">4️⃣ How VM Manager works (mental model)</a></li>
+<li><a href="#5-prerequisites-very-exam-relevant">5️⃣ Prerequisites (VERY exam-relevant)</a></li>
+<li><a href="#6-enabling-required-apis-cli">6️⃣ Enabling required APIs (CLI)</a></li>
+<li><a href="#7-patch-jobs-conceptual--exam-level">7️⃣ Patch jobs (conceptual – exam level)</a></li>
+<li><a href="#8-vm-manager-vs-other-tools-exam-clarity">8️⃣ VM Manager vs other tools (exam clarity)</a></li>
+<li><a href="#9-real-ace-style-scenarios">9️⃣ Real ACE-style scenarios</a></li>
+<li><a href="#10-common-ace-exam-traps">10️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hook">🔑 One-line ACE memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 2.1 – Configuring VM Manager</strong></p>
+<p><img alt="Image" src="https://miro.medium.com/1%2A2rbe2_3EMYBiRCSqsUo0-w.png" /></p>
+<p><img alt="Image" src="https://media2.dev.to/dynamic/image/width%3D800%2Cheight%3D%2Cfit%3Dscale-down%2Cgravity%3Dauto%2Cformat%3Dauto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F7taov33ojel9nr5d8wz8.jpg" /></p>
+<p>This bullet tests whether you understand <strong>how Google Cloud manages OS-level operations at scale</strong> for Compute Engine VMs—<strong>patching, inventory, and compliance</strong>—without logging into each VM.</p>
+<hr />
+<h2 id="1-what-vm-manager-is-exam-framing">1️⃣ What VM Manager is (exam framing)</h2>
+<p><strong>VM Manager</strong> is a suite of services that lets you <strong>manage the OS state of VMs centrally</strong>, including:</p>
+<ul>
+<li>OS <strong>inventory</strong> (packages, OS version)</li>
+<li><strong>Patch management</strong> (schedule updates)</li>
+<li><strong>Compliance visibility</strong></li>
+</ul>
+<blockquote>
+<p><strong>Key idea:</strong><br />
+VM Manager = <em>fleet-level OS management</em>, not application management.</p>
+</blockquote>
+<hr />
+<h2 id="2-what-the-ace-exam-actually-tests">2️⃣ What the ACE exam actually tests</h2>
+<p>You should be able to:</p>
+<h3 id="-identify-when-vm-manager-is-the-right-tool">✅ Identify <strong>when VM Manager is the right tool</strong></h3>
+<ul>
+<li>Many VMs</li>
+<li>Need consistent OS patching</li>
+<li>Want visibility into installed packages</li>
+</ul>
+<h3 id="-know-the-prerequisites">✅ Know the <strong>prerequisites</strong></h3>
+<ul>
+<li>VM Manager APIs enabled</li>
+<li>Ops Agent (or OS Config agent) present</li>
+</ul>
+<h3 id="-what-it-does-not-test">❌ What it does NOT test</h3>
+<ul>
+<li>Writing custom patch scripts</li>
+<li>Kernel-level tuning</li>
+<li>Application patching</li>
+</ul>
+<hr />
+<h2 id="3-core-vm-manager-capabilities-must-know">3️⃣ Core VM Manager capabilities (must know)</h2>
+<h3 id="-a.-os-inventory">🧾 A. OS Inventory</h3>
+<ul>
+<li>
+<p>Collects:</p>
+</li>
+<li>
+<p>OS version</p>
+</li>
+<li>Installed packages</li>
+<li>Package versions</li>
+<li>
+<p>Used for:</p>
+</li>
+<li>
+<p>Auditing</p>
+</li>
+<li>Vulnerability tracking</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“See what packages are installed”</li>
+<li>“Inventory of VMs”</li>
+</ul>
+<hr />
+<h3 id="-b.-patch-management">🔄 B. Patch management</h3>
+<ul>
+<li>
+<p>Apply OS patches:</p>
+</li>
+<li>
+<p>On-demand</p>
+</li>
+<li>On a schedule</li>
+<li>
+<p>Supports:</p>
+</li>
+<li>
+<p>Reboot control</p>
+</li>
+<li>Maintenance windows</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Apply security patches across VMs”</li>
+<li>“Automate OS updates”</li>
+</ul>
+<hr />
+<h3 id="-c.-compliance-reporting">🛡️ C. Compliance reporting</h3>
+<ul>
+<li>
+<p>Shows:</p>
+</li>
+<li>
+<p>Patch compliance status</p>
+</li>
+<li>Which VMs are out of date</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Which VMs are missing patches?”</li>
+</ul>
+<hr />
+<h2 id="4-how-vm-manager-works-mental-model">4️⃣ How VM Manager works (mental model)</h2>
+<pre><code>Project
+ └── VM Manager
+      ├── OS Config API
+      ├── Agent on VM
+      └── Inventory / Patch jobs
+</code></pre>
+<ul>
+<li>Google manages orchestration</li>
+<li>VMs report state via agent</li>
+</ul>
+<hr />
+<h2 id="5-prerequisites-very-exam-relevant">5️⃣ Prerequisites (VERY exam-relevant)</h2>
+<h3 id="required">Required:</h3>
+<ul>
+<li><strong>OS Config API</strong> enabled</li>
+<li><strong>Ops Agent</strong> (or OS Config agent) installed on VMs</li>
+<li>Supported OS (most Linux distros, Windows)</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+VM Manager won’t work if the agent is missing.</p>
+</blockquote>
+<hr />
+<h2 id="6-enabling-required-apis-cli">6️⃣ Enabling required APIs (CLI)</h2>
+<pre><code class="language-bash">gcloud services enable osconfig.googleapis.com \
+  --project=my-project
+</code></pre>
+<p>(Ops Agent is often installed separately, but exam expects you to know it’s required.)</p>
+<hr />
+<h2 id="7-patch-jobs-conceptual--exam-level">7️⃣ Patch jobs (conceptual – exam level)</h2>
+<p>You can:</p>
+<ul>
+<li>
+<p>Target:</p>
+</li>
+<li>
+<p>All VMs</p>
+</li>
+<li>VMs by label</li>
+<li>Specific zones</li>
+<li>
+<p>Control:</p>
+</li>
+<li>
+<p>Reboot behavior</p>
+</li>
+<li>Patch window</li>
+</ul>
+<blockquote>
+<p>You are <strong>not tested</strong> on exact patch job syntax—only on <strong>capability</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="8-vm-manager-vs-other-tools-exam-clarity">8️⃣ VM Manager vs other tools (exam clarity)</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VM Manager</td>
+<td>OS inventory &amp; patching</td>
+</tr>
+<tr>
+<td>Ops Agent</td>
+<td>Metrics &amp; logs</td>
+</tr>
+<tr>
+<td>SSH</td>
+<td>Manual access</td>
+</tr>
+<tr>
+<td>IAM</td>
+<td>Permissions</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>VM Manager ≠ Monitoring</strong></p>
+</blockquote>
+<hr />
+<h2 id="9-real-ace-style-scenarios">9️⃣ Real ACE-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Security team wants to ensure all VMs have latest OS patches”</p>
+</blockquote>
+<p>✅ <strong>VM Manager (Patch management)</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“List installed packages across all VMs”</p>
+</blockquote>
+<p>✅ <strong>VM Manager (OS Inventory)</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Patch VMs without logging in individually”</p>
+</blockquote>
+<p>✅ <strong>VM Manager</strong></p>
+<hr />
+<h2 id="10-common-ace-exam-traps">10️⃣ Common ACE exam traps</h2>
+<p>❌ Thinking VM Manager manages applications<br />
+❌ Forgetting agent/API prerequisites<br />
+❌ Using SSH for fleet-wide patching<br />
+❌ Confusing VM Manager with Ops Agent</p>
+<hr />
+<h2 id="-one-line-ace-memory-hook">🔑 One-line ACE memory hook</h2>
+<blockquote>
+<p><strong>VM Manager = OS-level control at scale</strong></p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

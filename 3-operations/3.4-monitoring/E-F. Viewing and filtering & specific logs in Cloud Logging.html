@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-F. Viewing and filtering &amp; specific logs in Cloud Logging</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#viewing-and-filtering-logs-in-cloud-logging">Viewing and filtering logs in Cloud Logging</a></li>
+<li><a href="#viewing-specific-log-message-details-in-cloud-logging">Viewing specific log message details in Cloud Logging</a></li>
+<li><a href="#direct-answer-to-your-question">Direct answer to your question</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿</p>
+<h1 id="section-3.4--monitoring-and-logging"><strong>Section 3.4 – Monitoring and logging</strong></h1>
+<h2 id="viewing-and-filtering-logs-in-cloud-logging"><strong>Viewing and filtering logs in Cloud Logging</strong></h2>
+<h2 id="viewing-specific-log-message-details-in-cloud-logging"><strong>Viewing specific log message details in Cloud Logging</strong></h2>
+<p>These bullets test whether you can:</p>
+<ul>
+<li>Find relevant logs quickly</li>
+<li>Use filters correctly</li>
+<li>Inspect structured log fields</li>
+<li>Identify root cause from a log entry</li>
+</ul>
+<p>This is <strong>operational troubleshooting</strong>, not architecture.</p>
+<hr />
+<h1 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h1>
+<p>You should be able to:</p>
+<ul>
+<li>Navigate <strong>Logs Explorer</strong></li>
+<li>Apply <strong>basic filters</strong></li>
+<li>Identify severity levels</li>
+<li>Expand a log entry and interpret fields</li>
+<li>
+<p>Distinguish between:</p>
+</li>
+<li>
+<p>Resource type</p>
+</li>
+<li>Log name</li>
+<li>Severity</li>
+<li>Payload</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“The system failed — can I find the evidence?”</em></p>
+</blockquote>
+<hr />
+<h1 id="2-viewing-logs-in-logs-explorer">2️⃣ Viewing logs in Logs Explorer</h1>
+<p>Path:</p>
+<pre><code>Cloud Logging → Logs Explorer
+</code></pre>
+<p>By default, you can:</p>
+<ul>
+<li>Select resource type (e.g., gce_instance, cloud_run_revision)</li>
+<li>Select log name (e.g., stdout, stderr, audit logs)</li>
+<li>Choose time range</li>
+</ul>
+<hr />
+<h1 id="3-filtering-logs-very-exam-relevant">3️⃣ Filtering logs (VERY EXAM RELEVANT)</h1>
+<p>Filtering is done using:</p>
+<ul>
+<li>Severity</li>
+<li>Resource type</li>
+<li>Labels</li>
+<li>Text search</li>
+<li>Structured fields</li>
+</ul>
+<h3 id="common-filters">Common filters</h3>
+<h4 id="filter-by-severity">Filter by severity</h4>
+<pre><code>severity&gt;=ERROR
+</code></pre>
+<h4 id="filter-by-resource">Filter by resource</h4>
+<pre><code>resource.type=&quot;gce_instance&quot;
+</code></pre>
+<h4 id="filter-by-log-name">Filter by log name</h4>
+<pre><code>logName=&quot;projects/my-project/logs/cloudaudit.googleapis.com%2Factivity&quot;
+</code></pre>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Filtering reduces noise — always narrow scope.</p>
+</blockquote>
+<hr />
+<h1 id="4-severity-levels-must-know">4️⃣ Severity levels (MUST KNOW)</h1>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DEBUG</td>
+<td>Low-level details</td>
+</tr>
+<tr>
+<td>INFO</td>
+<td>Informational</td>
+</tr>
+<tr>
+<td>WARNING</td>
+<td>Potential issue</td>
+</tr>
+<tr>
+<td>ERROR</td>
+<td>Failure occurred</td>
+</tr>
+<tr>
+<td>CRITICAL</td>
+<td>Severe failure</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Find error logs” → filter by severity.</p>
+</blockquote>
+<hr />
+<h1 id="5-viewing-specific-log-message-details">5️⃣ Viewing specific log message details</h1>
+<p>When you expand a log entry, you’ll see:</p>
+<ul>
+<li>Timestamp</li>
+<li>Resource type</li>
+<li>Severity</li>
+<li>Insert ID</li>
+<li>Labels</li>
+<li>Payload</li>
+</ul>
+<p>Payload may be:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>textPayload</td>
+<td>Unstructured log</td>
+</tr>
+<tr>
+<td>jsonPayload</td>
+<td>Structured log</td>
+</tr>
+<tr>
+<td>protoPayload</td>
+<td>Audit log format</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="6-structured-log-details-very-important">6️⃣ Structured log details (VERY IMPORTANT)</h1>
+<p>If the app writes structured JSON logs:</p>
+<p>You can filter like:</p>
+<pre><code>jsonPayload.status=&quot;FAILED&quot;
+</code></pre>
+<blockquote>
+<p><strong>ACE signal:</strong><br />
+Structured logging allows precise filtering.</p>
+</blockquote>
+<hr />
+<h1 id="7-audit-logs-common-exam-topic">7️⃣ Audit logs (COMMON EXAM TOPIC)</h1>
+<p>Audit logs appear under:</p>
+<pre><code>cloudaudit.googleapis.com/activity
+cloudaudit.googleapis.com/data_access
+</code></pre>
+<p>Used to track:</p>
+<ul>
+<li>IAM changes</li>
+<li>Resource creation/deletion</li>
+<li>API calls</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+IAM changes → check <strong>audit logs</strong>, not VM logs.</p>
+</blockquote>
+<hr />
+<h1 id="8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</h1>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“VM unexpectedly stopped”</p>
+</blockquote>
+<p>✅ Filter:</p>
+<ul>
+<li>resource.type="gce_instance"</li>
+<li>severity&gt;=ERROR</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Who deleted this bucket?”</p>
+</blockquote>
+<p>✅ Check:</p>
+<ul>
+<li>Audit logs</li>
+<li>protoPayload.authenticationInfo</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Application logs contain ‘PaymentFailed’”</p>
+</blockquote>
+<p>✅ Use text filter or structured filter.</p>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Logs are overwhelming”</p>
+</blockquote>
+<p>✅ Narrow by:</p>
+<ul>
+<li>Time range</li>
+<li>Severity</li>
+<li>Resource type</li>
+</ul>
+<hr />
+<h1 id="9-logs-vs-metrics-reminder">9️⃣ Logs vs Metrics (REMINDER)</h1>
+<table>
+<thead>
+<tr>
+<th>If you need…</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU usage</td>
+<td>Monitoring metric</td>
+</tr>
+<tr>
+<td>Specific error text</td>
+<td>Logs Explorer</td>
+</tr>
+<tr>
+<td>Alert on error pattern</td>
+<td>Log-based metric</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Logs do not trigger alerts unless converted into a metric.</p>
+</blockquote>
+<hr />
+<h1 id="-one-line-ace-memory-hooks">🔑 One-line ACE Memory Hooks</h1>
+<ul>
+<li><strong>Logs Explorer = investigation</strong></li>
+<li><strong>severity&gt;=ERROR</strong></li>
+<li><strong>Audit logs = who did what</strong></li>
+<li><strong>Structured logs = powerful filters</strong></li>
+<li><strong>Metrics ≠ logs</strong></li>
+</ul>
+<hr />
+<h2 id="direct-answer-to-your-question">Direct answer to your question</h2>
+<p>Yes — these two bullets are logically connected and should be studied together.<br />
+But for your final Markdown ZIP, I will keep them as <strong>two headings within one file</strong>, since the operational workflow is continuous:</p>
+<blockquote>
+<p>Filter → Locate → Expand → Analyze</p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

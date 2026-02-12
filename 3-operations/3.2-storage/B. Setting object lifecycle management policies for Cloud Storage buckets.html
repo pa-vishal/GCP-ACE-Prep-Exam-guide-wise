@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B. Setting object lifecycle management policies for Cloud Storage buckets</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#setting-object-lifecycle-management-policies-for-cloud-storage-buckets">Setting object lifecycle management policies for Cloud Storage buckets</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-what-lifecycle-management-is-foundation">2️⃣ What lifecycle management is (foundation)</a></li>
+<li><a href="#3-actions-you-can-take-must-know">3️⃣ Actions you can take (MUST KNOW)</a></li>
+<li><a href="#4-conditions-you-can-match-on-exam-favorite">4️⃣ Conditions you can match on (EXAM FAVORITE)</a></li>
+<li><a href="#5-example-lifecycle-policy-very-exam-relevant">5️⃣ Example lifecycle policy (VERY EXAM-RELEVANT)</a></li>
+<li><a href="#6-applying-a-lifecycle-policy-cli--exam-aware">6️⃣ Applying a lifecycle policy (CLI – exam-aware)</a></li>
+<li><a href="#7-lifecycle-vs-versioning-important-distinction">7️⃣ Lifecycle vs Versioning (IMPORTANT DISTINCTION)</a></li>
+<li><a href="#8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#9-common-ace-exam-traps">9️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.2 – Managing storage resources</strong></p>
+<h4 id="setting-object-lifecycle-management-policies-for-cloud-storage-buckets"><strong>Setting object lifecycle management policies for Cloud Storage buckets</strong></h4>
+<p><img alt="Image" src="https://cms.cloudoptimo.com/uploads/S3_Lifecycle_Transitions_dfffc45147.png" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/new-storage-classes-5ybb1.max-600x600.PNG" /></p>
+<p><img alt="Image" src="https://miro.medium.com/1%2A7_SIMpU3Z2ucOH1oIQaKIQ.png" /></p>
+<p>This bullet is <strong>cost-optimization + governance focused</strong>. The ACE exam checks whether you can <strong>automate object transitions and deletions</strong> based on <strong>age, state, or conditions</strong>—instead of relying on manual cleanup.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Explain <strong>what lifecycle rules do</strong></li>
+<li>Choose <strong>transition vs delete</strong> actions</li>
+<li>Apply rules at the <strong>bucket level</strong></li>
+<li>Use lifecycle policies to <strong>reduce storage cost automatically</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“How do I keep storage costs low without manual intervention?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-what-lifecycle-management-is-foundation">2️⃣ What lifecycle management is (foundation)</h2>
+<p><strong>Lifecycle management</strong> lets you define <strong>rules</strong> that automatically:</p>
+<ul>
+<li><strong>Transition</strong> objects to cheaper storage classes</li>
+<li><strong>Delete</strong> objects when they’re no longer needed</li>
+</ul>
+<p>Rules are:</p>
+<ul>
+<li>Applied at the <strong>bucket level</strong></li>
+<li>Evaluated <strong>daily</strong></li>
+<li>Non-destructive until conditions are met</li>
+</ul>
+<hr />
+<h2 id="3-actions-you-can-take-must-know">3️⃣ Actions you can take (MUST KNOW)</h2>
+<h3 id="-a.-transition-storage-class">🔄 A. Transition storage class</h3>
+<p>Move objects to a cheaper class as they age.</p>
+<p><strong>Common transitions</strong></p>
+<ul>
+<li>Standard → Nearline</li>
+<li>Nearline → Coldline</li>
+<li>Coldline → Archive</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Reduce storage cost”</li>
+<li>“Infrequently accessed data”</li>
+<li>“Long-term retention”</li>
+</ul>
+<hr />
+<h3 id="-b.-delete-objects">🗑️ B. Delete objects</h3>
+<p>Automatically remove objects.</p>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Temporary data</li>
+<li>Compliance retention windows</li>
+<li>Log cleanup</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Delete after X days”</li>
+<li>“No longer needed”</li>
+</ul>
+<hr />
+<h2 id="4-conditions-you-can-match-on-exam-favorite">4️⃣ Conditions you can match on (EXAM FAVORITE)</h2>
+<p>Lifecycle rules trigger based on conditions like:</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>age</code></td>
+<td>Days since object creation</td>
+</tr>
+<tr>
+<td><code>createdBefore</code></td>
+<td>Objects created before a date</td>
+</tr>
+<tr>
+<td><code>isLive</code></td>
+<td>Current vs noncurrent versions</td>
+</tr>
+<tr>
+<td><code>matchesStorageClass</code></td>
+<td>Apply only to certain classes</td>
+</tr>
+<tr>
+<td><code>numNewerVersions</code></td>
+<td>Versioned object cleanup</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Age-based rules are the <strong>most common and expected</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="5-example-lifecycle-policy-very-exam-relevant">5️⃣ Example lifecycle policy (VERY EXAM-RELEVANT)</h2>
+<h3 id="policy-example-json">Policy example (JSON)</h3>
+<pre><code class="language-json">{
+  &quot;rule&quot;: [
+    {
+      &quot;action&quot;: { &quot;type&quot;: &quot;SetStorageClass&quot;, &quot;storageClass&quot;: &quot;COLDLINE&quot; },
+      &quot;condition&quot;: { &quot;age&quot;: 30 }
+    },
+    {
+      &quot;action&quot;: { &quot;type&quot;: &quot;Delete&quot; },
+      &quot;condition&quot;: { &quot;age&quot;: 365 }
+    }
+  ]
+}
+</code></pre>
+<p><strong>Meaning</strong></p>
+<ul>
+<li>After 30 days → move to Coldline</li>
+<li>After 1 year → delete</li>
+</ul>
+<hr />
+<h2 id="6-applying-a-lifecycle-policy-cli--exam-aware">6️⃣ Applying a lifecycle policy (CLI – exam-aware)</h2>
+<pre><code class="language-bash">gcloud storage buckets update gs://my-bucket \
+  --lifecycle-file=lifecycle.json
+</code></pre>
+<h3 id="view-lifecycle-rules">View lifecycle rules</h3>
+<pre><code class="language-bash">gcloud storage buckets describe gs://my-bucket
+</code></pre>
+<blockquote>
+<p><strong>Exam note:</strong><br />
+You’re tested on <strong>what lifecycle policies do</strong>, not JSON syntax memorization.</p>
+</blockquote>
+<hr />
+<h2 id="7-lifecycle-vs-versioning-important-distinction">7️⃣ Lifecycle vs Versioning (IMPORTANT DISTINCTION)</h2>
+<ul>
+<li>
+<p><strong>Versioning</strong></p>
+</li>
+<li>
+<p>Keeps older versions of objects</p>
+</li>
+<li>
+<p><strong>Lifecycle</strong></p>
+</li>
+<li>
+<p>Manages what happens to those versions</p>
+</li>
+</ul>
+<p><strong>Common pattern</strong></p>
+<ul>
+<li>Enable versioning</li>
+<li>Use lifecycle rules to delete older versions</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Clean up old versions automatically” → <strong>Lifecycle + versioning</strong></p>
+</blockquote>
+<hr />
+<h2 id="8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Reduce cost for logs older than 90 days”</p>
+</blockquote>
+<p>✅ <strong>Lifecycle rule: transition to Coldline</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Delete backup files after 7 years”</p>
+</blockquote>
+<p>✅ <strong>Lifecycle rule: delete after age condition</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Automate storage management without scripts”</p>
+</blockquote>
+<p>✅ <strong>Lifecycle management</strong></p>
+<hr />
+<h2 id="9-common-ace-exam-traps">9️⃣ Common ACE exam traps</h2>
+<p>❌ Using cron jobs instead of lifecycle rules<br />
+❌ Thinking lifecycle rules apply per object manually<br />
+❌ Forgetting lifecycle rules are bucket-wide<br />
+❌ Using Archive for frequently accessed data<br />
+❌ Expecting instant transitions (rules run daily)</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Lifecycle = automation</strong></li>
+<li><strong>Transition = cheaper storage</strong></li>
+<li><strong>Delete = cleanup</strong></li>
+<li><strong>Bucket-level rules</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

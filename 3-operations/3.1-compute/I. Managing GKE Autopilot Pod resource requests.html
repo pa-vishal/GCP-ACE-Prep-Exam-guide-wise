@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I. Managing GKE Autopilot Pod resource requests</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#managing-gke-autopilot-pod-resource-requests">Managing GKE Autopilot Pod resource requests</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-how-gke-autopilot-works-mental-model">2️⃣ How GKE Autopilot works (mental model)</a></li>
+<li><a href="#3-requests-vs-limits-in-autopilot-must-know">3️⃣ Requests vs limits in Autopilot (MUST KNOW)</a></li>
+<li><a href="#4-required-fields-exam-relevant">4️⃣ Required fields (exam-relevant)</a></li>
+<li><a href="#5-billing-behavior-very-important">5️⃣ Billing behavior (VERY IMPORTANT)</a></li>
+<li><a href="#6-common-scheduling-failures--causes">6️⃣ Common scheduling failures &amp; causes</a></li>
+<li><a href="#7-autopilot-vs-standard-gke-exam-comparison">7️⃣ Autopilot vs Standard GKE (EXAM COMPARISON)</a></li>
+<li><a href="#8-interaction-with-autoscaling-exam-awareness">8️⃣ Interaction with autoscaling (exam awareness)</a></li>
+<li><a href="#9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.1 – Managing compute resources</strong></p>
+<h4 id="managing-gke-autopilot-pod-resource-requests"><strong>Managing GKE Autopilot Pod resource requests</strong></h4>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/kubernetes-engine/images/gke-architecture.svg" /></p>
+<p><img alt="Image" src="https://cdn.prod.website-files.com/681e366f54a6e3ce87159ca4/6877c48368669fc5b3f179eb_Kubernetes-Limits-and-Request-04-1-1170x585.png" /></p>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A2000/0%2ApOYdvtoh6ZHe7lG3" /></p>
+<p>This bullet is <strong>Autopilot-specific and frequently tested</strong>. The ACE exam checks whether you understand that <strong>in Autopilot, Pod resource requests are mandatory and drive scheduling, scaling, and cost</strong>—you don’t manage nodes at all.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Explain <strong>why Pod resource requests are required in Autopilot</strong></li>
+<li>Set <strong>CPU/memory requests correctly</strong></li>
+<li>Predict <strong>cost and scheduling behavior</strong></li>
+<li>Diagnose <strong>Pending Pods</strong> in Autopilot</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“In Autopilot, Pods define capacity—nodes follow.”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-how-gke-autopilot-works-mental-model">2️⃣ How GKE Autopilot works (mental model)</h2>
+<pre><code>Pod spec (requests) → Autopilot provisions capacity → Pod runs
+</code></pre>
+<p>Key implications:</p>
+<ul>
+<li>You <strong>do not</strong> size nodes</li>
+<li>You <strong>do not</strong> manage node pools</li>
+<li><strong>Requests = scheduling + billing unit</strong></li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+In Autopilot, <strong>requests are not optional</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="3-requests-vs-limits-in-autopilot-must-know">3️⃣ Requests vs limits in Autopilot (MUST KNOW)</h2>
+<h3 id="resource-requests">Resource <strong>requests</strong></h3>
+<ul>
+<li><strong>Required</strong></li>
+<li>
+<p>Used for:</p>
+</li>
+<li>
+<p>Scheduling</p>
+</li>
+<li>Capacity provisioning</li>
+<li>Billing</li>
+</ul>
+<h3 id="resource-limits">Resource <strong>limits</strong></h3>
+<ul>
+<li>Optional</li>
+<li>Cap maximum usage</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+Setting only limits (no requests) → <strong>Pod rejected</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-required-fields-exam-relevant">4️⃣ Required fields (exam-relevant)</h2>
+<p>For every container in Autopilot, you must specify:</p>
+<pre><code class="language-yaml">resources:
+  requests:
+    cpu: &quot;500m&quot;
+    memory: &quot;1Gi&quot;
+</code></pre>
+<p>Optional:</p>
+<pre><code class="language-yaml">limits:
+  cpu: &quot;1&quot;
+  memory: &quot;2Gi&quot;
+</code></pre>
+<blockquote>
+<p><strong>ACE signal:</strong><br />
+“Pod won’t schedule in Autopilot” → missing/invalid requests</p>
+</blockquote>
+<hr />
+<h2 id="5-billing-behavior-very-important">5️⃣ Billing behavior (VERY IMPORTANT)</h2>
+<ul>
+<li>Autopilot <strong>bills based on requests</strong>, not actual usage</li>
+<li>Over-requesting = higher cost</li>
+<li>Under-requesting = throttling or OOM kills</li>
+</ul>
+<blockquote>
+<p><strong>Exam rule:</strong><br />
+Right-size requests to control cost.</p>
+</blockquote>
+<hr />
+<h2 id="6-common-scheduling-failures--causes">6️⃣ Common scheduling failures &amp; causes</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pod rejected at creation</td>
+<td>Missing requests</td>
+</tr>
+<tr>
+<td>Pod Pending</td>
+<td>Requests too large</td>
+</tr>
+<tr>
+<td>High cost</td>
+<td>Requests oversized</td>
+</tr>
+<tr>
+<td>OOMKilled</td>
+<td>Memory request too low</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-autopilot-vs-standard-gke-exam-comparison">7️⃣ Autopilot vs Standard GKE (EXAM COMPARISON)</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Autopilot</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node management</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Requests required</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Billing based on</td>
+<td>Requests</td>
+<td>Node size</td>
+</tr>
+<tr>
+<td>Node pools</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+If the question mentions <strong>Autopilot</strong>, think <strong>Pod specs</strong>, not nodes.</p>
+</blockquote>
+<hr />
+<h2 id="8-interaction-with-autoscaling-exam-awareness">8️⃣ Interaction with autoscaling (exam awareness)</h2>
+<ul>
+<li>
+<p><strong>HPA</strong> still works:</p>
+</li>
+<li>
+<p>Scales <strong>number of Pods</strong></p>
+</li>
+<li>
+<p>Autopilot:</p>
+</li>
+<li>
+<p>Automatically provisions capacity behind the scenes</p>
+</li>
+</ul>
+<pre><code>HPA scales Pods
+↓
+Autopilot adds capacity
+</code></pre>
+<blockquote>
+<p><strong>Exam trap:</strong><br />
+You never configure node autoscaling in Autopilot.</p>
+</blockquote>
+<hr />
+<h2 id="9-common-ace-exam-scenarios">9️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Pod creation fails in Autopilot”</p>
+</blockquote>
+<p>✅ Check:</p>
+<ul>
+<li>CPU &amp; memory requests present</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Autopilot cluster costs are unexpectedly high”</p>
+</blockquote>
+<p>✅ Likely cause:</p>
+<ul>
+<li>Over-provisioned requests</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Pods are throttled or OOMKilled”</p>
+</blockquote>
+<p>✅ Likely cause:</p>
+<ul>
+<li>Requests too low (limits too tight)</li>
+</ul>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Autopilot = Pods define capacity</strong></li>
+<li><strong>Requests are mandatory</strong></li>
+<li><strong>Billing = requests</strong></li>
+<li><strong>No nodes to manage</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

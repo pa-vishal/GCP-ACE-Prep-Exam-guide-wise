@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D. Setting up billing exports</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-billing-exports-are-exam-framing">1️⃣ What billing exports are (exam framing)</a></li>
+<li><a href="#2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</a></li>
+<li><a href="#3-types-of-billing-exports-very-exam-relevant">3️⃣ Types of billing exports (VERY exam-relevant)</a></li>
+<li><a href="#4-where-billing-exports-are-configured">4️⃣ Where billing exports are configured</a></li>
+<li><a href="#5-setting-up-a-bigquery-billing-export-conceptual">5️⃣ Setting up a BigQuery billing export (conceptual)</a></li>
+<li><a href="#6-permissions-needed-exam-awareness">6️⃣ Permissions needed (exam awareness)</a></li>
+<li><a href="#7-cli-considerations-exam-reality">7️⃣ CLI considerations (exam reality)</a></li>
+<li><a href="#8-real-exam-style-scenarios">8️⃣ Real exam-style scenarios</a></li>
+<li><a href="#9-billing-exports-vs-budgets-vs-quotas-exam-gold">9️⃣ Billing exports vs budgets vs quotas (EXAM GOLD)</a></li>
+<li><a href="#10-common-exam-traps">10️⃣ Common exam traps</a></li>
+<li><a href="#-one-line-exam-memory-hook">🔑 One-line exam memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 1.2 – Setting up billing exports</strong></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/billing/docs/images/resource-hierarchy-overview.png" /></p>
+<p><img alt="Image" src="https://developer.harness.io/assets/images/gcp-smp-arch-91cc36f55eb5d2536bd96d28e076c888.png" /></p>
+<p>This bullet is about <strong>cost visibility and analysis</strong>, not cost control. On the ACE exam, billing exports test whether you know <strong>where billing data goes</strong>, <strong>why you export it</strong>, and <strong>which export to choose</strong>.</p>
+<hr />
+<h2 id="1-what-billing-exports-are-exam-framing">1️⃣ What billing exports are (exam framing)</h2>
+<p><strong>Billing exports</strong> automatically send <strong>detailed cost and usage data</strong> from a <strong>billing account</strong> to:</p>
+<ul>
+<li><strong>BigQuery</strong> (for analysis &amp; reporting)</li>
+<li><strong>Cloud Storage</strong> (for archival)</li>
+</ul>
+<blockquote>
+<p><strong>Hard rule (memorize)</strong><br />
+Billing exports are <strong>read-only data pipelines</strong>. They <strong>do not affect charges</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</h2>
+<p>The exam checks whether you can:</p>
+<h3 id="-choose-bigquery-vs-cloud-storage-exports">✅ Choose <strong>BigQuery vs Cloud Storage</strong> exports</h3>
+<h3 id="-know-billing-exports-are-configured-at-the-billing-account-level">✅ Know billing exports are configured at the <strong>billing account level</strong></h3>
+<h3 id="-understand-use-cases-analysis-vs-archival">✅ Understand <strong>use cases</strong> (analysis vs archival)</h3>
+<h3 id="-what-it-does-not-test">❌ What it does NOT test</h3>
+<ul>
+<li>Writing complex BigQuery SQL</li>
+<li>Schema memorization</li>
+<li>Custom ETL pipelines</li>
+</ul>
+<hr />
+<h2 id="3-types-of-billing-exports-very-exam-relevant">3️⃣ Types of billing exports (VERY exam-relevant)</h2>
+<h3 id="-a.-bigquery-billing-export-most-tested">📊 A. BigQuery billing export (MOST tested)</h3>
+<p>Exports:</p>
+<ul>
+<li>Detailed line items</li>
+<li>Usage by project, service, SKU</li>
+<li>Labels, credits, discounts</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Analyzing costs</li>
+<li>Building dashboards</li>
+<li>Chargeback / showback</li>
+<li>Forecasting</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal</strong><br />
+“Analyze”, “report”, “break down costs” → <strong>BigQuery export</strong></p>
+</blockquote>
+<hr />
+<h3 id="-b.-cloud-storage-billing-export">🗄️ B. Cloud Storage billing export</h3>
+<p>Exports:</p>
+<ul>
+<li>CSV/JSON files</li>
+<li>Periodic snapshots</li>
+</ul>
+<p><strong>Use when</strong></p>
+<ul>
+<li>Archival</li>
+<li>External processing</li>
+<li>Compliance retention</li>
+</ul>
+<blockquote>
+<p>Less flexible than BigQuery</p>
+</blockquote>
+<hr />
+<h2 id="4-where-billing-exports-are-configured">4️⃣ Where billing exports are configured</h2>
+<p>Billing exports are set up:</p>
+<ul>
+<li><strong>On the billing account</strong></li>
+<li>Not per project</li>
+<li>Apply to <strong>all linked projects</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam trap</strong><br />
+You cannot configure billing exports at project level.</p>
+</blockquote>
+<hr />
+<h2 id="5-setting-up-a-bigquery-billing-export-conceptual">5️⃣ Setting up a BigQuery billing export (conceptual)</h2>
+<p>Exam-level flow:</p>
+<ol>
+<li>Go to <strong>Billing</strong></li>
+<li>Select <strong>Billing account</strong></li>
+<li>Enable <strong>BigQuery export</strong></li>
+<li>Choose:</li>
+</ol>
+<ul>
+<li>BigQuery project</li>
+<li>Dataset<br />
+5. Export starts automatically</li>
+</ul>
+<blockquote>
+<p>No resource restarts required.</p>
+</blockquote>
+<hr />
+<h2 id="6-permissions-needed-exam-awareness">6️⃣ Permissions needed (exam awareness)</h2>
+<p>To configure exports, you need:</p>
+<ul>
+<li><strong>Billing Account Admin</strong> (or equivalent)</li>
+<li>BigQuery dataset permissions</li>
+</ul>
+<blockquote>
+<p>Project Owner alone is <strong>not sufficient</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="7-cli-considerations-exam-reality">7️⃣ CLI considerations (exam reality)</h2>
+<p>❌ Billing export setup is <strong>not typically done via <code>gcloud</code></strong><br />
+✅ ACE expects <strong>conceptual understanding</strong>, not commands</p>
+<p>(Exports are managed via Console or Billing APIs.)</p>
+<hr />
+<h2 id="8-real-exam-style-scenarios">8️⃣ Real exam-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Finance wants a detailed cost breakdown by project and service”</p>
+</blockquote>
+<p>✅ Correct:</p>
+<ul>
+<li>Enable <strong>BigQuery billing export</strong></li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Company needs long-term raw billing records for compliance”</p>
+</blockquote>
+<p>✅ Correct:</p>
+<ul>
+<li>Export to <strong>Cloud Storage</strong></li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Build dashboards showing daily spend trends”</p>
+</blockquote>
+<p>✅ Correct:</p>
+<ul>
+<li>BigQuery billing export</li>
+<li>Use BI tools on top</li>
+</ul>
+<hr />
+<h2 id="9-billing-exports-vs-budgets-vs-quotas-exam-gold">9️⃣ Billing exports vs budgets vs quotas (EXAM GOLD)</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Billing export</td>
+<td>Cost data analysis</td>
+</tr>
+<tr>
+<td>Budget</td>
+<td>Alerts</td>
+</tr>
+<tr>
+<td>Quota</td>
+<td>Hard usage limit</td>
+</tr>
+<tr>
+<td>Org Policy</td>
+<td>Restriction</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Billing export = visibility, not control</strong></p>
+</blockquote>
+<hr />
+<h2 id="10-common-exam-traps">10️⃣ Common exam traps</h2>
+<p>❌ Think exports reduce cost<br />
+❌ Think exports stop spending<br />
+❌ Configure at project instead of billing account<br />
+❌ Confuse exports with budgets</p>
+<hr />
+<h2 id="-one-line-exam-memory-hook">🔑 One-line exam memory hook</h2>
+<blockquote>
+<p><strong>Exports show where money went — not how to stop it</strong></p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

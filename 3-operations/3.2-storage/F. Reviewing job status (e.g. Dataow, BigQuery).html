@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F. Reviewing job status (e.g. Dataow, BigQuery)</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#reviewing-job-status">Reviewing job status</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-bigquery-job-status-very-common">2️⃣ BigQuery job status (VERY COMMON)</a></li>
+<li><a href="#3-bigquery-failure-patterns-exam-level">3️⃣ BigQuery failure patterns (exam-level)</a></li>
+<li><a href="#4-dataflow-job-status-foundational">4️⃣ Dataflow job status (FOUNDATIONAL)</a></li>
+<li><a href="#5-batch-vs-streaming-exam-favorite-distinction">5️⃣ Batch vs Streaming (EXAM FAVORITE DISTINCTION)</a></li>
+<li><a href="#6-what-you-do-after-checking-status-exam-logic">6️⃣ What you do AFTER checking status (exam logic)</a></li>
+<li><a href="#7-permissions-awareness-exam-level">7️⃣ Permissions awareness (exam-level)</a></li>
+<li><a href="#8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</a></li>
+<li><a href="#9-common-ace-exam-traps">9️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.2 – Managing storage resources</strong></p>
+<h4 id="reviewing-job-status"><strong>Reviewing job status</strong></h4>
+<p><em>(Dataflow, BigQuery)</em></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/dataflow/images/cpu-utilization.gif" /></p>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A1400/0%2Aa02o2O0NTcFqHamk" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/dataflow/images/execution-graph.png" /></p>
+<p>This bullet is about <strong>operational visibility</strong>. The ACE exam checks whether you can <strong>find running/completed/failed jobs</strong>, <strong>interpret basic states</strong>, and <strong>know where to look</strong>—not how to debug pipelines deeply.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Locate <strong>job history</strong> for Dataflow and BigQuery</li>
+<li>Identify <strong>job states</strong> (running, failed, done)</li>
+<li>Take the <strong>next logical action</strong> (wait, retry, inspect logs)</li>
+<li>Avoid confusing <strong>jobs</strong> with <strong>resources</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Did the job run? Is it still running? Did it fail?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-bigquery-job-status-very-common">2️⃣ BigQuery job status (VERY COMMON)</h2>
+<h3 id="what-counts-as-a-job">What counts as a “job”</h3>
+<ul>
+<li>Queries</li>
+<li>Load jobs</li>
+<li>Export jobs</li>
+<li>Copy jobs</li>
+</ul>
+<h3 id="where-to-check">Where to check</h3>
+<ul>
+<li><strong>Cloud Console → BigQuery → Job history</strong></li>
+<li>Project-level scope</li>
+</ul>
+<h3 id="common-job-states">Common job states</h3>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RUNNING</strong></td>
+<td>Query or load in progress</td>
+</tr>
+<tr>
+<td><strong>DONE</strong></td>
+<td>Completed successfully</td>
+</tr>
+<tr>
+<td><strong>FAILED</strong></td>
+<td>Error occurred</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cli-exam-aware">CLI (exam-aware)</h3>
+<pre><code class="language-bash">bq ls -j
+</code></pre>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Query didn’t produce results” → check <strong>job status</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-bigquery-failure-patterns-exam-level">3️⃣ BigQuery failure patterns (exam-level)</h2>
+<p>Common reasons jobs fail:</p>
+<ul>
+<li>SQL syntax errors</li>
+<li>Permission denied</li>
+<li>Exceeded <strong>maximum bytes billed</strong></li>
+<li>Dataset/table not found</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+A query can fail <strong>after starting</strong>—always check job details.</p>
+</blockquote>
+<hr />
+<h2 id="4-dataflow-job-status-foundational">4️⃣ Dataflow job status (FOUNDATIONAL)</h2>
+<h3 id="what-counts-as-a-job_1">What counts as a job</h3>
+<ul>
+<li>Batch pipeline</li>
+<li>Streaming pipeline</li>
+</ul>
+<h3 id="where-to-check_1">Where to check</h3>
+<ul>
+<li><strong>Cloud Console → Dataflow → Jobs</strong></li>
+</ul>
+<h3 id="common-dataflow-job-states">Common Dataflow job states</h3>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Running</strong></td>
+<td>Actively processing</td>
+</tr>
+<tr>
+<td><strong>Draining</strong></td>
+<td>Finishing in-flight work</td>
+</tr>
+<tr>
+<td><strong>Done</strong></td>
+<td>Completed successfully</td>
+</tr>
+<tr>
+<td><strong>Failed</strong></td>
+<td>Pipeline error</td>
+</tr>
+<tr>
+<td><strong>Cancelled</strong></td>
+<td>Stopped by user</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Pipeline stuck” → check <strong>job state</strong></p>
+</blockquote>
+<hr />
+<h2 id="5-batch-vs-streaming-exam-favorite-distinction">5️⃣ Batch vs Streaming (EXAM FAVORITE DISTINCTION)</h2>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Expected behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Batch</strong></td>
+<td>Eventually → <strong>Done</strong></td>
+</tr>
+<tr>
+<td><strong>Streaming</strong></td>
+<td>Stays <strong>Running</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+A streaming job running for days is <strong>normal</strong>, not a failure.</p>
+</blockquote>
+<hr />
+<h2 id="6-what-you-do-after-checking-status-exam-logic">6️⃣ What you do AFTER checking status (exam logic)</h2>
+<h3 id="if-job-is-running">If job is RUNNING</h3>
+<ul>
+<li>Wait</li>
+<li>Monitor metrics/logs</li>
+</ul>
+<h3 id="if-job-failed">If job FAILED</h3>
+<ul>
+<li>Inspect error message</li>
+<li>Fix input, permissions, or config</li>
+<li>Rerun job</li>
+</ul>
+<h3 id="if-job-done-but-output-missing">If job DONE but output missing</h3>
+<ul>
+<li>Check destination</li>
+<li>Check permissions</li>
+<li>Check filters/conditions</li>
+</ul>
+<hr />
+<h2 id="7-permissions-awareness-exam-level">7️⃣ Permissions awareness (exam-level)</h2>
+<p>To view job status, you need:</p>
+<ul>
+<li>
+<p>BigQuery:</p>
+</li>
+<li>
+<p><code>bigquery.jobs.list</code></p>
+</li>
+<li>
+<p>Dataflow:</p>
+</li>
+<li>
+<p><code>dataflow.jobs.get</code></p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“User can’t see job history” → IAM issue</p>
+</blockquote>
+<hr />
+<h2 id="8-common-ace-exam-scenarios">8️⃣ Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Analytics query seems stuck”</p>
+</blockquote>
+<p>✅ Check:</p>
+<ul>
+<li><strong>BigQuery job status</strong></li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Dataflow streaming job hasn’t finished”</p>
+</blockquote>
+<p>✅ Expected:</p>
+<ul>
+<li>Streaming jobs <strong>run continuously</strong></li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Load job failed unexpectedly”</p>
+</blockquote>
+<p>✅ Action:</p>
+<ul>
+<li>Inspect <strong>job error details</strong></li>
+</ul>
+<hr />
+<h3 id="scenario-4">Scenario 4</h3>
+<blockquote>
+<p>“Pipeline output missing”</p>
+</blockquote>
+<p>✅ Action:</p>
+<ul>
+<li>Verify job <strong>completed successfully</strong></li>
+<li>Check destination permissions</li>
+</ul>
+<hr />
+<h2 id="9-common-ace-exam-traps">9️⃣ Common ACE exam traps</h2>
+<p>❌ Expecting streaming jobs to complete<br />
+❌ Checking datasets instead of job history<br />
+❌ Ignoring error details<br />
+❌ Assuming no output means no job ran</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>BigQuery = job history</strong></li>
+<li><strong>Dataflow batch ends, streaming runs</strong></li>
+<li><strong>Failed ≠ never started</strong></li>
+<li><strong>Check status before retrying</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

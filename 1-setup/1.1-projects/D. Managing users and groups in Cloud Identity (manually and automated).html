@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D. Managing users and groups in Cloud Identity (manually and automated)</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#section-1.1--managing-users-and-groups-in-cloud-identity-manually-and-automated">Section 1.1 – Managing users and groups in Cloud Identity (manually and automated)</a></li>
+<li><a href="#1-what-cloud-identity-is-exam-framing">1️⃣ What Cloud Identity is (exam framing)</a></li>
+<li><a href="#2-what-the-exam-actually-tests-here">2️⃣ What the exam actually tests here</a></li>
+<li><a href="#3-managing-users-manually-small-scale">3️⃣ Managing users MANUALLY (small scale)</a></li>
+<li><a href="#4-managing-groups-manually-best-practice">4️⃣ Managing groups MANUALLY (best practice)</a></li>
+<li><a href="#5-managing-users--groups-automated-enterprise-scale">5️⃣ Managing users &amp; groups AUTOMATED (enterprise scale)</a></li>
+<li><a href="#6-iam-integration-this-is-why-cloud-identity-exists">6️⃣ IAM integration (this is why Cloud Identity exists)</a></li>
+<li><a href="#7-exam-scenarios-with-correct-thinking">7️⃣ Exam scenarios (with correct thinking)</a></li>
+<li><a href="#8-common-exam-traps">8️⃣ Common exam traps</a></li>
+<li><a href="#-one-line-exam-memory-hook">🔑 One-line exam memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿</p>
+<h3 id="section-1.1--managing-users-and-groups-in-cloud-identity-manually-and-automated"><strong>Section 1.1 – Managing users and groups in Cloud Identity (manually and automated)</strong></h3>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/cloud-identity-7.width-500.format-webp.webp" /></p>
+<p><img alt="Image" src="https://architecture.learning.sap.com/public-sap-iam-sd-388b51a0bbd83720.svg" /></p>
+<p>This bullet is about <strong>identity lifecycle</strong>, not permissions. On the ACE exam, Cloud Identity almost always appears as the <strong>correct prerequisite</strong> for IAM at scale.</p>
+<hr />
+<h2 id="1-what-cloud-identity-is-exam-framing">1️⃣ What Cloud Identity is (exam framing)</h2>
+<p><strong>Cloud Identity</strong> is Google’s <strong>identity management system</strong> for:</p>
+<ul>
+<li>Users (employees, contractors)</li>
+<li>Groups (teams, roles)</li>
+</ul>
+<p>It is:</p>
+<ul>
+<li>Separate from Google Cloud projects</li>
+<li>Integrated with IAM</li>
+<li>Required for <strong>Organization-level setups</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+If you see <em>company</em>, <em>employees</em>, <em>centralized user management</em> → <strong>Cloud Identity</strong></p>
+</blockquote>
+<hr />
+<h2 id="2-what-the-exam-actually-tests-here">2️⃣ What the exam actually tests here</h2>
+<p>The ACE exam tests whether you can:</p>
+<h3 id="-recognize-when-cloud-identity-is-needed">✅ Recognize WHEN Cloud Identity is needed</h3>
+<ul>
+<li>Managing <strong>multiple users</strong></li>
+<li>Using <strong>groups</strong> instead of individuals</li>
+<li>Centralizing identity outside projects</li>
+</ul>
+<h3 id="-distinguish-manual-vs-automated-management">✅ Distinguish manual vs automated management</h3>
+<ul>
+<li>Manual → small scale</li>
+<li>Automated → enterprise scale</li>
+</ul>
+<h3 id="-what-it-does-not-test">❌ What it does NOT test</h3>
+<ul>
+<li>Deep directory sync internals</li>
+<li>Writing identity federation scripts</li>
+<li>Google Workspace administration in depth</li>
+</ul>
+<hr />
+<h2 id="3-managing-users-manually-small-scale">3️⃣ Managing users MANUALLY (small scale)</h2>
+<h3 id="manual-user-creation-conceptual">Manual user creation (conceptual)</h3>
+<ul>
+<li>Create users in <strong>Cloud Identity Admin Console</strong></li>
+<li>Assign email &amp; basic profile</li>
+<li>Users sign in with Google identity</li>
+</ul>
+<p><strong>When this is acceptable</strong></p>
+<ul>
+<li>Small teams</li>
+<li>Temporary users</li>
+<li>Labs / learning environments</li>
+</ul>
+<p><strong>Exam tip</strong></p>
+<blockquote>
+<p>“A startup with 5 engineers” → Manual is fine</p>
+</blockquote>
+<hr />
+<h2 id="4-managing-groups-manually-best-practice">4️⃣ Managing groups MANUALLY (best practice)</h2>
+<p>Groups:</p>
+<ul>
+<li>Represent <strong>teams or roles</strong></li>
+<li>Used in IAM bindings</li>
+</ul>
+<h3 id="example-groups">Example groups</h3>
+<ul>
+<li><code>devs@example.com</code></li>
+<li><code>ops@example.com</code></li>
+<li><code>security@example.com</code></li>
+</ul>
+<p><strong>Why groups matter</strong></p>
+<ul>
+<li>Add/remove users <strong>once</strong></li>
+<li>IAM bindings stay untouched</li>
+</ul>
+<blockquote>
+<p><strong>Exam gold rule:</strong><br />
+<em>Always prefer groups over users</em></p>
+</blockquote>
+<hr />
+<h2 id="5-managing-users--groups-automated-enterprise-scale">5️⃣ Managing users &amp; groups AUTOMATED (enterprise scale)</h2>
+<h3 id="a.-directory-sync-most-common">A. Directory sync (most common)</h3>
+<ul>
+<li>
+<p>Sync from:</p>
+</li>
+<li>
+<p>Active Directory</p>
+</li>
+<li>LDAP</li>
+<li>Users &amp; groups auto-provisioned</li>
+</ul>
+<p><strong>Use case</strong></p>
+<blockquote>
+<p>“Company already has on-prem directory”</p>
+</blockquote>
+<hr />
+<h3 id="b.-identity-federation-external-idp">B. Identity federation (external IdP)</h3>
+<ul>
+<li>
+<p>Users authenticate via:</p>
+</li>
+<li>
+<p>Azure AD</p>
+</li>
+<li>Okta</li>
+<li>No Google-managed passwords</li>
+</ul>
+<p><strong>Use case</strong></p>
+<blockquote>
+<p>“Do not manage passwords in Google”</p>
+</blockquote>
+<hr />
+<h3 id="c.-programmatic-management-api--cli">C. Programmatic management (API / CLI)</h3>
+<p>Used when:</p>
+<ul>
+<li>CI/CD pipelines</li>
+<li>HR-driven provisioning</li>
+</ul>
+<hr />
+<h2 id="6-iam-integration-this-is-why-cloud-identity-exists">6️⃣ IAM integration (this is why Cloud Identity exists)</h2>
+<p>Cloud Identity itself <strong>does not grant permissions</strong>.</p>
+<p>Flow:</p>
+<pre><code>Cloud Identity → Users &amp; Groups
+IAM → Permissions
+</code></pre>
+<p><strong>Example</strong></p>
+<ol>
+<li>Create group <code>devs@example.com</code></li>
+<li>Add users to group</li>
+<li>Grant IAM role to group at project level</li>
+</ol>
+<pre><code class="language-bash">gcloud projects add-iam-policy-binding my-project \
+  --member=&quot;group:devs@example.com&quot; \
+  --role=&quot;roles/compute.admin&quot;
+</code></pre>
+<hr />
+<h2 id="7-exam-scenarios-with-correct-thinking">7️⃣ Exam scenarios (with correct thinking)</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Grant access to 50 engineers without frequent IAM changes”</p>
+</blockquote>
+<p>✅ Use:</p>
+<ul>
+<li>Cloud Identity group</li>
+<li>Single IAM binding</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Automate onboarding/offboarding”</p>
+</blockquote>
+<p>✅ Use:</p>
+<ul>
+<li>Directory sync or federation</li>
+<li>Group-based IAM</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Contractor leaves the company”</p>
+</blockquote>
+<p>✅ Action:</p>
+<ul>
+<li>Remove user from group</li>
+<li>IAM remains unchanged</li>
+</ul>
+<hr />
+<h2 id="8-common-exam-traps">8️⃣ Common exam traps</h2>
+<p>❌ Use individual users instead of groups<br />
+❌ Manage users inside each project<br />
+❌ Confuse Cloud Identity with IAM<br />
+❌ Think Cloud Identity assigns permissions</p>
+<hr />
+<h2 id="-one-line-exam-memory-hook">🔑 One-line exam memory hook</h2>
+<blockquote>
+<p><strong>Cloud Identity = who exists</strong><br />
+<strong>IAM = what they can do</strong></p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

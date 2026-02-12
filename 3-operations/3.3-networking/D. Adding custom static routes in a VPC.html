@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D. Adding custom static routes in a VPC</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#section-3.3--managing-networking-resources">Section 3.3 – Managing networking resources</a></li>
+<li><a href="#adding-custom-static-routes-in-a-vpc">Adding custom static routes in a VPC</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-vpc-routing-basics-must-know">2️⃣ VPC routing basics (MUST KNOW)</a></li>
+<li><a href="#3-what-a-custom-static-route-is">3️⃣ What a custom static route is</a></li>
+<li><a href="#4-when-you-need-custom-static-routes-exam-scenarios">4️⃣ When you need custom static routes (EXAM SCENARIOS)</a></li>
+<li><a href="#5-route-matching-rules-very-important">5️⃣ Route matching rules (VERY IMPORTANT)</a></li>
+<li><a href="#6-common-next-hop-types-must-recognize">6️⃣ Common next-hop types (MUST RECOGNIZE)</a></li>
+<li><a href="#7-creating-a-custom-static-route-cli--exam-relevant">7️⃣ Creating a custom static route (CLI – exam-relevant)</a></li>
+<li><a href="#8-scoping-routes-with-network-tags-exam-awareness">8️⃣ Scoping routes with network tags (exam awareness)</a></li>
+<li><a href="#9-routes-vs-firewall-rules-common-exam-trap">9️⃣ Routes vs firewall rules (COMMON EXAM TRAP)</a></li>
+<li><a href="#-common-ace-exam-scenarios">🔟 Common ACE exam scenarios</a></li>
+<li><a href="#11-common-ace-exam-traps">11️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿Got it — thanks for calling that out 👍<br />
+You’re right to expect the <strong>full content</strong> here. Let’s <strong>cleanly and completely redo</strong> the bullet so it’s safely captured for your Section 3 HTML.</p>
+<hr />
+<h3 id="section-3.3--managing-networking-resources"><strong>Section 3.3 – Managing networking resources</strong></h3>
+<h2 id="adding-custom-static-routes-in-a-vpc"><strong>Adding custom static routes in a VPC</strong></h2>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/2-vpcdefault-route.max-2200x2200.png" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/1-packet-next-hop-overview_v1.max-2200x2200.png" /></p>
+<p><img alt="Image" src="https://miro.medium.com/v2/resize%3Afit%3A2000/1%2AxWnqlECbCkgVER7wlCUBNQ.png" /></p>
+<p>This bullet is about <strong>controlling how traffic flows inside a VPC when the default routes are not enough</strong>. On the ACE exam, this usually appears as <em>“traffic is going to the wrong place”</em> or <em>“send traffic through VPN / appliance”</em>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Explain <strong>what a custom static route is</strong></li>
+<li>Know <strong>when default routes are insufficient</strong></li>
+<li>Choose the correct <strong>next hop</strong></li>
+<li>Understand <strong>CIDR matching and priority</strong></li>
+<li>Distinguish <strong>routes vs firewall rules</strong></li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“Where should this traffic go next?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-vpc-routing-basics-must-know">2️⃣ VPC routing basics (MUST KNOW)</h2>
+<p>When a VPC is created, Google Cloud automatically provides:</p>
+<ul>
+<li><strong>Subnet routes</strong> (local traffic)</li>
+<li><strong>Default internet route</strong></li>
+</ul>
+<p><code>0.0.0.0/0 → default internet gateway</code></p>
+<p>These are enough <strong>until</strong> you need:</p>
+<ul>
+<li>On-prem connectivity</li>
+<li>Traffic inspection</li>
+<li>Forced paths</li>
+</ul>
+<hr />
+<h2 id="3-what-a-custom-static-route-is">3️⃣ What a custom static route is</h2>
+<p>A <strong>custom static route</strong>:</p>
+<ul>
+<li>Is <strong>manually defined</strong></li>
+<li>Applies at the <strong>VPC level</strong></li>
+<li>Overrides default routing behavior</li>
+<li>Decides <strong>where traffic goes</strong>, not whether it’s allowed</li>
+</ul>
+<p>Each route has:</p>
+<ul>
+<li><strong>Destination CIDR</strong></li>
+<li><strong>Next hop</strong></li>
+<li><strong>Priority</strong></li>
+<li>(Optional) <strong>Network tags</strong></li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+<strong>Routes = path</strong>, <strong>firewall = allow/deny</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-when-you-need-custom-static-routes-exam-scenarios">4️⃣ When you need custom static routes (EXAM SCENARIOS)</h2>
+<p>You add custom static routes when:</p>
+<ul>
+<li>Sending traffic to <strong>on-premises networks</strong></li>
+<li>Routing through a <strong>VPN tunnel</strong></li>
+<li>Forcing traffic through a <strong>NAT / firewall appliance VM</strong></li>
+<li>Overriding the default internet gateway</li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“On-prem CIDR”</li>
+<li>“Traffic must go through VPN”</li>
+<li>“Security appliance”</li>
+<li>“Custom routing”</li>
+</ul>
+<hr />
+<h2 id="5-route-matching-rules-very-important">5️⃣ Route matching rules (VERY IMPORTANT)</h2>
+<p>Google Cloud evaluates routes in this order:</p>
+<h3 id="1.-longest-prefix-match">1. <strong>Longest prefix match</strong></h3>
+<ul>
+<li>More specific CIDR wins<br />
+  (<code>10.0.0.0/8</code> beats <code>0.0.0.0/0</code>)</li>
+</ul>
+<h3 id="2.-priority">2. <strong>Priority</strong></h3>
+<ul>
+<li>Lower number = higher priority</li>
+<li>Used <strong>only if CIDR length is equal</strong></li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Priority does <strong>not</strong> override CIDR specificity.</p>
+</blockquote>
+<hr />
+<h2 id="6-common-next-hop-types-must-recognize">6️⃣ Common next-hop types (MUST RECOGNIZE)</h2>
+<table>
+<thead>
+<tr>
+<th>Next hop</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default internet gateway</strong></td>
+<td>Internet access</td>
+</tr>
+<tr>
+<td><strong>VPN tunnel</strong></td>
+<td>On-prem connectivity</td>
+</tr>
+<tr>
+<td><strong>VM instance</strong></td>
+<td>NAT / firewall appliance</td>
+</tr>
+<tr>
+<td><strong>Internal Load Balancer</strong></td>
+<td>Advanced routing patterns</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+On-prem traffic → <strong>VPN tunnel next hop</strong></p>
+</blockquote>
+<hr />
+<h2 id="7-creating-a-custom-static-route-cli--exam-relevant">7️⃣ Creating a custom static route (CLI – exam-relevant)</h2>
+<h3 id="example-route-on-prem-traffic-through-a-vpn">Example: route on-prem traffic through a VPN</h3>
+<pre><code class="language-bash">gcloud compute routes create onprem-route \
+  --network=my-vpc \
+  --destination-range=192.168.0.0/16 \
+  --next-hop-vpn-tunnel=my-vpn-tunnel \
+  --priority=1000
+</code></pre>
+<p>What this does:</p>
+<ul>
+<li>Matches traffic destined for <code>192.168.0.0/16</code></li>
+<li>Sends it through the VPN tunnel</li>
+<li>Overrides the default internet route</li>
+</ul>
+<hr />
+<h2 id="8-scoping-routes-with-network-tags-exam-awareness">8️⃣ Scoping routes with network tags (exam awareness)</h2>
+<p>Routes can:</p>
+<ul>
+<li>Apply to <strong>all VMs</strong> (default), or</li>
+<li>Apply only to VMs with <strong>specific network tags</strong></li>
+</ul>
+<p>Use tags when:</p>
+<ul>
+<li>Only certain workloads should follow the route</li>
+</ul>
+<blockquote>
+<p><strong>Exam signal:</strong><br />
+“Only backend VMs should use this path” → <strong>use tags</strong></p>
+</blockquote>
+<hr />
+<h2 id="9-routes-vs-firewall-rules-common-exam-trap">9️⃣ Routes vs firewall rules (COMMON EXAM TRAP)</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Controls</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Route</strong></td>
+<td>Where traffic goes</td>
+</tr>
+<tr>
+<td><strong>Firewall rule</strong></td>
+<td>Whether traffic is allowed</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Traffic can be routed correctly and still be <strong>blocked</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="-common-ace-exam-scenarios">🔟 Common ACE exam scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“Traffic to on-prem is going to the internet”</p>
+</blockquote>
+<p>✅ <strong>Add a custom static route with VPN tunnel as next hop</strong></p>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Traffic must pass through a security appliance VM”</p>
+</blockquote>
+<p>✅ <strong>Custom route with next hop = VM instance</strong></p>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“Route exists but traffic still doesn’t flow”</p>
+</blockquote>
+<p>✅ Check:</p>
+<ul>
+<li>CIDR specificity</li>
+<li>Priority</li>
+<li>Network tags</li>
+<li>Firewall rules</li>
+</ul>
+<hr />
+<h2 id="11-common-ace-exam-traps">11️⃣ Common ACE exam traps</h2>
+<p>❌ Thinking routes replace firewall rules<br />
+❌ Using priority instead of CIDR specificity<br />
+❌ Creating a new VPC unnecessarily<br />
+❌ Forgetting routes are VPC-wide<br />
+❌ Expecting firewall rules to auto-update</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Routes decide path</strong></li>
+<li><strong>Firewall decides allow/deny</strong></li>
+<li><strong>Longest prefix wins</strong></li>
+<li><strong>On-prem → VPN route</strong></li>
+<li><strong>Same CIDR → lower priority wins</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

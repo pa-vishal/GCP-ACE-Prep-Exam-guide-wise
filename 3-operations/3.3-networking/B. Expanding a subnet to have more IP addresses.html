@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B. Expanding a subnet to have more IP addresses</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#expanding-a-subnet-to-have-more-ip-addresses">Expanding a subnet to have more IP addresses</a></li>
+<li><a href="#1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</a></li>
+<li><a href="#2-core-rule-must-memorize">2️⃣ Core rule (MUST MEMORIZE)</a></li>
+<li><a href="#3-when-subnet-expansion-is-the-correct-answer">3️⃣ When subnet expansion is the correct answer</a></li>
+<li><a href="#4-what-subnet-expansion-does-and-does-not-do">4️⃣ What subnet expansion does (and does not do)</a></li>
+<li><a href="#5-cidr-expansion-rules-very-important">5️⃣ CIDR expansion rules (VERY IMPORTANT)</a></li>
+<li><a href="#6-expanding-a-subnet-cli--exam-relevant">6️⃣ Expanding a subnet (CLI – exam-relevant)</a></li>
+<li><a href="#7-subnet-expansion-vs-adding-a-new-subnet-exam-favorite">7️⃣ Subnet expansion vs adding a new subnet (EXAM FAVORITE)</a></li>
+<li><a href="#8-gke-specific-exam-signal">8️⃣ GKE-specific exam signal</a></li>
+<li><a href="#9-common-ace-exam-traps">9️⃣ Common ACE exam traps</a></li>
+<li><a href="#-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 3.3 – Managing networking resources</strong></p>
+<h4 id="expanding-a-subnet-to-have-more-ip-addresses"><strong>Expanding a subnet to have more IP addresses</strong></h4>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/VPC_network_subset.max-1700x1700.png" /></p>
+<p><img alt="Image" src="https://storage.googleapis.com/gweb-cloudblog-publish/images/subnetwork-2.max-1200x1200.png" /></p>
+<p><img alt="Image" src="https://media.licdn.com/dms/image/v2/D4D12AQGcldNje_SZWw/article-cover_image-shrink_720_1280/B4DZjNIm7uG8AI-/0/1755788246392?e=2147483647\&amp;t=Y6Ochsjbp_G--b0jmyzPR12dvlrqSGJQxrFN5iEoXZ0\&amp;v=beta" /></p>
+<p>This bullet is a <strong>classic ACE exam trap</strong>. The exam tests whether you know <strong>the one allowed way to fix IP exhaustion in Google Cloud</strong>—and the <strong>one thing you cannot do</strong>.</p>
+<hr />
+<h2 id="1-what-the-ace-exam-is-actually-testing">1️⃣ What the ACE exam is actually testing</h2>
+<p>You should be able to:</p>
+<ul>
+<li>Recognize <strong>IP exhaustion symptoms</strong></li>
+<li>Know that subnets <strong>can be expanded but never shrunk</strong></li>
+<li>Expand a subnet <strong>without downtime</strong></li>
+<li>Choose subnet expansion vs adding a new subnet correctly</li>
+</ul>
+<blockquote>
+<p><strong>Exam mindset:</strong><br />
+<em>“We’re out of IPs—what’s the fastest, safest fix?”</em></p>
+</blockquote>
+<hr />
+<h2 id="2-core-rule-must-memorize">2️⃣ Core rule (MUST MEMORIZE)</h2>
+<blockquote>
+<p><strong>Google Cloud subnets can be expanded, but they can never be reduced.</strong></p>
+</blockquote>
+<p>This rule appears <strong>directly or indirectly</strong> in multiple ACE questions.</p>
+<hr />
+<h2 id="3-when-subnet-expansion-is-the-correct-answer">3️⃣ When subnet expansion is the correct answer</h2>
+<p>Expand a subnet when:</p>
+<ul>
+<li>You are in the <strong>same region</strong></li>
+<li>Existing resources depend on the subnet</li>
+<li>You need <strong>more IPs quickly</strong></li>
+<li>You want <strong>zero downtime</strong></li>
+</ul>
+<p><strong>Exam signals</strong></p>
+<ul>
+<li>“Subnet ran out of IPs”</li>
+<li>“Cannot create new VM”</li>
+<li>“Pods failing due to IP exhaustion”</li>
+<li>“Do not disrupt existing workloads”</li>
+</ul>
+<hr />
+<h2 id="4-what-subnet-expansion-does-and-does-not-do">4️⃣ What subnet expansion does (and does not do)</h2>
+<h3 id="-what-it-does">✅ What it does</h3>
+<ul>
+<li>Increases available IP addresses</li>
+<li>Keeps the <strong>same subnet</strong></li>
+<li>Does <strong>not restart</strong> existing VMs</li>
+<li>Works immediately</li>
+</ul>
+<h3 id="-what-it-does-not-do">❌ What it does NOT do</h3>
+<ul>
+<li>Does not change existing IPs</li>
+<li>Does not shrink the subnet</li>
+<li>Does not affect other subnets</li>
+<li>Does not automatically update firewall rules</li>
+</ul>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Firewall rules may still block traffic if CIDR-based rules are too narrow.</p>
+</blockquote>
+<hr />
+<h2 id="5-cidr-expansion-rules-very-important">5️⃣ CIDR expansion rules (VERY IMPORTANT)</h2>
+<p>You can only:</p>
+<ul>
+<li>Expand to a <strong>larger CIDR</strong></li>
+<li>Expand <strong>within the same address block</strong></li>
+</ul>
+<p>Example:</p>
+<ul>
+<li><code>10.10.0.0/24</code> → <code>10.10.0.0/23</code> ✅</li>
+<li><code>10.10.0.0/24</code> → <code>10.10.1.0/24</code> ❌</li>
+</ul>
+<blockquote>
+<p><strong>ACE rule:</strong><br />
+Expansion must be a <strong>superset of the original range</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="6-expanding-a-subnet-cli--exam-relevant">6️⃣ Expanding a subnet (CLI – exam-relevant)</h2>
+<h3 id="update-subnet-ip-range">Update subnet IP range</h3>
+<pre><code class="language-bash">gcloud compute networks subnets expand-ip-range app-subnet \
+  --region=us-central1 \
+  --prefix-length=23
+</code></pre>
+<p>What this does:</p>
+<ul>
+<li>Expands subnet from <code>/24</code> to <code>/23</code></li>
+<li>Immediately adds more usable IPs</li>
+<li>Does <strong>not</strong> interrupt traffic</li>
+</ul>
+<hr />
+<h2 id="7-subnet-expansion-vs-adding-a-new-subnet-exam-favorite">7️⃣ Subnet expansion vs adding a new subnet (EXAM FAVORITE)</h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Correct action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IP exhaustion in same region</td>
+<td><strong>Expand subnet</strong></td>
+</tr>
+<tr>
+<td>Need new region</td>
+<td>Add new subnet</td>
+</tr>
+<tr>
+<td>Isolate workloads</td>
+<td>Add new subnet</td>
+</tr>
+<tr>
+<td>Existing subnet in use</td>
+<td>Expand subnet</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ACE trap:</strong><br />
+Adding a new subnet does <strong>not</strong> fix IP exhaustion for existing resources.</p>
+</blockquote>
+<hr />
+<h2 id="8-gke-specific-exam-signal">8️⃣ GKE-specific exam signal</h2>
+<p>If the question mentions:</p>
+<ul>
+<li>GKE Pods failing to schedule</li>
+<li>IP address exhaustion</li>
+<li>Alias IP ranges</li>
+</ul>
+<p>✅ <strong>Subnet expansion is usually the fix</strong></p>
+<blockquote>
+<p>You are <strong>not expected</strong> to redesign IP ranges on the exam—just expand.</p>
+</blockquote>
+<hr />
+<h2 id="9-common-ace-exam-traps">9️⃣ Common ACE exam traps</h2>
+<p>❌ Trying to shrink a subnet<br />
+❌ Creating a new VPC<br />
+❌ Adding a new subnet instead of expanding<br />
+❌ Changing CIDR blocks incorrectly<br />
+❌ Expecting downtime during expansion</p>
+<hr />
+<h2 id="-one-line-ace-memory-hooks">🔑 One-line ACE memory hooks</h2>
+<ul>
+<li><strong>Subnets only grow</strong></li>
+<li><strong>Expand = no downtime</strong></li>
+<li><strong>Same region = expand</strong></li>
+<li><strong>Different region = new subnet</strong></li>
+<li><strong>CIDR must be a superset</strong></li>
+</ul>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>

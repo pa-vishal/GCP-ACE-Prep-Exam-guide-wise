@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B. Linking projects to a billing account</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li></li>
+<li><a href="#1-what-linking-a-project-to-a-billing-account-means">1️⃣ What “linking a project to a billing account” means</a></li>
+<li><a href="#2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</a></li>
+<li><a href="#3-billing-account--project-relationship-exam-core">3️⃣ Billing account ↔ project relationship (EXAM CORE)</a></li>
+<li><a href="#4-who-can-link-a-project-to-a-billing-account">4️⃣ Who can link a project to a billing account</a></li>
+<li><a href="#5-linking-a-project-via-cli-very-exam-relevant">5️⃣ Linking a project via CLI (VERY exam-relevant)</a></li>
+<li><a href="#6-linking-via-console-conceptual">6️⃣ Linking via Console (conceptual)</a></li>
+<li><a href="#7-what-happens-if-a-project-is-not-linked-exam-favorites">7️⃣ What happens if a project is NOT linked (exam favorites)</a></li>
+<li><a href="#8-moving-projects-between-billing-accounts-exam-logic">8️⃣ Moving projects between billing accounts (exam logic)</a></li>
+<li><a href="#9-real-exam-style-scenarios">9️⃣ Real exam-style scenarios</a></li>
+<li><a href="#10-common-exam-traps">10️⃣ Common exam traps</a></li>
+<li><a href="#-one-line-exam-memory-hook">🔑 One-line exam memory hook</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>﻿### <strong>Section 1.2 – Linking projects to a billing account</strong></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/billing/docs/images/access-control-org.png" /></p>
+<p><img alt="Image" src="https://docs.cloud.google.com/static/billing/docs/images/subaccounts.png" /></p>
+<p>This bullet is <strong>one of the highest-yield ACE topics</strong>. Many scenario questions quietly depend on whether you recognize that <strong>projects must be explicitly linked to a billing account</strong> before most resources can run.</p>
+<hr />
+<h2 id="1-what-linking-a-project-to-a-billing-account-means">1️⃣ What “linking a project to a billing account” means</h2>
+<p>Linking means:</p>
+<ul>
+<li>Assigning <strong>one billing account</strong> to <strong>one project</strong></li>
+<li>Allowing that project to <strong>incur charges</strong></li>
+<li>Enabling creation of <strong>billable resources</strong></li>
+</ul>
+<blockquote>
+<p><strong>Hard rule (memorize)</strong><br />
+A project with <strong>no billing account = mostly unusable</strong></p>
+</blockquote>
+<hr />
+<h2 id="2-what-the-ace-exam-actually-tests-here">2️⃣ What the ACE exam actually tests here</h2>
+<p>The exam checks whether you can:</p>
+<h3 id="-identify-when-a-project-is-not-billed">✅ Identify when a project is <strong>not billed</strong></h3>
+<h3 id="-know-that-billing-is-per-project-not-per-orgfolder">✅ Know that <strong>billing is per project</strong>, not per org/folder</h3>
+<h3 id="-understand-who-is-allowed-to-link-projects">✅ Understand <strong>who is allowed</strong> to link projects</h3>
+<h3 id="-choose-linking-vs-creating-a-new-billing-account">✅ Choose linking vs creating a new billing account</h3>
+<h3 id="-what-it-does-not-test">❌ What it does NOT test</h3>
+<ul>
+<li>Invoices</li>
+<li>Taxes</li>
+<li>Credits handling</li>
+<li>Cost optimization (later bullets)</li>
+</ul>
+<hr />
+<h2 id="3-billing-account--project-relationship-exam-core">3️⃣ Billing account ↔ project relationship (EXAM CORE)</h2>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>True / False</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A project can have multiple billing accounts</td>
+<td>❌ False</td>
+</tr>
+<tr>
+<td>A billing account can have many projects</td>
+<td>✅ True</td>
+</tr>
+<tr>
+<td>Billing auto-links on project creation</td>
+<td>❌ False</td>
+</tr>
+<tr>
+<td>Billing can be changed later</td>
+<td>✅ True</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-who-can-link-a-project-to-a-billing-account">4️⃣ Who can link a project to a billing account</h2>
+<p>To link a project, you need:</p>
+<ul>
+<li><strong>Billing Account User</strong> (or Admin) on the billing account</li>
+<li><strong>Project Owner</strong> (or equivalent) on the project</li>
+</ul>
+<blockquote>
+<p><strong>Exam trap</strong><br />
+Project Owner alone is <strong>not sufficient</strong> without billing permission.</p>
+</blockquote>
+<hr />
+<h2 id="5-linking-a-project-via-cli-very-exam-relevant">5️⃣ Linking a project via CLI (VERY exam-relevant)</h2>
+<h3 id="-link-a-project-to-a-billing-account">🔹 Link a project to a billing account</h3>
+<pre><code class="language-bash">gcloud billing projects link my-project \
+  --billing-account=000000-AAAAAA-BBBBBB
+</code></pre>
+<hr />
+<h3 id="-verify-billing-linkage">🔹 Verify billing linkage</h3>
+<pre><code class="language-bash">gcloud billing projects describe my-project
+</code></pre>
+<p>Look for:</p>
+<pre><code class="language-text">billingEnabled: true
+billingAccountName: billingAccounts/000000-AAAAAA-BBBBBB
+</code></pre>
+<hr />
+<h3 id="-unlink-a-project-exam-awareness">🔹 Unlink a project (exam awareness)</h3>
+<pre><code class="language-bash">gcloud billing projects unlink my-project
+</code></pre>
+<blockquote>
+<p>⚠️ Unlinking <strong>stops billable resources</strong> from working</p>
+</blockquote>
+<hr />
+<h2 id="6-linking-via-console-conceptual">6️⃣ Linking via Console (conceptual)</h2>
+<p>Exam-level understanding:</p>
+<ol>
+<li>Go to <strong>Billing</strong></li>
+<li>Select billing account</li>
+<li>Link project</li>
+</ol>
+<p>You won’t be tested on UI steps — only <strong>outcomes</strong>.</p>
+<hr />
+<h2 id="7-what-happens-if-a-project-is-not-linked-exam-favorites">7️⃣ What happens if a project is NOT linked (exam favorites)</h2>
+<h3 id="-you-cannot">🚫 You cannot:</h3>
+<ul>
+<li>Create VMs</li>
+<li>Deploy GKE clusters</li>
+<li>Use Cloud Run</li>
+<li>Create load balancers</li>
+<li>Use Cloud SQL</li>
+</ul>
+<h3 id="-you-can">✅ You <em>can</em>:</h3>
+<ul>
+<li>View project</li>
+<li>Enable APIs</li>
+<li>Assign IAM roles</li>
+<li>Create some free-tier resources (limited)</li>
+</ul>
+<blockquote>
+<p><strong>Exam phrase</strong><br />
+“Resources fail immediately after project creation” → <strong>Billing</strong></p>
+</blockquote>
+<hr />
+<h2 id="8-moving-projects-between-billing-accounts-exam-logic">8️⃣ Moving projects between billing accounts (exam logic)</h2>
+<p>You can:</p>
+<ul>
+<li>Unlink from Billing A</li>
+<li>Link to Billing B</li>
+</ul>
+<p>Use cases:</p>
+<ul>
+<li>Separate dev/prod costs</li>
+<li>Change ownership</li>
+<li>Migrate between teams</li>
+</ul>
+<blockquote>
+<p><strong>Important</strong><br />
+Resources remain, but <strong>new usage bills to the new account</strong></p>
+</blockquote>
+<hr />
+<h2 id="9-real-exam-style-scenarios">9️⃣ Real exam-style scenarios</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<blockquote>
+<p>“A project exists, APIs enabled, IAM correct, but deployments fail”</p>
+</blockquote>
+<p>✅ Root cause:</p>
+<ul>
+<li>Project not linked to billing account</li>
+</ul>
+<hr />
+<h3 id="scenario-2">Scenario 2</h3>
+<blockquote>
+<p>“Finance wants prod charges on a different invoice”</p>
+</blockquote>
+<p>✅ Action:</p>
+<ul>
+<li>Link prod project to a different billing account</li>
+</ul>
+<hr />
+<h3 id="scenario-3">Scenario 3</h3>
+<blockquote>
+<p>“CI/CD pipeline fails on first run”</p>
+</blockquote>
+<p>✅ Root cause:</p>
+<ul>
+<li>Missing billing linkage</li>
+</ul>
+<hr />
+<h2 id="10-common-exam-traps">10️⃣ Common exam traps</h2>
+<p>❌ Assume billing auto-links<br />
+❌ Confuse billing IAM with project IAM<br />
+❌ Think budgets enforce limits<br />
+❌ Assume billing account = organization</p>
+<hr />
+<h2 id="-one-line-exam-memory-hook">🔑 One-line exam memory hook</h2>
+<blockquote>
+<p><strong>No billing link → no real resources</strong></p>
+</blockquote>
+<hr />
+    </div>
+  </div>
+</body>
+
+</html>
