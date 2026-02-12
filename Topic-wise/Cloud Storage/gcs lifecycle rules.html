@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li><a href="#basic-steps-to-use-lifecycle-policies">Basic Steps to Use Lifecycle Policies</a></li>
+<li><a href="#verify-current-lifecycle-policy">Verify Current Lifecycle Policy</a></li>
+<li><a href="#remove-lifecycle-policy">Remove Lifecycle Policy</a></li>
+<li><a href="#notes">Notes</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>GSUtil allows you to manage lifecycle policies for Google Cloud Storage buckets. Lifecycle policies help automate actions such as deleting old objects or moving them to cheaper storage classes.</p>
+<h2 id="basic-steps-to-use-lifecycle-policies">Basic Steps to Use Lifecycle Policies</h2>
+<ol>
+<li><strong>Create a JSON file</strong> defining your lifecycle policy.</li>
+<li><strong>Apply the policy</strong> to your bucket using <code>gsutil lifecycle set</code>.</li>
+</ol>
+<h3 id="example-1-delete-objects-older-than-365-days">Example 1: Delete Objects Older Than 365 Days</h3>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+<span class="token string">"rule"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+<span class="token punctuation">{</span>
+<span class="token string">"action"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"Delete"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token string">"condition"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"age"</span><span class="token punctuation">:</span> <span class="token number">365</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Apply it to a bucket:</p>
+<pre class=" language-bash"><code class="prism  language-bash">gsutil lifecycle <span class="token keyword">set</span> lifecycle.json gs://my-bucket
+</code></pre>
+<h3 id="example-2-archive-objects-to-nearline-after-30-days">Example 2: Archive Objects to Nearline After 30 Days</h3>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+<span class="token string">"rule"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+<span class="token punctuation">{</span>
+<span class="token string">"action"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"SetStorageClass"</span><span class="token punctuation">,</span> <span class="token string">"storageClass"</span><span class="token punctuation">:</span> <span class="token string">"NEARLINE"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token string">"condition"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"age"</span><span class="token punctuation">:</span> <span class="token number">30</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>This moves objects to a more cost-effective Nearline storage after they are 30 days old.</p>
+<h3 id="example-3-delete-objects-older-than-90-days-or-with-a-specific-prefix">Example 3: Delete Objects Older Than 90 Days or with a Specific Prefix</h3>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+<span class="token string">"rule"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+<span class="token punctuation">{</span>
+<span class="token string">"action"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"Delete"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token string">"condition"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+<span class="token string">"age"</span><span class="token punctuation">:</span> <span class="token number">90</span><span class="token punctuation">,</span>
+<span class="token string">"matchesPrefix"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"logs/"</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>This automatically deletes objects under <code>logs/</code> that are older than 90 days.</p>
+<h3 id="example-4-multiple-conditions-example">Example 4: Multiple Conditions Example</h3>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+<span class="token string">"rule"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+<span class="token punctuation">{</span>
+<span class="token string">"action"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"SetStorageClass"</span><span class="token punctuation">,</span> <span class="token string">"storageClass"</span><span class="token punctuation">:</span> <span class="token string">"COLDLINE"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token string">"condition"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"age"</span><span class="token punctuation">:</span> <span class="token number">30</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">{</span>
+<span class="token string">"action"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"Delete"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token string">"condition"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"age"</span><span class="token punctuation">:</span> <span class="token number">365</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<ul>
+<li>Moves objects to <code>COLDLINE</code> storage after 30 days.</li>
+<li>Deletes objects after 365 days.</li>
+</ul>
+<h2 id="verify-current-lifecycle-policy">Verify Current Lifecycle Policy</h2>
+<pre class=" language-bash"><code class="prism  language-bash">gsutil lifecycle get gs://my-bucket
+</code></pre>
+<h2 id="remove-lifecycle-policy">Remove Lifecycle Policy</h2>
+<pre class=" language-bash"><code class="prism  language-bash">gsutil lifecycle <span class="token function">clear</span> gs://my-bucket
+</code></pre>
+<h2 id="notes">Notes</h2>
+<ul>
+<li>You can combine multiple rules in a single lifecycle JSON, and rules are evaluated in order.</li>
+<li>Conditions can be based on <strong>age</strong>, <strong>createdBefore</strong>, <strong>number of newer versions</strong>, <strong>matchesPrefix</strong>, or <strong>matchesStorageClass</strong>.</li>
+<li>Actions can include <code>Delete</code> and <code>SetStorageClass</code>.</li>
+</ul>
+<p>These examples help automate storage management, reduce costs, and maintain compliance with data retention policies.</p>
+<p>Source(s):</p>
+
+    </div>
+  </div>
+</body>
+
+</html>

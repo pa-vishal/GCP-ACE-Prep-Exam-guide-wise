@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GCP Networking Prep Test - VPC Properties</title>
+  <style>
+    body { font-family: Arial; margin: 40px; }
+    .question { margin-bottom: 20px; }
+    .result { font-weight: bold; margin-top: 10px; }
+  </style>
+  <script>
+    function checkAnswers() {
+      let score = 0;
+      if (document.querySelector('input[name="q1"]:checked')?.value === "b") score++;
+      if (document.querySelector('input[name="q2"]:checked')?.value === "a") score++;
+      if (document.querySelector('input[name="q3"]:checked')?.value === "c") score++;
+      document.getElementById("result").innerText =
+        "You scored " + score + " out of 3";
+    }
+  </script>
+</head>
+<body>
+
+<h2>Prep Test: A.i – VPC Properties (Global vs Regional)</h2>
+
+<div class="question">
+  <p>1. What is the scope of a VPC network in Google Cloud?</p>
+  <input type="radio" name="q1" value="a"> Regional<br>
+  <input type="radio" name="q1" value="b"> Global<br>
+  <input type="radio" name="q1" value="c"> Zonal<br>
+</div>
+
+<div class="question">
+  <p>2. Which GCP networking resource is regional?</p>
+  <input type="radio" name="q2" value="a"> Subnet<br>
+  <input type="radio" name="q2" value="b"> Firewall rule<br>
+  <input type="radio" name="q2" value="c"> Route<br>
+</div>
+
+<div class="question">
+  <p>3. Traffic between two regions in the same VPC travels over:</p>
+  <input type="radio" name="q3" value="a"> Public internet<br>
+  <input type="radio" name="q3" value="b"> VPN tunnel<br>
+  <input type="radio" name="q3" value="c"> Google private backbone<br>
+</div>
+
+<button onclick="checkAnswers()">Check Answers</button>
+<p id="result" class="result"></p>
+
+</body>
+</html>

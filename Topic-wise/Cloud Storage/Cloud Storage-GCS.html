@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li><a href="#cloud-storage-gcs-—-ace-mental-model-one-page-summary">Cloud Storage (GCS) — ACE Mental Model (One-Page Summary)</a>
+<ul>
+<li><a href="#🧠-core-mental-model">🧠 Core Mental Model</a></li>
+<li><a href="#️⃣-buckets-the-container">1️⃣ Buckets (the container)</a></li>
+<li><a href="#️⃣-objects-the-data">2️⃣ Objects (the data)</a></li>
+<li><a href="#️⃣-storage-classes-cost-control">3️⃣ Storage Classes (cost control)</a></li>
+<li><a href="#️⃣-lifecycle-rules-automation">4️⃣ Lifecycle Rules (automation)</a></li>
+<li><a href="#️⃣-access-control-most-tested">5️⃣ Access Control (MOST tested)</a></li>
+<li><a href="#️⃣-temporary-access-classic-ace-scenario">6️⃣ Temporary Access (classic ACE scenario)</a></li>
+<li><a href="#️⃣-operations--data-movement">7️⃣ Operations & Data Movement</a></li>
+<li><a href="#🔑-cloud-storage-—-exam-safe-one-liners">🔑 Cloud Storage — Exam-Safe One-Liners</a></li>
+</ul>
+</li>
+<li><a href="#✅-cloud-storage-—-closed">✅ Cloud Storage — CLOSED</a></li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <hr>
+<h1 id="cloud-storage-gcs-—-ace-mental-model-one-page-summary">Cloud Storage (GCS) — ACE Mental Model (One-Page Summary)</h1>
+<p>Use this as your <strong>default reasoning map</strong> whenever you see a Cloud Storage question.</p>
+<hr>
+<h2 id="🧠-core-mental-model">🧠 Core Mental Model</h2>
+<blockquote>
+<p><strong>Cloud Storage is an object store where you choose location, control cost over time, and secure access primarily with IAM.</strong></p>
+</blockquote>
+<p>Everything else is a variation of this.</p>
+<hr>
+<h2 id="️⃣-buckets-the-container">1️⃣ Buckets (the container)</h2>
+<h3 id="bucket-properties-immutable-once-created">Bucket properties (immutable once created)</h3>
+<ul>
+<li>
+<p><strong>Location</strong></p>
+<ul>
+<li>Regional → latency / data residency</li>
+<li>Multi-region → availability / global access</li>
+</ul>
+</li>
+<li>
+<p><strong>Uniform Bucket-Level Access (UBLA)</strong></p>
+<ul>
+<li>Enforce IAM-only access</li>
+<li>Disable ACLs (best practice)</li>
+</ul>
+</li>
+</ul>
+<p>🧠 <em>Rule:</em> <strong>You can’t change a bucket’s location later.</strong></p>
+<hr>
+<h2 id="️⃣-objects-the-data">2️⃣ Objects (the data)</h2>
+<ul>
+<li>Objects live <strong>inside buckets</strong></li>
+<li>Objects are <strong>immutable</strong></li>
+<li>New upload = new object version (if versioning enabled)</li>
+</ul>
+<h3 id="object-versioning">Object versioning</h3>
+<ul>
+<li>Protects against accidental deletion/overwrite</li>
+<li>Costs extra storage</li>
+</ul>
+<p>🧠 <em>Rule:</em> <strong>Versioning = safety, not access control.</strong></p>
+<hr>
+<h2 id="️⃣-storage-classes-cost-control">3️⃣ Storage Classes (cost control)</h2>
+
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>When to Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Standard</td>
+<td>Hot data</td>
+</tr>
+<tr>
+<td>Nearline</td>
+<td>Monthly access</td>
+</tr>
+<tr>
+<td>Coldline</td>
+<td>Yearly access</td>
+</tr>
+<tr>
+<td>Archive</td>
+<td>Long-term retention</td>
+</tr>
+</tbody>
+</table><p>Key ACE nuance:</p>
+<ul>
+<li>Colder = cheaper storage</li>
+<li>Colder = higher retrieval cost</li>
+<li>Access latency stays low</li>
+</ul>
+<p>🧠 <em>Rule:</em> <strong>Cost shifts from storage → retrieval as data gets colder.</strong></p>
+<hr>
+<h2 id="️⃣-lifecycle-rules-automation">4️⃣ Lifecycle Rules (automation)</h2>
+<p>Lifecycle rules let you:</p>
+<ul>
+<li>Transition objects to colder classes</li>
+<li>Delete objects after time</li>
+</ul>
+<p>ACE-safe patterns:</p>
+<ul>
+<li>Based on <strong>object age</strong></li>
+<li>Not on access frequency</li>
+</ul>
+<p>Example:</p>
+<blockquote>
+<p>Move objects older than 90 days to Coldline</p>
+</blockquote>
+<p>🧠 <em>Rule:</em> <strong>Lifecycle rules automate cost optimization.</strong></p>
+<hr>
+<h2 id="️⃣-access-control-most-tested">5️⃣ Access Control (MOST tested)</h2>
+<h3 id="iam-preferred">IAM (preferred)</h3>
+<ul>
+<li>Applied at bucket or project level</li>
+<li>Scales cleanly</li>
+<li>Works best with UBLA</li>
+</ul>
+<h3 id="acls-legacy">ACLs (legacy)</h3>
+<ul>
+<li>Object-level</li>
+<li>Avoid unless explicitly required</li>
+</ul>
+<p>Common roles:</p>
+<ul>
+<li><code>Storage Object Viewer</code> → read</li>
+<li><code>Storage Object Creator</code> → upload only</li>
+<li><code>Storage Object Admin</code> → full control</li>
+</ul>
+<p>🧠 <em>Rule:</em> <strong>Modern GCS access = IAM + UBLA.</strong></p>
+<hr>
+<h2 id="️⃣-temporary-access-classic-ace-scenario">6️⃣ Temporary Access (classic ACE scenario)</h2>
+<h3 id="signed-urls">Signed URLs</h3>
+<ul>
+<li>Time-limited access to an object</li>
+<li>No IAM changes</li>
+<li>Ideal for external users</li>
+</ul>
+<p>🧠 <em>Rule:</em> <strong>Temporary access → Signed URL.</strong></p>
+<hr>
+<h2 id="️⃣-operations--data-movement">7️⃣ Operations &amp; Data Movement</h2>
+<ul>
+<li><code>gsutil</code> / <code>gcloud storage</code> → manual ops</li>
+<li>Storage Transfer Service → large / cross-cloud moves</li>
+<li>Native integration with BigQuery, Dataflow</li>
+</ul>
+<p>🧠 <em>Rule:</em> <strong>Big data moves → Storage Transfer Service.</strong></p>
+<hr>
+<h2 id="🔑-cloud-storage-—-exam-safe-one-liners">🔑 Cloud Storage — Exam-Safe One-Liners</h2>
+<ul>
+<li>“Global users” → <strong>Multi-region bucket</strong></li>
+<li>“Reduce storage cost over time” → <strong>Lifecycle rules</strong></li>
+<li>“Simplify permissions” → <strong>UBLA</strong></li>
+<li>“Temporary access” → <strong>Signed URL</strong></li>
+<li>“Prevent accidental deletion” → <strong>Object versioning</strong></li>
+</ul>
+<p>If you memorize just these, you’ll clear GCS questions.</p>
+<hr>
+<h1 id="✅-cloud-storage-—-closed">✅ Cloud Storage — CLOSED</h1>
+<p>You now have a <strong>cohesive mental model</strong>, not scattered facts.</p>
+<hr>
+
+    </div>
+  </div>
+</body>
+
+</html>

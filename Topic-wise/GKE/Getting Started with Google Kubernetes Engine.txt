@@ -1,0 +1,186 @@
+Getting Started with Google Kubernetes Engine
+
+Kubernetes is an orchestration framework for software containers. 
+Containers are a way to package and run code that's more efficient than virtual machines. 
+Kubernetes provides the tools you need to run containerized applications in production and at scale.
+
+Virtualization:
+	Virtualization is the process of creating a virtual version of a physical resource, such as a server, storage device, or network.
+	The software layer that breaks the dependencies of an operating system on the underlying hardware and allows several virtual machines to share that hardware is called a a hypervisor.
+	Kernel-based Virtual Machine (KVM) is one well-known hypervisor.
+	However, an application, all its dependencies, and operating system are still bundled together.
+	But running multiple applications within a single VM creates another problem: applications that share dependencies are not isolated from each other.
+
+
+Containers:
+	You don’t have to virtualize the entire machine, or even the entire operating system–just the user space.
+	The user space = code = it includes applications and their dependencies.
+	Containers are lightweight because they don’t carry a full operating system, they just start and stop operating system processes and do not boot an entire VM or initialize an operating system for each application.
+	(check "D:\Vishal\Technical\GCP\Associate-Engg\VM-KVM-Container-gVisor.jpg")
+	
+	What is significant about the topmost layer in a container?
+		The topmost layer's contents are ephemeral. When the container is deleted, the contents are lost.
+		An application running in a container can only modify the topmost layer.
+		
+Image vs Container:
+		An application and its dependencies are called an image, and a container is simply a running instance of an image.
+
+Docker:
+		One of the options to build and run container images
+		doesn’t offer a way to orchestrate those applications at scale like Kubernetes does.
+		
+Dockerfile:
+			FROM
+			COPY
+			RUN
+			CMD
+
+Linux technologies:
+	A container has the power to isolate workloads, and this ability comes from a combination of several Linux technologies.
+		Linux process - own virtual memory address spaces
+		Linux namespaces - control what an application can see, such as process ID numbers, directory trees, IP addresses, etc.
+		Linux cgroups - control what application can use - max cpu time, memory, i/o bandwidth
+		Union file systems - to bundle everything needed into a neat package.
+
+Artifact Registry
+		Google maintains Artifact Registry at pkg.dev, which contains public, open source images. It also provides Google Cloud customers with a place to store their own container images.
+
+Cloud Build
+		Google provides a managed service for building containers called Cloud Build.
+		To generate a build with Cloud Build, you must define a series of steps- fetch dependencies, compile source code, run integration tests, or use tools such as Docker, Gradle, and Maven
+		Each build step in Cloud Build runs in a Docker container.
+		From there, Cloud Build can deliver the newly built images to various execution environments including Google Kubernetes Engine, App Engine, and Cloud Run functions.
+		
+		1. 
+		gcloud artifacts repositories create quickstart-docker-repo --repository-format=docker --location=us-east1 --description="Docker repository"
+		
+		2. 
+		Dockerfile:
+		FROM alpine
+		COPY quickstart.sh /
+		CMD ["/quickstart.sh"]
+		
+		3.
+		gcloud builds submit --tag us-east1-docker.pkg.dev/${DEVSHELL_PROJECT_ID}/quickstart-docker-repo/quickstart-image:tag1
+		
+		or
+		2.
+		cloudbuild.yaml : 
+		steps:
+		- name: 'gcr.io/cloud-builders/docker'
+		  args: [ 'build', '-t', 'us-east1-docker.pkg.dev/$PROJECT_ID/quickstart-docker-repo/quickstart-image:tag1', '.' ]
+		images:
+		- 'us-east1-docker.pkg.dev/$PROJECT_ID/quickstart-docker-repo/quickstart-image:tag1'
+
+		3.
+		gcloud builds submit --config cloudbuild.yaml
+	
+
+Kubernetes:	
+	Kubernetes is an open source platform for managing containerized workloads and services.
+	It makes it easy to orchestrate many containers on many hosts, scale them as microservices, and easily deploy rollouts and rollbacks.
+	At the highest level, Kubernetes is a set of APIs that you can use to deploy containers on a set of nodes called a cluster.
+	The system is divided into a set of primary components that run as the control plane and a set of nodes that run containers.
+	In Kubernetes, a node represents a computing instance, like a machine.
+
+	You can describe a set of applications and how they should interact with each other, and Kubernetes determines how to make that happen.
+	Kubernetes supports declarative and imperative configurations - config and commands
+
+	Desired state(manifest yaml) and control pane (run and monitor like a thermostat) 
+
+
+Google Kubernetes Engine (GKE) - deploy, manage, scale
+	Fully managed k8 service, 
+	A container-optimized operating system is used to run workloads. Google maintains these operating systems, which are optimized to scale quickly with a minimal resource footprint.
+	Integrates with - cloud build, IAM, Observability
+	GKE Autopilot- Google Kubernetes Engine offers a mode of operation called GKE Autopilot, which is designed to manage your cluster configuration, like nodes, scaling, security, and other preconfigured settings.
+	
+	Cluster - When you use GKE, you start by directing the service to create and set up a Kubernetes
+	The GKE auto-upgrade feature ensures that clusters are always upgraded with the latest stable version of Kubernetes.
+	
+	Node - The virtual machines that host containers in a GKE cluster are called nodes. 
+		auto-repairs by periodic health checks, nodes determined to be unhealthy are drained and recreated.
+		
+	
+	
+K8 Object - Object spec (defines desired state), Object status(current state provided by control plane)
+Each object represents a certain type, or “kind,” as it’s referred to in Kubernetes.
+
+
+
+Pod -
+Every running container in a Kubernetes system is in a Pod.
+Pods are the foundational building block of the standard Kubernetes model, and they’re the smallest deployable Kubernetes object.
+A Pod creates the environment where the containers live, and that environment can accommodate one or more containers.
+If there is more than one container in a Pod, they are tightly coupled and share resources, like networking and storage.
+Kubernetes assigns each Pod a unique IP address, and every container within a Pod shares the network namespace, including IP address and network ports.
+Containers within the same Pod can communicate through localhost, 127.0.0.1.
+A Pod can also specify a set of storage volumes that will be shared among its containers.
+
+Control pane -
+	kube-APIserver - auth req, manages admission control , communicates with etcd
+	kubectl command - connect and communicate kube-APIserver using k8 apis. 
+	etcd - store db, 
+	kube-scheduler - schedules pods on node 
+	kube-controller-manager - watch , achieves the desired state 
+	GKE manages all the control plane components for us.
+
+Node -
+	Each node runs a small family of control-plane components called a kubelet.
+	Node configuration and management depends on the type of GKE mode you use.
+With the Autopilot mode, which is recommended, GKE manages the underlying infrastructure such as node configuration, autoscaling, auto-upgrades, baseline security configurations, and baseline networking configuration.
+With the Standard mode, you manage the underlying infrastructure, including configuring the individual nodes - You require SSH access to nodes.
+
+
+You want to deploy multiple copies of an application in an effort to load balance traffic. How should you deploy Pods to production to achieve this?
+
+Create a deployment manifest that specifies the number of replicas that you want to run.
+D:\Vishal\Technical\GCP\Associate-Engg\Deployment-manifest-example.yaml
+
+
+kubectl - The configuration information is stored in the $HOME/.kube/config file.
+kubectl is a utility used by administrators to control Kubernetes clusters. It’s used to communicate with the Kube API server on the control plane.
+4 parts - the command, the type, the name, and optional flags.
+kubectl get pod my-test-app -o=yaml
+
+common commands - get, describe, exec, logs
+
+pod phases - Pending, Runnning, Succeeded, Failed, Unknown, CrashLoopBackOff 
+
+kubectl exec demo -- ls 
+
+lab:
+gcloud container clusters create-auto $my_cluster --region $my_region
+
+gcloud container clusters get-credentials $my_cluster --region $my_region
+
+nano ~/.kube/config
+
+kubectl config view
+kubectl cluster-info
+kubectl config current-context
+kubectl config get-contexts
+kubectl config use-context gke_${DEVSHELL_PROJECT_ID}_us-central1_autopilot-cluster-1
+
+enable bash autocompletion for kubectl: source <(kubectl completion bash)
+kubectl <double Tab> to see the list of command 
+
+
+kubectl create deployment --image nginx nginx-1
+
+kubectl get pods 
+kubectl describe pod $my_nginx_pod
+
+In Cloud Shell, execute the following command to place the file into the appropriate location within the nginx container in the nginx Pod to be served statically:
+	kubectl cp ~/test.html $my_nginx_pod:/usr/share/nginx/html/test.html
+
+
+Command to create a service to expose our nginx Pod externally: 
+	kubectl expose pod $my_nginx_pod --port 80 --type LoadBalancer
+
+
+kubectl get services
+
+
+kubectl apply -f ./new-nginx-pod.yaml
+

@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li><a href="#cloud-sql-—-ace-mental-model-one-page">Cloud SQL — ACE Mental Model (One-Page)</a>
+<ul>
+<li><a href="#🧠-core-truth-anchor-this-first">🧠 Core Truth (anchor this first)</a></li>
+<li><a href="#️⃣-where-cloud-sql-lives-most-misunderstood">1️⃣ Where Cloud SQL lives (MOST misunderstood)</a></li>
+<li><a href="#️⃣-availability-vs-scale-must-separate">2️⃣ Availability vs Scale (must separate)</a></li>
+<li><a href="#️⃣-connectivity-how-traffic-flows">3️⃣ Connectivity (how traffic flows)</a></li>
+<li><a href="#️⃣-backups--recovery-very-testable">4️⃣ Backups & Recovery (VERY testable)</a></li>
+<li><a href="#️⃣-operations-ownership-mindset">5️⃣ Operations (ownership mindset)</a></li>
+<li><a href="#️⃣-security-layers-this-is-ace-gold">6️⃣ Security layers (THIS is ACE gold)</a></li>
+<li><a href="#️⃣-secure-connectivity-best-practice">7️⃣ Secure connectivity (best practice)</a></li>
+<li><a href="#🔑-cloud-sql-—-exam-safe-one-liners">🔑 Cloud SQL — Exam-Safe One-Liners</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <hr>
+<h1 id="cloud-sql-—-ace-mental-model-one-page">Cloud SQL — ACE Mental Model (One-Page)</h1>
+<h2 id="🧠-core-truth-anchor-this-first">🧠 Core Truth (anchor this first)</h2>
+<blockquote>
+<p><strong>Cloud SQL is a Google-managed relational database.<br>
+You do not manage servers — you manage availability, connectivity, and data protection.</strong></p>
+</blockquote>
+<p>Everything else hangs off this.</p>
+<hr>
+<h2 id="️⃣-where-cloud-sql-lives-most-misunderstood">1️⃣ Where Cloud SQL lives (MOST misunderstood)</h2>
+<ul>
+<li>Cloud SQL <strong>does NOT live inside your VPC</strong></li>
+<li>It runs in a <strong>Google-managed service network</strong></li>
+<li>You <strong>connect to it</strong>, you don’t host it</li>
+</ul>
+<p>🧠 <strong>Hook:</strong> <em>“Cloud SQL is managed by Google; you just plug into it.”</em></p>
+<hr>
+<h2 id="️⃣-availability-vs-scale-must-separate">2️⃣ Availability vs Scale (must separate)</h2>
+
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Feature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Automatic failover</td>
+<td><strong>High Availability (HA)</strong></td>
+</tr>
+<tr>
+<td>More read capacity</td>
+<td><strong>Read Replicas</strong></td>
+</tr>
+<tr>
+<td>Disaster recovery</td>
+<td><strong>Backups + PITR</strong></td>
+</tr>
+</tbody>
+</table><p>🧠 <strong>Hook:</strong> <em>“HA keeps it up, replicas make it faster, backups save your data.”</em></p>
+<hr>
+<h2 id="️⃣-connectivity-how-traffic-flows">3️⃣ Connectivity (how traffic flows)</h2>
+<h3 id="two-access-models">Two access models:</h3>
+<ul>
+<li>
+<p><strong>Public IP</strong></p>
+<ul>
+<li>Simpler</li>
+<li>Less secure</li>
+</ul>
+</li>
+<li>
+<p><strong>Private IP</strong></p>
+<ul>
+<li>Uses <strong>Private Service Access (PSA)</strong></li>
+<li>No public internet</li>
+<li>Most ACE questions expect this</li>
+</ul>
+</li>
+</ul>
+<p>🧠 <strong>Hook:</strong> <em>“Private Cloud SQL = PSA.”</em></p>
+<hr>
+<h2 id="️⃣-backups--recovery-very-testable">4️⃣ Backups &amp; Recovery (VERY testable)</h2>
+<ul>
+<li>
+<p><strong>Automated backups</strong></p>
+<ul>
+<li>Enabled per instance</li>
+<li>Required for PITR</li>
+</ul>
+</li>
+<li>
+<p><strong>On-demand backups</strong></p>
+<ul>
+<li>Before risky changes</li>
+</ul>
+</li>
+<li>
+<p><strong>Point-in-Time Recovery (PITR)</strong></p>
+<ul>
+<li>Restore to a specific moment</li>
+</ul>
+</li>
+</ul>
+<p>🚫 Never use VM snapshots for Cloud SQL.</p>
+<p>🧠 <strong>Hook:</strong> <em>“Databases use database backups, not VM snapshots.”</em></p>
+<hr>
+<h2 id="️⃣-operations-ownership-mindset">5️⃣ Operations (ownership mindset)</h2>
+<ul>
+<li>
+<p><strong>Maintenance windows</strong></p>
+<ul>
+<li>You choose <em>when</em> Google patches</li>
+<li>Downtime planning</li>
+</ul>
+</li>
+<li>
+<p>You don’t control <em>what</em> is patched — only <em>when</em></p>
+</li>
+</ul>
+<p>🧠 <strong>Hook:</strong> <em>“Maintenance windows control timing, not content.”</em></p>
+<hr>
+<h2 id="️⃣-security-layers-this-is-ace-gold">6️⃣ Security layers (THIS is ACE gold)</h2>
+<p>Cloud SQL has <strong>two distinct security layers</strong>:</p>
+<h3 id="a.-iam-—-who-can-connect">A. IAM — <em>Who can connect</em></h3>
+<ul>
+<li>Example role: <strong>Cloud SQL Client</strong></li>
+<li>Controls instance-level access</li>
+</ul>
+<h3 id="b.-database-users-—-what-they-can-do">B. Database users — <em>What they can do</em></h3>
+<ul>
+<li>MySQL / Postgres users</li>
+<li>Table &amp; query permissions</li>
+</ul>
+<p>🧠 <strong>Hook:</strong></p>
+<blockquote>
+<p><em>“IAM gets you in. Database users control the data.”</em></p>
+</blockquote>
+<hr>
+<h2 id="️⃣-secure-connectivity-best-practice">7️⃣ Secure connectivity (best practice)</h2>
+<ul>
+<li>
+<p><strong>Cloud SQL Auth Proxy / connectors</strong></p>
+<ul>
+<li>No IP allowlists</li>
+<li>No passwords in code</li>
+<li>Secure by default</li>
+</ul>
+</li>
+</ul>
+<p>🧠 <strong>Hook:</strong> <em>“Secure app access → Cloud SQL proxy.”</em></p>
+<hr>
+<h2 id="🔑-cloud-sql-—-exam-safe-one-liners">🔑 Cloud SQL — Exam-Safe One-Liners</h2>
+<ul>
+<li>“Automatic failover” → <strong>HA</strong></li>
+<li>“Improve read performance” → <strong>Read replica</strong></li>
+<li>“Restore deleted data from earlier today” → <strong>PITR</strong></li>
+<li>“Private access from VPC” → <strong>Private IP + PSA</strong></li>
+<li>“Secure app connection” → <strong>Cloud SQL Proxy</strong></li>
+<li>“Backups” → <strong>Automated backups (not snapshots)</strong></li>
+</ul>
+<p>If you can map a question to these lines, you’ll answer correctly.</p>
+<hr>
+
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,414 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li><a href="#operations-suite-—-deep-operational-ace-coverage">Operations Suite — Deep, Operational ACE Coverage</a></li>
+<li><a href="#operations-suite-—-ace-mental-model-deep-practical">Operations Suite — ACE Mental Model (Deep, Practical)</a>
+<ul>
+<li><a href="#🧠-core-mental-model-read-once">🧠 Core Mental Model (read once)</a></li>
+<li><a href="#what’s-in-the-operations-suite-names-ace-expects">What’s in the Operations Suite (names ACE expects)</a></li>
+<li><a href="#️⃣-cloud-logging-first-place-you-look">1️⃣ Cloud Logging (FIRST place you look)</a></li>
+<li><a href="#very-common-ace-trap-⚠️">Very common ACE trap ⚠️</a></li>
+<li><a href="#️⃣-cloud-monitoring-health--trends">2️⃣ Cloud Monitoring (health & trends)</a></li>
+<li><a href="#️⃣-alerts-notifications-not-diagnosis">3️⃣ Alerts (notifications, not diagnosis)</a></li>
+<li><a href="#️⃣-logs-→-metrics-→-alerts-critical-flow">4️⃣ Logs → Metrics → Alerts (critical flow)</a></li>
+<li><a href="#️⃣-cloud-trace-latency-questions">5️⃣ Cloud Trace (latency questions)</a></li>
+<li><a href="#️⃣-error-reporting-app-level-errors">6️⃣ Error Reporting (app-level errors)</a></li>
+<li><a href="#️⃣-ops-agent-compute-engine--gke">7️⃣ Ops Agent (Compute Engine & GKE)</a></li>
+<li><a href="#operations-suite-—-unified-ace-decision-table">Operations Suite — Unified ACE Decision Table</a></li>
+<li><a href="#quick-ace-drill-lock-it-in">Quick ACE Drill (lock it in)</a></li>
+</ul>
+</li>
+<li><a href="#operations-suite-—-ace-mental-model-one-page-summary">Operations Suite — ACE Mental Model (One-Page Summary)</a>
+<ul>
+<li><a href="#🧠-core-mental-model">🧠 Core Mental Model</a></li>
+<li><a href="#️⃣-cloud-logging-—-what-happened">1️⃣ Cloud Logging — What happened?</a></li>
+<li><a href="#️⃣-cloud-monitoring-—-is-it-healthy">2️⃣ Cloud Monitoring — Is it healthy?</a></li>
+<li><a href="#️⃣-alerts-—-when-should-i-wake-up">3️⃣ Alerts — When should I wake up?</a></li>
+<li><a href="#️⃣-logs-→-metrics-→-alerts-very-testable">4️⃣ Logs → Metrics → Alerts (VERY testable)</a></li>
+<li><a href="#️⃣-cloud-trace-—-where-is-it-slow">5️⃣ Cloud Trace — Where is it slow?</a></li>
+<li><a href="#️⃣-error-reporting-—-what-errors-keep-happening">6️⃣ Error Reporting — What errors keep happening?</a></li>
+<li><a href="#️⃣-ops-agent-—-why-is-there-no-data">7️⃣ Ops Agent — Why is there no data?</a></li>
+<li><a href="#🔑-operations-suite-—-exam-safe-one-liners">🔑 Operations Suite — Exam-Safe One-Liners</a></li>
+</ul>
+</li>
+<li><a href="#✅-operations-suite-—-closed">✅ Operations Suite — CLOSED</a></li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <h1 id="operations-suite-—-deep-operational-ace-coverage"><strong>Operations Suite — Deep, Operational ACE Coverage</strong></h1>
+<p>This is about:</p>
+<ul>
+<li><strong>Seeing what’s happening</strong></li>
+<li><strong>Knowing where to look first</strong></li>
+<li><strong>Alerting vs logging vs tracing</strong></li>
+</ul>
+<p>Before we begin, one calibration question (don’t overthink):</p>
+<p>👉 When an application returns <strong>500 errors</strong>, what is the <strong>first GCP service</strong> you should check?</p>
+<p>Answer with <strong>one service name only</strong>.</p>
+<p>Correct ✅ — <strong>Log Explorer</strong> (Cloud Logging).</p>
+<p>That’s the <strong>ACE-correct first stop</strong>. Now let’s build a <strong>clean, operational mental model</strong> for the <strong>Operations Suite</strong>, at exactly the depth the exam expects.</p>
+<hr>
+<h1 id="operations-suite-—-ace-mental-model-deep-practical">Operations Suite — ACE Mental Model (Deep, Practical)</h1>
+<h2 id="🧠-core-mental-model-read-once">🧠 Core Mental Model (read once)</h2>
+<blockquote>
+<p><strong>Logs tell you <em>what happened</em>.<br>
+Metrics tell you <em>how healthy things are</em>.<br>
+Alerts tell you <em>when to wake up</em>.<br>
+Traces tell you <em>where time is spent</em>.</strong></p>
+</blockquote>
+<p>Almost every ACE ops question maps to <strong>one of these four</strong>.</p>
+<hr>
+<h2 id="what’s-in-the-operations-suite-names-ace-expects">What’s in the Operations Suite (names ACE expects)</h2>
+<ul>
+<li><strong>Cloud Logging</strong> → logs</li>
+<li><strong>Cloud Monitoring</strong> → metrics, dashboards, alerts</li>
+<li><strong>Cloud Trace</strong> → request latency</li>
+<li><strong>Cloud Profiler</strong> → CPU/memory hotspots</li>
+<li><strong>Error Reporting</strong> → aggregated app errors</li>
+</ul>
+<p>You don’t need internals — you need <strong>when to use which</strong>.</p>
+<hr>
+<h2 id="️⃣-cloud-logging-first-place-you-look">1️⃣ Cloud Logging (FIRST place you look)</h2>
+<h3 id="what-logging-answers">What Logging answers</h3>
+<ul>
+<li>Why did this request fail?</li>
+<li>What error occurred?</li>
+<li>What did the app say?</li>
+</ul>
+<h3 id="ace-safe-usage">ACE-safe usage</h3>
+<ul>
+<li>
+<p>Use <strong>Log Explorer</strong></p>
+</li>
+<li>
+<p>Filter by:</p>
+<ul>
+<li>Resource (VM, Cloud Run, GKE)</li>
+<li>Severity (ERROR)</li>
+<li>Time window</li>
+</ul>
+</li>
+</ul>
+<p>🧠 <strong>Rule:</strong> <em>Errors → Logs first.</em></p>
+<hr>
+<h2 id="very-common-ace-trap-⚠️">Very common ACE trap ⚠️</h2>
+<p>They’ll suggest:</p>
+<ul>
+<li>Increase quota ❌</li>
+<li>Check IAM ❌</li>
+<li>Create alert ❌</li>
+</ul>
+<p>If the app is already failing:<br>
+👉 <strong>Look at logs first</strong>.</p>
+<hr>
+<h2 id="️⃣-cloud-monitoring-health--trends">2️⃣ Cloud Monitoring (health &amp; trends)</h2>
+<h3 id="what-monitoring-answers">What Monitoring answers</h3>
+<ul>
+<li>Is CPU too high?</li>
+<li>Is memory exhausted?</li>
+<li>Is latency increasing?</li>
+<li>Is the service up?</li>
+</ul>
+<p>Monitoring works with <strong>metrics</strong>, not logs.</p>
+<h3 id="common-ace-metrics">Common ACE metrics</h3>
+<ul>
+<li>CPU utilization</li>
+<li>Memory usage</li>
+<li>Request count / latency</li>
+<li>Error rate (derived metric)</li>
+</ul>
+<p>🧠 <strong>Rule:</strong> <em>Health &amp; performance → Monitoring.</em></p>
+<hr>
+<h2 id="️⃣-alerts-notifications-not-diagnosis">3️⃣ Alerts (notifications, not diagnosis)</h2>
+<h3 id="what-alerts-do">What alerts do</h3>
+<ul>
+<li>Notify you when a metric crosses a threshold</li>
+<li>Based on <strong>Cloud Monitoring</strong></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li>CPU &gt; 80%</li>
+<li>Error rate &gt; 5%</li>
+<li>VM down</li>
+</ul>
+<p>⚠️ <strong>Alerts do NOT fix anything. They only notify.</strong></p>
+<p>🧠 <strong>Rule:</strong> <em>Alerts come after you understand the metric.</em></p>
+<hr>
+<h2 id="️⃣-logs-→-metrics-→-alerts-critical-flow">4️⃣ Logs → Metrics → Alerts (critical flow)</h2>
+<p>This flow is <strong>very exam-important</strong>:</p>
+<pre><code>Logs (raw events)
+   ↓
+Log-based metrics
+   ↓
+Monitoring alerts
+</code></pre>
+<p>ACE often asks:</p>
+<blockquote>
+<p>“Create an alert when a specific log message appears”</p>
+</blockquote>
+<p>Correct reasoning:</p>
+<ul>
+<li>Create <strong>log-based metric</strong></li>
+<li>Create <strong>alert</strong> on that metric</li>
+</ul>
+<hr>
+<h2 id="️⃣-cloud-trace-latency-questions">5️⃣ Cloud Trace (latency questions)</h2>
+<h3 id="what-trace-answers">What Trace answers</h3>
+<ul>
+<li>Which service is slow?</li>
+<li>Where is time being spent?</li>
+</ul>
+<p>ACE only tests <strong>recognition</strong>:</p>
+<ul>
+<li>“Investigate request latency” → <strong>Cloud Trace</strong></li>
+</ul>
+<hr>
+<h2 id="️⃣-error-reporting-app-level-errors">6️⃣ Error Reporting (app-level errors)</h2>
+<h3 id="what-it-does">What it does</h3>
+<ul>
+<li>Groups exceptions (e.g., stack traces)</li>
+<li>Tracks new vs recurring errors</li>
+</ul>
+<p>ACE pattern:</p>
+<blockquote>
+<p>“Track application errors over time” → <strong>Error Reporting</strong></p>
+</blockquote>
+<hr>
+<h2 id="️⃣-ops-agent-compute-engine--gke">7️⃣ Ops Agent (Compute Engine &amp; GKE)</h2>
+<h3 id="what-ops-agent-does">What Ops Agent does</h3>
+<ul>
+<li>
+<p>Collects:</p>
+<ul>
+<li>Logs</li>
+<li>Metrics</li>
+</ul>
+</li>
+<li>
+<p>Replaces legacy agents</p>
+</li>
+</ul>
+<p>ACE scenario:</p>
+<blockquote>
+<p>“VM metrics/logs not visible”<br>
+👉 <strong>Install Ops Agent</strong></p>
+</blockquote>
+<p>🧠 <strong>Rule:</strong> <em>No data → check agent.</em></p>
+<hr>
+<h2 id="operations-suite-—-unified-ace-decision-table">Operations Suite — Unified ACE Decision Table</h2>
+
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>First Service</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>500 errors</td>
+<td><strong>Cloud Logging (Log Explorer)</strong></td>
+</tr>
+<tr>
+<td>High CPU / memory</td>
+<td><strong>Cloud Monitoring</strong></td>
+</tr>
+<tr>
+<td>Need notification</td>
+<td><strong>Monitoring Alert</strong></td>
+</tr>
+<tr>
+<td>Slow requests</td>
+<td><strong>Cloud Trace</strong></td>
+</tr>
+<tr>
+<td>App exceptions</td>
+<td><strong>Error Reporting</strong></td>
+</tr>
+<tr>
+<td>No VM metrics</td>
+<td><strong>Ops Agent</strong></td>
+</tr>
+<tr>
+<td>Alert on log pattern</td>
+<td><strong>Log-based metric → Alert</strong></td>
+</tr>
+</tbody>
+</table><p>If you follow this table, you won’t miss ops questions.</p>
+<hr>
+<h2 id="quick-ace-drill-lock-it-in">Quick ACE Drill (lock it in)</h2>
+<h3 id="scenario-1">Scenario 1</h3>
+<p>Your Cloud Run service is slow, but not failing.</p>
+<p>👉 Which service do you check <strong>first</strong>?</p>
+<h3 id="scenario-2">Scenario 2</h3>
+<p>You want to be notified when <strong>ERROR logs exceed a threshold</strong>.</p>
+<p>👉 What two steps are required?<br>
+(Answer with <strong>two short phrases</strong>.)</p>
+<h3 id="scenario-3">Scenario 3</h3>
+<p>A VM shows no CPU metrics in Monitoring.</p>
+<p>👉 What is the likely fix?</p>
+<p>Answer <strong>1 / 2 / 3</strong> in order.<br>
+After that, we’ll <strong>summarize Operations Suite</strong>, then move <strong>exactly as planned</strong> to <strong>Cloud SQL — deep, operational</strong>.</p>
+<p>Excellent — <strong>all three answers are correct</strong> ✅✅✅.<br>
+That tells me your <strong>operations intuition is now ACE-ready</strong>.</p>
+<p>As promised, I’ll now:</p>
+<p>1️⃣ <strong>Summarize Operations Suite into a single mental model</strong><br>
+2️⃣ <strong>Then start Cloud SQL — deep, operational</strong>, from zero<br>
+(We’ll keep the same disciplined depth you asked for.)</p>
+<hr>
+<h1 id="operations-suite-—-ace-mental-model-one-page-summary">Operations Suite — ACE Mental Model (One-Page Summary)</h1>
+<h2 id="🧠-core-mental-model">🧠 Core Mental Model</h2>
+<blockquote>
+<p><strong>Operations is about visibility, not fixing.</strong><br>
+You <em>observe</em>, then <em>act</em> elsewhere.</p>
+</blockquote>
+<p>Every ops question answers one of these:</p>
+<ul>
+<li>What happened?</li>
+<li>Is it healthy?</li>
+<li>When should I be notified?</li>
+<li>Where is it slow?</li>
+</ul>
+<hr>
+<h2 id="️⃣-cloud-logging-—-what-happened">1️⃣ Cloud Logging — <em>What happened?</em></h2>
+<h3 id="use-when">Use when:</h3>
+<ul>
+<li>App errors (4xx / 5xx)</li>
+<li>Crashes</li>
+<li>Unexpected behavior</li>
+</ul>
+<h3 id="key-tool">Key tool:</h3>
+<ul>
+<li><strong>Log Explorer</strong></li>
+</ul>
+<h3 id="key-ace-facts">Key ACE facts:</h3>
+<ul>
+<li>
+<p>Logs are <strong>raw events</strong></p>
+</li>
+<li>
+<p>Filter by:</p>
+<ul>
+<li>Resource</li>
+<li>Severity</li>
+<li>Time</li>
+</ul>
+</li>
+</ul>
+<p>🧠 <strong>Rule:</strong> <em>Errors → Logging first.</em></p>
+<hr>
+<h2 id="️⃣-cloud-monitoring-—-is-it-healthy">2️⃣ Cloud Monitoring — <em>Is it healthy?</em></h2>
+<h3 id="use-when-1">Use when:</h3>
+<ul>
+<li>CPU / memory issues</li>
+<li>Latency trends</li>
+<li>Throughput</li>
+<li>Availability</li>
+</ul>
+<h3 id="key-objects">Key objects:</h3>
+<ul>
+<li>Metrics</li>
+<li>Dashboards</li>
+<li>Alerting policies</li>
+</ul>
+<p>🧠 <strong>Rule:</strong> <em>Health &amp; performance → Monitoring.</em></p>
+<hr>
+<h2 id="️⃣-alerts-—-when-should-i-wake-up">3️⃣ Alerts — <em>When should I wake up?</em></h2>
+<h3 id="key-facts">Key facts:</h3>
+<ul>
+<li>Alerts are based on <strong>metrics</strong></li>
+<li>Alerts <strong>notify only</strong></li>
+<li>Alerts do <strong>not</strong> fix problems</li>
+</ul>
+<h3 id="common-triggers">Common triggers:</h3>
+<ul>
+<li>CPU &gt; threshold</li>
+<li>Error rate &gt; threshold</li>
+<li>Resource unavailable</li>
+</ul>
+<p>🧠 <strong>Rule:</strong> <em>Alerts notify, they don’t diagnose.</em></p>
+<hr>
+<h2 id="️⃣-logs-→-metrics-→-alerts-very-testable">4️⃣ Logs → Metrics → Alerts (VERY testable)</h2>
+<pre><code>Logs
+  ↓
+Log-based metrics
+  ↓
+Monitoring alerts
+</code></pre>
+<p>ACE scenario:</p>
+<blockquote>
+<p>“Alert when a specific error appears in logs”</p>
+</blockquote>
+<p>Correct solution:</p>
+<ol>
+<li>Create <strong>log-based metric</strong></li>
+<li>Create <strong>alert</strong> on that metric</li>
+</ol>
+<hr>
+<h2 id="️⃣-cloud-trace-—-where-is-it-slow">5️⃣ Cloud Trace — <em>Where is it slow?</em></h2>
+<h3 id="use-when-2">Use when:</h3>
+<ul>
+<li>Request latency</li>
+<li>Distributed services</li>
+<li>Performance bottlenecks</li>
+</ul>
+<p>🧠 <strong>Rule:</strong> <em>Latency questions → Trace.</em></p>
+<hr>
+<h2 id="️⃣-error-reporting-—-what-errors-keep-happening">6️⃣ Error Reporting — <em>What errors keep happening?</em></h2>
+<h3 id="use-when-3">Use when:</h3>
+<ul>
+<li>Track recurring exceptions</li>
+<li>Group stack traces</li>
+<li>Identify new vs old errors</li>
+</ul>
+<p>🧠 <strong>Rule:</strong> <em>App exceptions over time → Error Reporting.</em></p>
+<hr>
+<h2 id="️⃣-ops-agent-—-why-is-there-no-data">7️⃣ Ops Agent — <em>Why is there no data?</em></h2>
+<h3 id="use-when-4">Use when:</h3>
+<ul>
+<li>VM metrics missing</li>
+<li>Logs not showing up</li>
+</ul>
+<p>🧠 <strong>Rule:</strong> <em>No VM data → check Ops Agent.</em></p>
+<hr>
+<h2 id="🔑-operations-suite-—-exam-safe-one-liners">🔑 Operations Suite — Exam-Safe One-Liners</h2>
+<ul>
+<li>“500 errors” → <strong>Cloud Logging</strong></li>
+<li>“High CPU” → <strong>Cloud Monitoring</strong></li>
+<li>“Get notified” → <strong>Alerting</strong></li>
+<li>“Alert on log pattern” → <strong>Log-based metric</strong></li>
+<li>“Slow requests” → <strong>Cloud Trace</strong></li>
+<li>“No VM metrics” → <strong>Ops Agent</strong></li>
+</ul>
+<p>If you memorize just these, you’ll pass ops questions.</p>
+<hr>
+<h1 id="✅-operations-suite-—-closed">✅ Operations Suite — CLOSED</h1>
+<p>You now have:</p>
+<ul>
+<li>Correct first-response instincts</li>
+<li>Proper service selection</li>
+<li>Log → metric → alert flow clarity</li>
+</ul>
+<p>This is <strong>exactly</strong> the depth ACE expects.</p>
+<hr>
+
+    </div>
+  </div>
+</body>
+
+</html>

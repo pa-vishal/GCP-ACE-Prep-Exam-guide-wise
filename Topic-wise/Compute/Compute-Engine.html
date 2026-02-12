@@ -1,0 +1,476 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="compute-engine-gce-—-deep-operational-ace-coverage">Compute Engine (GCE) — Deep, Operational ACE Coverage</h1>
+<hr>
+<h2 id="compute-engine-—-ace-depth-anchor">Compute Engine — ACE Depth Anchor</h2>
+<blockquote>
+<p><strong>“On ACE, you own the VM’s full lifecycle: cost, deployment, access, operations, and recovery.”</strong></p>
+</blockquote>
+<hr>
+<h2 id="gce-lifecycle-how-ace-thinks">GCE Lifecycle (how ACE thinks)</h2>
+<p>We will follow this order <strong>strictly</strong>:</p>
+<ol>
+<li><strong>Set up solution environment</strong></li>
+<li><strong>Plan &amp; configure VM</strong></li>
+<li><strong>Deploy &amp; connect</strong></li>
+<li><strong>Operate &amp; recover</strong></li>
+<li><strong>Secure access</strong></li>
+</ol>
+<hr>
+<h2 id="🟦-step-1-set-up-solution-environment-depth">🟦 Step 1: Set Up Solution Environment (Depth)</h2>
+<h3 id="ace-critical-facts">ACE-critical facts</h3>
+<ul>
+<li>
+<p>Compute Engine is controlled by:</p>
+<ul>
+<li><strong>Project</strong></li>
+<li><strong>Region / Zone</strong></li>
+<li><strong>Quotas</strong></li>
+</ul>
+</li>
+<li>
+<p>You cannot create VMs if:</p>
+<ul>
+<li>CPU quota is exceeded</li>
+<li>API is disabled</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="what-must-be-true-before-creating-a-vm">What must be true before creating a VM</h3>
+<p>1️⃣ <strong>Compute Engine API enabled</strong><br>
+2️⃣ <strong>Sufficient CPU quota in the region</strong><br>
+3️⃣ <strong>Project linked to billing</strong></p>
+<p>If any of these fail → VM creation fails.</p>
+<hr>
+<h2 id="very-common-ace-trap-⚠️">Very common ACE trap ⚠️</h2>
+<p>Scenario:</p>
+<blockquote>
+<p>“VM creation fails with insufficient resources”<br>
+<strong>Check regional CPU quota</strong></p>
+</blockquote>
+<hr>
+<h2 id="one-line-memory-hook-🧠">One-line memory hook 🧠</h2>
+<blockquote>
+<p><strong>“No quota, no VM — regardless of money.”</strong></p>
+</blockquote>
+<hr>
+<h2 id="now-we-start-planning-the-vm-this-is-where-depth-begins">Now we start planning the VM (this is where depth begins)</h2>
+<h3 id="compute-engine-planning-has-three-cost-drivers">Compute Engine planning has <strong>three cost drivers</strong>:</h3>
+<p>👉 <strong>This is your next guided check</strong></p>
+<p><strong>Question:</strong><br>
+When creating a VM, which <strong>two configuration choices</strong> have the <strong>largest impact on cost</strong>?</p>
+<p>Answer with <strong>two short phrases only</strong> (no explanation yet).</p>
+<p>This question sets the foundation for <em>all</em> Compute Engine depth that follows.</p>
+<p>Exactly right ✅ — <strong>machine type and disk</strong>.</p>
+<hr>
+<h1 id="compute-engine-gce-—-deep-operational-ace-coverage-1">Compute Engine (GCE) — Deep, Operational ACE Coverage</h1>
+<h3 id="step-2-plan--configure-the-vm-real-depth-starts-here">Step 2: Plan &amp; Configure the VM (REAL depth starts here)</h3>
+<hr>
+<h2 id="️⃣-machine-types-ace-depth-boundary">1️⃣ Machine Types (ACE depth boundary)</h2>
+<h3 id="what-machine-type-controls">What machine type controls</h3>
+<ul>
+<li>vCPU count</li>
+<li>Memory</li>
+<li><strong>Most of the cost</strong></li>
+</ul>
+<hr>
+<h3 id="ace-relevant-machine-families-don’t-overlearn">ACE-relevant machine families (don’t overlearn)</h3>
+
+<table>
+<thead>
+<tr>
+<th>Family</th>
+<th>When ACE expects it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>E2</strong></td>
+<td>Default, cost-efficient workloads</td>
+</tr>
+<tr>
+<td><strong>N2</strong></td>
+<td>Higher performance</td>
+</tr>
+<tr>
+<td><strong>Custom</strong></td>
+<td>When fixed shapes don’t fit</td>
+</tr>
+<tr>
+<td><strong>Spot (Preemptible)</strong></td>
+<td>Cheap, fault-tolerant jobs</td>
+</tr>
+</tbody>
+</table><blockquote>
+<p>If the question says <strong>“cost-effective”</strong> → <strong>E2</strong><br>
+If it says <strong>“unreliable but cheap”</strong> → <strong>Spot VM</strong></p>
+</blockquote>
+<hr>
+<h2 id="spot--preemptible-vms-very-testable">Spot / Preemptible VMs (very testable)</h2>
+<h3 id="key-properties">Key properties</h3>
+<ul>
+<li>
+<p>Can be <strong>terminated anytime</strong></p>
+</li>
+<li>
+<p>Max runtime:</p>
+<ul>
+<li>Preemptible: 24 hours</li>
+<li>Spot: no hard limit, but still interruptible</li>
+</ul>
+</li>
+<li>
+<p><strong>Much cheaper</strong></p>
+</li>
+</ul>
+<h3 id="when-ace-expects-spot-vms">When ACE expects Spot VMs</h3>
+<ul>
+<li>Batch jobs</li>
+<li>Non-critical workloads</li>
+<li>Fault-tolerant processing</li>
+</ul>
+<hr>
+<h2 id="one-line-memory-hook-🧠-1">One-line memory hook 🧠</h2>
+<blockquote>
+<p><strong>“If it can die, make it Spot.”</strong></p>
+</blockquote>
+<hr>
+<h2 id="️⃣-disks-second-biggest-cost-driver">2️⃣ Disks (second biggest cost driver)</h2>
+<h3 id="disk-types-ace-cares-about">Disk types ACE cares about</h3>
+
+<table>
+<thead>
+<tr>
+<th>Disk</th>
+<th>Use case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Standard PD</strong></td>
+<td>Cheap, low IOPS</td>
+</tr>
+<tr>
+<td><strong>Balanced PD</strong></td>
+<td>General purpose</td>
+</tr>
+<tr>
+<td><strong>SSD PD</strong></td>
+<td>High IOPS</td>
+</tr>
+<tr>
+<td><strong>Local SSD</strong></td>
+<td>Ultra-fast, ephemeral</td>
+</tr>
+</tbody>
+</table><hr>
+<h3 id="very-important-ace-rule-⚠️">Very important ACE rule ⚠️</h3>
+<blockquote>
+<p><strong>Local SSD data is lost when the VM stops.</strong></p>
+</blockquote>
+<p>ACE loves this trap.</p>
+<hr>
+<h2 id="disk-size--cost-exam-logic">Disk size &amp; cost (exam logic)</h2>
+<ul>
+<li>
+<p>You pay for:</p>
+<ul>
+<li><strong>Provisioned disk size</strong></li>
+<li>Not actual usage</li>
+</ul>
+</li>
+<li>
+<p>Larger disk = higher cost even if empty</p>
+</li>
+</ul>
+<hr>
+<h2 id="one-line-memory-hook-🧠-2">One-line memory hook 🧠</h2>
+<blockquote>
+<p><strong>“Disks are billed by size, not fullness.”</strong></p>
+</blockquote>
+<hr>
+<h2 id="guided-depth-check-important">Guided depth check (important)</h2>
+<h3 id="scenario">Scenario:</h3>
+<p>You need a <strong>cheap VM</strong> for a <strong>batch processing job</strong> that:</p>
+<ul>
+<li>Can be interrupted</li>
+<li>Does not need persistent local data</li>
+</ul>
+<p>👉 Which <strong>two Compute Engine features</strong> should you choose?</p>
+<p>Answer with <strong>two short phrases</strong>.<br>
+✅ — <strong>Spot VM + Local SSD</strong>.</p>
+<ul>
+<li>
+<p><strong>Spot VM</strong><br>
+→ Cheapest compute<br>
+→ Accepts interruption<br>
+→ Ideal for batch / fault-tolerant jobs</p>
+</li>
+<li>
+<p><strong>Local SSD</strong><br>
+→ Very fast<br>
+→ Ephemeral (data loss acceptable)<br>
+→ No need for persistence</p>
+</li>
+</ul>
+<blockquote>
+<p>This combination screams:<br>
+<strong>“Cheap, disposable compute.”</strong></p>
+</blockquote>
+<hr>
+<h2 id="common-ace-trap-⚠️">Common ACE trap ⚠️</h2>
+<p>They’ll try to tempt you with:</p>
+<ul>
+<li>SSD Persistent Disk ❌ (unnecessary cost)</li>
+<li>Regular VM ❌ (wastes money)</li>
+<li>Snapshots ❌ (not needed for ephemeral jobs)</li>
+</ul>
+<hr>
+<h2 id="one-line-memory-hook-🧠-3">One-line memory hook 🧠</h2>
+<blockquote>
+<p><strong>“Batch + disposable = Spot VM + Local SSD.”</strong></p>
+</blockquote>
+<h1 id="section"></h1>
+<h2 id="compute-engine-—-step-3-deploy--connect-operational-depth">Compute Engine — Step 3: Deploy &amp; Connect (Operational Depth)</h2>
+<ul>
+<li>
+<p>Startup scripts - &gt; “Install software automatically when VM starts”</p>
+</li>
+<li>
+<p>Metadata<br>
+are stored in:</p>
+<ul>
+<li><strong>Instance metadata</strong> (applies to single VM)</li>
+<li>Or <strong>project metadata</strong> (You want <strong>every new VM</strong> in a project to automatically install monitoring agents at startup)</li>
+</ul>
+</li>
+</ul>
+<h2 id="compute-engine-—-step-4-access--security-very-testable">Compute Engine — Step 4: Access &amp; Security (VERY testable)</h2>
+<ul>
+<li>SSH access</li>
+</ul>
+<h3 id="ssh-access-—-two-models-must-know">SSH access — two models (must know)</h3>
+<h4 id="️⃣-ssh-keys-in-metadata-legacy">1️⃣ SSH keys in metadata (legacy)</h4>
+<ul>
+<li>
+<p>Keys stored in:</p>
+<ul>
+<li>Project metadata</li>
+<li>Instance metadata</li>
+</ul>
+</li>
+<li>
+<p>Harder to manage at scale</p>
+</li>
+</ul>
+<h4 id="️⃣-os-login-ace-preferred">2️⃣ <strong>OS Login</strong> (ACE-preferred)</h4>
+<ul>
+<li>Uses <strong>IAM</strong> for SSH access</li>
+<li>Centralized</li>
+<li>Auditable</li>
+<li>Scales well</li>
+</ul>
+<blockquote>
+<p>If the question mentions <strong>security, auditability, or central control</strong> → OS Login.</p>
+</blockquote>
+<hr>
+<h3 id="what-os-login-does">What OS Login does</h3>
+<ul>
+<li>Maps:
+<ul>
+<li><strong>IAM user</strong> → <strong>Linux user</strong></li>
+</ul>
+</li>
+<li>Controls:
+<ul>
+<li>Who can SSH</li>
+</ul>
+</li>
+<li>Uses IAM roles:**
+<ul>
+<li><strong><code>compute.osLogin</code></strong></li>
+<li><strong><code>compute.osAdminLogin</code></strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="one-line-memory-hook-🧠-4">One-line memory hook 🧠</h3>
+<blockquote>
+<p><strong>“Modern SSH on GCP = OS Login.”</strong></p>
+</blockquote>
+<h4 id="os-login-roles-must-memorize">OS Login roles (must memorize)</h4>
+
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>What it allows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>roles/compute.osLogin</code></td>
+<td>SSH <strong>without sudo</strong></td>
+</tr>
+<tr>
+<td><code>roles/compute.osAdminLogin</code></td>
+<td>SSH <strong>with sudo (root)</strong></td>
+</tr>
+</tbody>
+</table><hr>
+<h2 id="compute-engine-—-step-5-operations-final-depth-block">Compute Engine — Step 5: Operations (Final Depth Block)</h2>
+<ol>
+<li>Snapshots &amp; disk resizing</li>
+<li>Managed Instance Groups (MIGs)</li>
+<li>Autoscaling &amp; healing</li>
+</ol>
+<hr>
+<h3 id="️⃣-snapshots--disk-resizing-operational-reality">1️⃣ Snapshots &amp; Disk Resizing (Operational Reality)</h3>
+<h3 id="snapshots-quick-recap">Snapshots (quick recap)</h3>
+<ul>
+<li>
+<p>Disk-level backups</p>
+</li>
+<li>
+<p>Incremental</p>
+</li>
+<li>
+<p>Used for:</p>
+<ul>
+<li>Backup</li>
+<li>Restore</li>
+<li>Migration</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="disk-resizing-very-testable">Disk resizing (very testable)</h3>
+<blockquote>
+<p><strong>Persistent disks can be resized while attached.</strong></p>
+</blockquote>
+<p>Key points:</p>
+<ul>
+<li>You can <strong>increase</strong> disk size</li>
+<li>You <strong>cannot decrease</strong> disk size</li>
+<li>OS filesystem may need resize</li>
+</ul>
+<hr>
+<h4 id="one-line-memory-hook-🧠-5">One-line memory hook 🧠</h4>
+<blockquote>
+<p><strong>“Disks only grow, never shrink.”</strong></p>
+</blockquote>
+<hr>
+<h3 id="️⃣-managed-instance-groups-migs-—-huge-ace-topic">2️⃣ Managed Instance Groups (MIGs) — huge ACE topic</h3>
+<h3 id="what-a-mig-is">What a MIG is</h3>
+<blockquote>
+<p>A group of <strong>identical VMs</strong> created from an <strong>instance template</strong>.</p>
+</blockquote>
+<p>MIGs provide:</p>
+<ul>
+<li>High availability</li>
+<li>Autoscaling</li>
+<li>Auto-healing</li>
+<li>Rolling updates</li>
+</ul>
+<hr>
+<h3 id="instance-template-must-know">Instance Template (must know)</h3>
+<blockquote>
+<p>An <strong>instance template</strong> defines:</p>
+</blockquote>
+<ul>
+<li>Machine type</li>
+<li>Disk image</li>
+<li>Startup script</li>
+<li>Service account</li>
+</ul>
+<p>Templates are:</p>
+<ul>
+<li><strong>Immutable</strong></li>
+<li>If you change config → create new template</li>
+</ul>
+<hr>
+<h2 id="one-line-memory-hook-🧠-6">One-line memory hook 🧠</h2>
+<blockquote>
+<p><strong>“MIGs don’t change VMs — they replace them.”</strong></p>
+</blockquote>
+<hr>
+<h2 id="very-common-ace-scenario">Very common ACE scenario</h2>
+<blockquote>
+<p>“Ensure VMs are automatically recreated if they crash”</p>
+</blockquote>
+<p>Correct answer:</p>
+<blockquote>
+<p><strong>Use a Managed Instance Group with auto-healing</strong></p>
+</blockquote>
+<hr>
+<h2 id="️⃣-autoscaling-ace-scope">3️⃣ Autoscaling (ACE scope)</h2>
+<p>MIGs can scale based on:</p>
+<ul>
+<li>CPU utilization</li>
+<li>Load balancer traffic</li>
+<li>Custom metrics (advanced)</li>
+</ul>
+<p>ACE usually focuses on:</p>
+<ul>
+<li><strong>CPU-based autoscaling</strong></li>
+</ul>
+<hr>
+<h2 id="guided-depth-check-important-1">Guided depth check (important)</h2>
+<h3 id="scenario-1">Scenario:</h3>
+<p>You need to:</p>
+<ul>
+<li>Run <strong>identical VMs</strong></li>
+<li>Automatically <strong>replace failed VMs</strong></li>
+<li>Scale based on <strong>CPU usage</strong></li>
+</ul>
+<p>👉 What <strong>single Compute Engine feature</strong> should you use?</p>
+<p>Answer with <strong>one phrase</strong> only.</p>
+<p>(This question appears almost verbatim on ACE.)<br>
+Exactly right ✅ — <strong>Managed Instance Group (MIG)</strong>.</p>
+<hr>
+<h1 id="✅-compute-engine-gce-—-officially-completed-ace-level">✅ Compute Engine (GCE) — officially completed (ACE level)</h1>
+<h3 id="you-can-now-reason-correctly-about">You can now reason correctly about:</h3>
+<ul>
+<li>
+<p><strong>Cost drivers</strong>: machine type, disk</p>
+</li>
+<li>
+<p><strong>Spot VMs &amp; Local SSDs</strong> for disposable workloads</p>
+</li>
+<li>
+<p><strong>Startup scripts</strong> (instance vs project metadata)</p>
+</li>
+<li>
+<p><strong>Service accounts</strong> as VM identity</p>
+</li>
+<li>
+<p><strong>OAuth scopes ∩ IAM roles</strong> (VM-only nuance)</p>
+</li>
+<li>
+<p><strong>OS Login</strong> vs SSH keys</p>
+</li>
+<li>
+<p><strong>Snapshots &amp; disk resizing</strong></p>
+</li>
+<li>
+<p><strong>Managed Instance Groups</strong></p>
+<ul>
+<li>Instance templates (immutable)</li>
+<li>Auto-healing</li>
+<li>Autoscaling</li>
+</ul>
+</li>
+</ul>
+</div>
+</body>
+
+</html>

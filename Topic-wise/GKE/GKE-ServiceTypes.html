@@ -1,0 +1,236 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GKE ServiceTypes</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li><a href="#️⃣-clusterip-default">1️⃣ ClusterIP (Default)</a></li>
+<li><a href="#️⃣-nodeport">2️⃣ NodePort</a></li>
+<li><a href="#️⃣-loadbalancer">3️⃣ LoadBalancer</a></li>
+<li><a href="#️⃣-externalname">4️⃣ ExternalName</a></li>
+<li><a href="#️⃣-ingress-not-a-service-but-critical">5️⃣ Ingress (Not a Service, but critical)</a></li>
+<li><a href="#🧠-expert-decision-matrix">🧠 Expert Decision Matrix</a></li>
+<li><a href="#🚀-gke-expert-tip-production-rule">🚀 GKE Expert Tip (Production Rule)</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <p>In <strong>GKE (Google Kubernetes Engine)</strong>, <strong>Kubernetes Service types</strong> define <strong>how a set of Pods is exposed</strong>—inside the cluster, within a VPC, or to the public internet.</p>
+<p>An expert way to think about this:</p>
+<blockquote>
+<p><strong>Service type = traffic entry strategy</strong></p>
+</blockquote>
+<p>Below is a <strong>clear, practical breakdown</strong>, including <strong>when to use each in real GKE systems</strong>.</p>
+<hr>
+<h2 id="️⃣-clusterip-default">1️⃣ <code>ClusterIP</code> (Default)</h2>
+<p><strong>Exposes the service only inside the cluster</strong></p>
+<p><img src="https://zesty.co/wp-content/uploads/2025/02/clusterIP.png" alt="Image"></p>
+<p><img src="https://cdn.prod.website-files.com/6340354625974824cde2e195/65c58f53394cda977ad1d540_GIF_5.gif" alt="Image"></p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>Gets a <strong>virtual IP</strong> reachable only from within the cluster</li>
+<li>Used for <strong>service-to-service communication</strong></li>
+<li>Backed by <strong>kube-proxy</strong> (iptables/IPVS)</li>
+</ul>
+<h3 id="gke-use-cases">GKE use cases</h3>
+<ul>
+<li>Backend APIs</li>
+<li>Databases (Postgres, Redis)</li>
+<li>Internal microservices</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class=" language-yaml"><code class="prism  language-yaml"><span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Service
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> users<span class="token punctuation">-</span>service
+<span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">type</span><span class="token punctuation">:</span> ClusterIP
+  <span class="token key atrule">selector</span><span class="token punctuation">:</span>
+    <span class="token key atrule">app</span><span class="token punctuation">:</span> users
+  <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">80</span>
+      <span class="token key atrule">targetPort</span><span class="token punctuation">:</span> <span class="token number">8080</span>
+</code></pre>
+<h3 id="when-experts-choose-it">When experts choose it</h3>
+<ul>
+<li>You <strong>never</strong> want direct external access</li>
+<li>You plan to expose it via <strong>Ingress or Gateway</strong></li>
+</ul>
+<hr>
+<h2 id="️⃣-nodeport">2️⃣ <code>NodePort</code></h2>
+<p><strong>Exposes the service on each node’s IP at a static port</strong></p>
+<p><img src="https://zesty.co/wp-content/uploads/2025/02/nodeport.png" alt="Image"></p>
+<p><img src="https://miro.medium.com/v2/resize%3Afit%3A1400/1%2ACdyUtG-8CfGu2oFC5s0KwA.png" alt="Image"></p>
+<h3 id="how-it-works-1">How it works</h3>
+<ul>
+<li>Opens a port (30000–32767) on <strong>every node</strong></li>
+<li>Traffic: <code>NodeIP:NodePort → Pod</code></li>
+</ul>
+<h3 id="gke-use-cases-1">GKE use cases</h3>
+<ul>
+<li>Debugging</li>
+<li>Simple demos</li>
+<li>Behind a <strong>custom external load balancer</strong></li>
+</ul>
+<h3 id="why-experts-avoid-it-in-production">Why experts avoid it in production</h3>
+<ul>
+<li>Poor security posture</li>
+<li>Manual firewall management</li>
+<li>No health-aware load balancing</li>
+</ul>
+<h3 id="example-1">Example</h3>
+<pre class=" language-yaml"><code class="prism  language-yaml"><span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">type</span><span class="token punctuation">:</span> NodePort
+</code></pre>
+<hr>
+<h2 id="️⃣-loadbalancer">3️⃣ <code>LoadBalancer</code></h2>
+<p><strong>Creates a Google Cloud Load Balancer automatically</strong></p>
+<p><img src="https://docs.cloud.google.com/static/kubernetes-engine/images/weighted-lb-svc.svg" alt="Image"></p>
+<p><img src="https://docs.cloud.google.com/static/kubernetes-engine/images/gke-controllers.svg" alt="Image"></p>
+<h3 id="how-it-works-in-gke">How it works in GKE</h3>
+<ul>
+<li>Provisions a <strong>Google Cloud external or internal Load Balancer</strong></li>
+<li>Assigns a <strong>public or private IP</strong></li>
+<li>Integrates with GCP health checks</li>
+</ul>
+<h3 id="gke-specific-power">GKE-specific power</h3>
+<ul>
+<li>Supports <strong>Internal LoadBalancer</strong> (VPC-only)</li>
+<li>Native L4 load balancing (TCP/UDP)</li>
+</ul>
+<h3 id="example-internal-lb">Example (internal LB)</h3>
+<pre class=" language-yaml"><code class="prism  language-yaml"><span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">annotations</span><span class="token punctuation">:</span>
+    <span class="token key atrule">cloud.google.com/load-balancer-type</span><span class="token punctuation">:</span> <span class="token string">"Internal"</span>
+<span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">type</span><span class="token punctuation">:</span> LoadBalancer
+</code></pre>
+<h3 id="when-experts-use-it">When experts use it</h3>
+<ul>
+<li>Non-HTTP protocols (gRPC TCP, databases)</li>
+<li>Simple public APIs</li>
+<li>Internal services shared across VPC</li>
+</ul>
+<hr>
+<h2 id="️⃣-externalname">4️⃣ <code>ExternalName</code></h2>
+<p><strong>Maps a Service to an external DNS name</strong></p>
+<p><img src="https://borzenin.com/images/2021-01-27-final.png" alt="Image"></p>
+<p><img src="https://i0.wp.com/blog.nashtechglobal.com/wp-content/uploads/2024/04/Screenshot-from-2024-04-08-13-22-28.png?fit=942%2C585&amp;ssl=1" alt="Image"></p>
+<h3 id="how-it-works-2">How it works</h3>
+<ul>
+<li>No proxying</li>
+<li>Returns a <strong>CNAME</strong> in DNS</li>
+</ul>
+<h3 id="gke-use-cases-2">GKE use cases</h3>
+<ul>
+<li>SaaS dependencies</li>
+<li>Legacy services</li>
+<li>Gradual migration out of cluster</li>
+</ul>
+<h3 id="example-2">Example</h3>
+<pre class=" language-yaml"><code class="prism  language-yaml"><span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">type</span><span class="token punctuation">:</span> ExternalName
+  <span class="token key atrule">externalName</span><span class="token punctuation">:</span> api.stripe.com
+</code></pre>
+<h3 id="expert-caution">Expert caution</h3>
+<ul>
+<li>No health checks</li>
+<li>No traffic control</li>
+<li>DNS-only abstraction</li>
+</ul>
+<hr>
+<h2 id="️⃣-ingress-not-a-service-but-critical">5️⃣ Ingress (Not a Service, but critical)</h2>
+<p><strong>HTTP(S) routing on top of Services</strong></p>
+<p><img src="https://docs.cloud.google.com/static/architecture/images/exposing-service-mesh-apps-through-gke-ingress-standard-approach.svg" alt="Image"></p>
+<p><img src="https://docs.cloud.google.com/static/kubernetes-engine/images/anthos-ingress-arch.svg" alt="Image"></p>
+<h3 id="what-it-really-is">What it really is</h3>
+<ul>
+<li>L7 HTTP(S) routing</li>
+<li>Uses <strong>Google Cloud HTTP(S) Load Balancer</strong></li>
+<li>Routes to <strong>ClusterIP Services</strong></li>
+</ul>
+<h3 id="why-experts-prefer-it">Why experts prefer it</h3>
+<ul>
+<li>TLS termination</li>
+<li>Path &amp; host routing</li>
+<li>Global load balancing</li>
+<li>Cloud Armor, Identity-Aware Proxy</li>
+</ul>
+<blockquote>
+<p><strong>Ingress + ClusterIP is the standard GKE production pattern</strong></p>
+</blockquote>
+<hr>
+<h2 id="🧠-expert-decision-matrix">🧠 Expert Decision Matrix</h2>
+
+<table>
+<thead>
+<tr>
+<th>Use case</th>
+<th>Service Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Internal microservices</td>
+<td><code>ClusterIP</code></td>
+</tr>
+<tr>
+<td>Public HTTP APIs</td>
+<td><code>Ingress + ClusterIP</code></td>
+</tr>
+<tr>
+<td>TCP / gRPC / DB access</td>
+<td><code>LoadBalancer</code></td>
+</tr>
+<tr>
+<td>VPC-only exposure</td>
+<td><code>Internal LoadBalancer</code></td>
+</tr>
+<tr>
+<td>Dev / debugging</td>
+<td><code>NodePort</code></td>
+</tr>
+<tr>
+<td>External SaaS</td>
+<td><code>ExternalName</code></td>
+</tr>
+</tbody>
+</table><hr>
+<h2 id="🚀-gke-expert-tip-production-rule">🚀 GKE Expert Tip (Production Rule)</h2>
+<blockquote>
+<p><strong>If you see many <code>LoadBalancer</code> services in a cluster, it’s usually a design smell.</strong></p>
+</blockquote>
+<p>Experts:</p>
+<ul>
+<li>Use <strong>one Ingress</strong></li>
+<li>Keep everything else <strong>ClusterIP</strong></li>
+<li>Let <strong>L7 routing</strong> handle exposure</li>
+</ul>
+<hr>
+<p>If you want, next I can:</p>
+<ul>
+<li>Compare <strong>Ingress vs Gateway API in GKE</strong></li>
+<li>Show <strong>real YAML used in large GKE production systems</strong></li>
+<li>Explain <strong>how traffic flows from DNS → GCLB → Pod (step-by-step)</strong></li>
+</ul>
+
+    </div>
+  </div>
+</body>
+
+</html>

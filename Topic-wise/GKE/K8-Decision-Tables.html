@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K8-Decision-Tables</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li></li>
+<li><a href="#google-kubernetes-engine-gke-—-ace-depth-summary-table">Google Kubernetes Engine (GKE) — ACE Depth Summary Table</a>
+<ul>
+<li><a href="#🧭-1.-cluster-types">🧭 1. Cluster Types</a></li>
+<li><a href="#🧱-2.-node--pod-management">🧱 2. Node & Pod Management</a></li>
+<li><a href="#📈-3.-scaling-very-testable">📈 3. Scaling (Very Testable)</a></li>
+<li><a href="#🌐-4.-exposing-applications">🌐 4. Exposing Applications</a></li>
+<li><a href="#🔐-5.-access--security-high-roi">🔐 5. Access & Security (High ROI)</a></li>
+<li><a href="#🚫-6.-classic-ace-traps-avoid-these">🚫 6. Classic ACE Traps (Avoid These)</a></li>
+<li><a href="#🧠-one-sentence-gke-mental-model-burn-this-in">🧠 One-Sentence GKE Mental Model (Burn This In)</a></li>
+</ul>
+</li>
+<li><a href="#✅-gke-status-complete-ace-depth">✅ GKE Status: COMPLETE (ACE Depth)</a></li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <h1 id="section"></h1>
+<h1 id="google-kubernetes-engine-gke-—-ace-depth-summary-table">Google Kubernetes Engine (GKE) — ACE Depth Summary Table</h1>
+<h2 id="🧭-1.-cluster-types">🧭 1. Cluster Types</h2>
+
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Option</th>
+<th>When to Choose (ACE Logic)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cluster scope</strong></td>
+<td><strong>Zonal</strong></td>
+<td>Dev / test, cost-sensitive</td>
+</tr>
+<tr>
+<td></td>
+<td><strong>Regional</strong></td>
+<td>Production, high availability</td>
+</tr>
+<tr>
+<td><strong>Management model</strong></td>
+<td><strong>Autopilot</strong></td>
+<td>Default choice, minimal ops</td>
+</tr>
+<tr>
+<td></td>
+<td><strong>Standard</strong></td>
+<td>Only if node-level control is required</td>
+</tr>
+</tbody>
+</table><p>🧠 <strong>Rule:</strong> <em>If availability matters → Regional. If no node requirements → Autopilot.</em></p>
+<hr>
+<h2 id="🧱-2.-node--pod-management">🧱 2. Node &amp; Pod Management</h2>
+
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>GKE Component</th>
+<th>What It Manages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nodes (VMs)</td>
+<td><strong>Node Pool</strong></td>
+<td>VM size, count, OS</td>
+</tr>
+<tr>
+<td>Pods</td>
+<td><strong>ReplicaSet</strong></td>
+<td>Ensures desired Pod count</td>
+</tr>
+<tr>
+<td>App lifecycle</td>
+<td><strong>Deployment</strong></td>
+<td>Rolling updates, self-healing</td>
+</tr>
+</tbody>
+</table><p>🧠 <strong>Rule:</strong> <em>Node pools manage nodes. Controllers manage Pods.</em></p>
+<hr>
+<h2 id="📈-3.-scaling-very-testable">📈 3. Scaling (Very Testable)</h2>
+
+<table>
+<thead>
+<tr>
+<th>Scaling Need</th>
+<th>Feature</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>More traffic</td>
+<td><strong>HPA</strong></td>
+<td>Pods</td>
+</tr>
+<tr>
+<td>More capacity</td>
+<td><strong>Cluster Autoscaler</strong></td>
+<td>Nodes (Standard only)</td>
+</tr>
+<tr>
+<td>Autopilot scaling</td>
+<td><strong>Automatic</strong></td>
+<td>Pods + nodes (hidden)</td>
+</tr>
+</tbody>
+</table><p>🧠 <strong>Rule:</strong> <em>Traffic → HPA. Capacity → Autoscaler.</em></p>
+<hr>
+<h2 id="🌐-4.-exposing-applications">🌐 4. Exposing Applications</h2>
+
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Kubernetes Resource</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Internal access only</td>
+<td><strong>ClusterIP Service</strong></td>
+</tr>
+<tr>
+<td>Expose one service externally</td>
+<td><strong>LoadBalancer Service</strong></td>
+</tr>
+<tr>
+<td>Multiple services, one IP, routing</td>
+<td><strong>Ingress</strong></td>
+</tr>
+</tbody>
+</table><p>🧠 <strong>Rule:</strong> <em>One service → LoadBalancer. Many services → Ingress.</em></p>
+<hr>
+<h2 id="🔐-5.-access--security-high-roi">🔐 5. Access &amp; Security (High ROI)</h2>
+
+<table>
+<thead>
+<tr>
+<th>Access Need</th>
+<th>Correct Feature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pod → GCP services securely</td>
+<td><strong>Workload Identity</strong></td>
+</tr>
+<tr>
+<td>User access inside cluster</td>
+<td><strong>RBAC</strong></td>
+</tr>
+<tr>
+<td>Reduce public exposure</td>
+<td><strong>Private GKE Cluster</strong></td>
+</tr>
+</tbody>
+</table><p>🧠 <strong>Rule:</strong></p>
+<blockquote>
+<p><em>IAM = outside cluster</em><br>
+<em>RBAC = inside cluster</em><br>
+<em>Workload Identity = Pods to GCP</em></p>
+</blockquote>
+<hr>
+<h2 id="🚫-6.-classic-ace-traps-avoid-these">🚫 6. Classic ACE Traps (Avoid These)</h2>
+
+<table>
+<thead>
+<tr>
+<th>Trap</th>
+<th>Why It’s Wrong</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node pool recreates Pods</td>
+<td>Node pools manage nodes, not Pods</td>
+</tr>
+<tr>
+<td>LoadBalancer for multiple services</td>
+<td>No routing, one IP per service</td>
+</tr>
+<tr>
+<td>Service account keys in Pods</td>
+<td>Insecure, not best practice</td>
+</tr>
+<tr>
+<td>Standard GKE for “production” by default</td>
+<td>Autopilot unless node control is required</td>
+</tr>
+</tbody>
+</table><hr>
+<h2 id="🧠-one-sentence-gke-mental-model-burn-this-in">🧠 One-Sentence GKE Mental Model (Burn This In)</h2>
+<blockquote>
+<p><strong>“Autopilot + Regional + Deployment + HPA + Ingress + Workload Identity covers 80% of ACE GKE questions.”</strong></p>
+</blockquote>
+<p>If a question deviates from this, it will <strong>explicitly tell you why</strong>.</p>
+<hr>
+<h1 id="✅-gke-status-complete-ace-depth">✅ GKE Status: COMPLETE (ACE Depth)</h1>
+<p>You now have:</p>
+<ul>
+<li>Correct decision models</li>
+<li>Operational understanding</li>
+<li>Trap avoidance</li>
+<li>Exam-ready reasoning</li>
+</ul>
+<p>This is <strong>not shallow knowledge</strong>.</p>
+<hr>
+
+    </div>
+  </div>
+</body>
+
+</html>

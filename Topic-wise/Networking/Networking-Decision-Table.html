@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Networking-Decision-Table</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html">
+<table>
+<thead>
+<tr>
+<th>Requirement / Scenario</th>
+<th>Correct GCP Feature</th>
+<th>Why (ACE logic)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VM needs <strong>outbound internet</strong>, no external IP</td>
+<td><strong>Cloud NAT</strong></td>
+<td>Enables outbound internet only</td>
+</tr>
+<tr>
+<td>VM needs <strong>inbound internet access</strong></td>
+<td><strong>External IP + Firewall ingress rule</strong></td>
+<td>NAT does not allow inbound</td>
+</tr>
+<tr>
+<td>VM needs to access <strong>Google APIs only</strong> (no internet)</td>
+<td><strong>Private Google Access</strong></td>
+<td>Google services over internal network</td>
+</tr>
+<tr>
+<td>VM needs <strong>Google APIs + internet</strong></td>
+<td><strong>Private Google Access + Cloud NAT</strong></td>
+<td>APIs + general internet</td>
+</tr>
+<tr>
+<td>Control <strong>who can talk to whom</strong></td>
+<td><strong>Firewall rules</strong></td>
+<td>Traffic filtering at VPC level</td>
+</tr>
+<tr>
+<td>Block inbound traffic by default</td>
+<td><strong>Implied deny ingress</strong></td>
+<td>Default GCP behavior</td>
+</tr>
+<tr>
+<td>Allow outbound traffic by default</td>
+<td><strong>Implied allow egress</strong></td>
+<td>Default GCP behavior</td>
+</tr>
+<tr>
+<td>Multiple projects share <strong>one VPC</strong></td>
+<td><strong>Shared VPC</strong></td>
+<td>Centralized networking</td>
+</tr>
+<tr>
+<td>Service project VM can’t use subnet</td>
+<td><strong>Compute Network User IAM role</strong></td>
+<td>Shared VPC is IAM-driven</td>
+</tr>
+<tr>
+<td>Connect <strong>VPC ↔ VPC (GCP)</strong> privately</td>
+<td><strong>VPC Peering</strong></td>
+<td>Low latency, Google backbone</td>
+</tr>
+<tr>
+<td>Connect <strong>on-prem ↔ GCP (fast setup)</strong></td>
+<td><strong>Cloud VPN</strong></td>
+<td>Encrypted over internet</td>
+</tr>
+<tr>
+<td>Connect <strong>on-prem ↔ GCP (high bandwidth)</strong></td>
+<td><strong>Cloud Interconnect</strong></td>
+<td>Dedicated physical link</td>
+</tr>
+<tr>
+<td>Stable IP for DNS</td>
+<td><strong>Static IP</strong></td>
+<td>Prevents IP changes</td>
+</tr>
+<tr>
+<td>Global HTTP(S) endpoint</td>
+<td><strong>Global HTTPS LB + Global static IP</strong></td>
+<td>Anycast, single IP</td>
+</tr>
+</tbody>
+</table></div>
+</body>
+
+</html>

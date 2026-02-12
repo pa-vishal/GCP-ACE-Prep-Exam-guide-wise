@@ -1,0 +1,243 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li><a href="#bigquery-—-ace-mental-model-one-page">BigQuery — ACE Mental Model (One Page)</a>
+<ul>
+<li><a href="#🧠-core-truth-anchor-this">🧠 Core Truth (anchor this)</a></li>
+<li><a href="#️⃣-when-to-use-bigquery-vs-cloud-sql">1️⃣ When to Use BigQuery (vs Cloud SQL)</a></li>
+<li><a href="#️⃣-data-organization-most-important-for-cost">2️⃣ Data Organization (MOST important for cost)</a></li>
+<li><a href="#️⃣-data-ingestion">3️⃣ Data Ingestion</a></li>
+<li><a href="#️⃣-query-cost-model-ace-gold">4️⃣ Query Cost Model (ACE GOLD)</a></li>
+<li><a href="#️⃣-cost-control-mechanisms">5️⃣ Cost Control Mechanisms</a></li>
+<li><a href="#️⃣-security--access">6️⃣ Security & Access</a></li>
+<li><a href="#️⃣-operations--limits">7️⃣ Operations & Limits</a></li>
+<li><a href="#🔑-bigquery-—-exam-safe-one-liners">🔑 BigQuery — Exam-Safe One-Liners</a></li>
+</ul>
+</li>
+<li><a href="#✅-bigquery-—-officially-complete-ace-depth">✅ BigQuery — OFFICIALLY COMPLETE (ACE Depth)</a>
+<ul>
+<li><a href="#next-step-your-choice">Next step (your choice)</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <hr>
+<h1 id="bigquery-—-ace-mental-model-one-page">BigQuery — ACE Mental Model (One Page)</h1>
+<h2 id="🧠-core-truth-anchor-this">🧠 Core Truth (anchor this)</h2>
+<blockquote>
+<p><strong>BigQuery is a serverless analytics engine where cost is driven by how much data you scan.<br>
+You optimize by designing tables — not by tuning servers.</strong></p>
+</blockquote>
+<p>If you remember that sentence, you’re already ahead.</p>
+<hr>
+<h2 id="️⃣-when-to-use-bigquery-vs-cloud-sql">1️⃣ When to Use BigQuery (vs Cloud SQL)</h2>
+
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Choose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Analytics, reporting</td>
+<td><strong>BigQuery</strong></td>
+</tr>
+<tr>
+<td>Large scans, aggregates</td>
+<td><strong>BigQuery</strong></td>
+</tr>
+<tr>
+<td>Transactions, updates</td>
+<td><strong>Cloud SQL</strong></td>
+</tr>
+</tbody>
+</table><p>🧠 <strong>Rule:</strong> <em>OLAP → BigQuery. OLTP → Cloud SQL.</em></p>
+<hr>
+<h2 id="️⃣-data-organization-most-important-for-cost">2️⃣ Data Organization (MOST important for cost)</h2>
+<h3 id="datasets">Datasets</h3>
+<ul>
+<li>Fixed <strong>location</strong> (regional / multi-region)</li>
+<li>Tables inherit location</li>
+<li>Cannot be changed later</li>
+</ul>
+<p>🧠 <em>Choose location carefully.</em></p>
+<hr>
+<h3 id="tables">Tables</h3>
+<ul>
+<li>
+<p><strong>Partitioning</strong></p>
+<ul>
+<li>Reduce data scanned</li>
+<li>Most commonly by <strong>date/timestamp</strong></li>
+</ul>
+</li>
+<li>
+<p><strong>Clustering</strong></p>
+<ul>
+<li>Speed filtering within partitions</li>
+</ul>
+</li>
+</ul>
+<p>🧠 <strong>Rule:</strong></p>
+<blockquote>
+<p><em>Partition first, cluster second.</em></p>
+</blockquote>
+<hr>
+<h2 id="️⃣-data-ingestion">3️⃣ Data Ingestion</h2>
+
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Batch load</td>
+<td>Large historical data</td>
+</tr>
+<tr>
+<td>Streaming</td>
+<td>Near-real-time</td>
+</tr>
+<tr>
+<td>Load from GCS</td>
+<td>Most common</td>
+</tr>
+</tbody>
+</table><p>🧠 <em>GCS is the front door to BigQuery.</em></p>
+<hr>
+<h2 id="️⃣-query-cost-model-ace-gold">4️⃣ Query Cost Model (ACE GOLD)</h2>
+<p>BigQuery charges for:</p>
+<ul>
+<li><strong>Bytes scanned</strong></li>
+</ul>
+<p>Not charged by:</p>
+<ul>
+<li>Rows returned</li>
+<li>CPU time</li>
+</ul>
+<p>🧠 <strong>Golden rule:</strong></p>
+<blockquote>
+<p><strong>“Small result ≠ cheap query.”</strong></p>
+</blockquote>
+<hr>
+<h2 id="️⃣-cost-control-mechanisms">5️⃣ Cost Control Mechanisms</h2>
+
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Partitioning</td>
+<td>Reduce scanned data</td>
+</tr>
+<tr>
+<td>Clustering</td>
+<td>Speed up filters</td>
+</tr>
+<tr>
+<td>Max bytes billed</td>
+<td>Prevent runaway queries</td>
+</tr>
+<tr>
+<td>Billing export</td>
+<td>Analyze spend</td>
+</tr>
+</tbody>
+</table><p>🧠 <em>Design tables to control cost.</em></p>
+<hr>
+<h2 id="️⃣-security--access">6️⃣ Security &amp; Access</h2>
+<h3 id="iam-two-permissions-needed">IAM (two permissions needed)</h3>
+<p>To run a query, users need:</p>
+<ol>
+<li><strong>Job permission</strong> (run queries)</li>
+<li><strong>Data permission</strong> (read tables)</li>
+</ol>
+<p>Common roles:</p>
+<ul>
+<li>BigQuery Job User</li>
+<li>BigQuery Data Viewer</li>
+</ul>
+<p>🧠 <strong>Rule:</strong></p>
+<blockquote>
+<p><em>Query = job permission + data permission.</em></p>
+</blockquote>
+<hr>
+<h3 id="views-very-testable">Views (very testable)</h3>
+<ul>
+<li>Expose derived data</li>
+<li>Hide raw tables</li>
+<li>Use for data security</li>
+</ul>
+<p>🧠 <em>Secure data access with views, not table permissions.</em></p>
+<hr>
+<h2 id="️⃣-operations--limits">7️⃣ Operations &amp; Limits</h2>
+<ul>
+<li>Query quotas</li>
+<li>Max bytes billed</li>
+<li>No server management</li>
+<li>Automatic scaling</li>
+</ul>
+<p>🧠 <em>BigQuery scales automatically — cost is your responsibility.</em></p>
+<hr>
+<h2 id="🔑-bigquery-—-exam-safe-one-liners">🔑 BigQuery — Exam-Safe One-Liners</h2>
+<ul>
+<li>“Large analytics queries” → <strong>BigQuery</strong></li>
+<li>“Reduce query cost” → <strong>Partitioning</strong></li>
+<li>“Prevent expensive queries” → <strong>Max bytes billed</strong></li>
+<li>“Secure aggregated access” → <strong>Views</strong></li>
+<li>“Data location matters” → <strong>Dataset location</strong></li>
+</ul>
+<p>If you can map a question to one of these, you’ll answer correctly.</p>
+<hr>
+<h1 id="✅-bigquery-—-officially-complete-ace-depth">✅ BigQuery — OFFICIALLY COMPLETE (ACE Depth)</h1>
+<p>At this point, you have deep, connected understanding of:</p>
+<ul>
+<li>IAM</li>
+<li>Networking</li>
+<li>Compute</li>
+<li>GKE</li>
+<li>Cloud Run</li>
+<li>Cloud Storage</li>
+<li>Operations Suite</li>
+<li>Cloud SQL</li>
+<li>BigQuery</li>
+</ul>
+<p>This is <strong>full ACE coverage</strong>.</p>
+<hr>
+<h2 id="next-step-your-choice">Next step (your choice)</h2>
+<p>We can now:<br>
+1️⃣ Do <strong>full mixed ACE practice questions</strong><br>
+2️⃣ Review <strong>App Engine &amp; Cloud Functions</strong> (lighter topics)<br>
+3️⃣ Run a <strong>final exam-readiness walkthrough</strong> (strategy + traps)</p>
+<p>👉 Tell me <strong>1, 2, or 3</strong>, and we’ll continue.</p>
+
+    </div>
+  </div>
+</body>
+
+</html>
