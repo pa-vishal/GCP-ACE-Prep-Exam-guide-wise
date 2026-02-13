@@ -1,0 +1,280 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bridges</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li>
+<ul>
+<li><a href="#️⃣-vpc-peering-—-private-connection-between-two-customer-vpcs">1️⃣ VPC Peering — Private connection between two customer VPCs</a></li>
+<li><a href="#️⃣-private-service-access-psa-—-private-connection-to-google-managed-services">2️⃣ Private Service Access (PSA) — Private connection to Google-managed services</a></li>
+<li><a href="#️⃣-side-by-side-comparison-memorize-this">3️⃣ Side-by-side comparison (memorize this)</a></li>
+<li><a href="#️⃣-how-this-fits-your-shared-vpc-design">4️⃣ How this fits your Shared VPC design</a></li>
+<li><a href="#️⃣-interview-grade-explanation-30-seconds">5️⃣ Interview-grade explanation (30 seconds)</a></li>
+<li><a href="#️⃣-common-mistakes-to-avoid-very-important">6️⃣ Common mistakes to avoid (very important)</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <pre><code>              ┌───────────────┐
+              │  Shared VPC   │  ← owns roads
+              └───────┬───────┘
+                      │
+      ┌───────────────┼────────────────┐
+      │               │                │
+	Serverless        Private Google     PSA / PSC
+	On-Ramp           Exit Ramp          Private Doors
+	(VPC Access)      (APIs only)        (Managed / Custom)
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Mental shortcut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shared VPC</td>
+<td>“Who owns the network?”</td>
+</tr>
+<tr>
+<td>Serverless VPC Access</td>
+<td>“How serverless enters my VPC”</td>
+</tr>
+<tr>
+<td>Private Google Access</td>
+<td>“How private VMs reach Google APIs”</td>
+</tr>
+<tr>
+<td>Private Service Access</td>
+<td>“Private tunnel to Google-managed services” /   How I reach Google-managed databases privately</td>
+</tr>
+<tr>
+<td>Private Service Connect</td>
+<td>“Private endpoint to a service”</td>
+</tr>
+</tbody>
+</table><hr>
+<p>Below is a <strong>clear, no-nonsense explanation</strong> of <strong>VPC Peering</strong> and <strong>Private Service Access (PSA)</strong>, written the way senior cloud/network engineers explain it—plus <strong>why they are different</strong> and <strong>when to use which</strong>.</p>
+<hr>
+<h2 id="️⃣-vpc-peering-—-private-connection-between-two-customer-vpcs">1️⃣ VPC Peering — <em>Private connection between two customer VPCs</em></h2>
+<h3 id="what-it-is">What it is</h3>
+<p><strong>VPC Peering</strong> creates a <strong>private, RFC1918 IP-based connection</strong> between <strong>two separate VPC networks</strong>.</p>
+<ul>
+<li>Both VPCs are <strong>customer-owned</strong></li>
+<li>No traffic goes over the public internet</li>
+<li>Uses Google’s internal backbone</li>
+</ul>
+<h3 id="key-properties">Key properties</h3>
+
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>VPC Peering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Connects</td>
+<td>VPC ↔ VPC</td>
+</tr>
+<tr>
+<td>Ownership</td>
+<td>Both VPCs are customer-managed</td>
+</tr>
+<tr>
+<td>IPs</td>
+<td>Private IP only</td>
+</tr>
+<tr>
+<td>Firewall rules</td>
+<td>Still enforced separately in each VPC</td>
+</tr>
+<tr>
+<td>Transitivity</td>
+<td>❌ Not transitive</td>
+</tr>
+<tr>
+<td>Typical use</td>
+<td>Mergers, acquisitions, shared services</td>
+</tr>
+</tbody>
+</table><h3 id="example-ford-scenario">Example (Ford scenario)</h3>
+<blockquote>
+<p>Ford acquires a smaller company that already has its own GCP VPC.<br>
+They <strong>peer the two VPCs</strong> so apps can communicate privately <strong>without merging networks or IAM</strong>.</p>
+</blockquote>
+<h3 id="important-limitations-this-is-where-people-mess-up">Important limitations (this is where people mess up)</h3>
+<ul>
+<li>❌ No overlapping CIDR ranges</li>
+<li>❌ No transitive routing</li>
+<li>❌ No central firewall enforcement across VPCs</li>
+<li>❌ Doesn’t work for Google-managed services (Cloud SQL, etc.)</li>
+</ul>
+<p>👉 <strong>VPC Peering is lateral, between equals.</strong></p>
+<hr>
+<h2 id="️⃣-private-service-access-psa-—-private-connection-to-google-managed-services">2️⃣ Private Service Access (PSA) — <em>Private connection to Google-managed services</em></h2>
+<p><img src="https://docs.cloud.google.com/static/vpc/images/hybrid-access.svg" alt="Image"></p>
+<p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/private_service_connent.max-700x700.jpg" alt="Image"></p>
+<p><img src="https://codelabs.developers.google.com/static/codelabs/psc-psa-cloudsql-terraform/img/e0e0f83704cc9d62.png" alt="Image"></p>
+<p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Figure_3_CoNb8vh.max-1300x1300.jpg" alt="Image"></p>
+<h3 id="what-it-is-1">What it is</h3>
+<p><strong>Private Service Access (PSA)</strong> is a <strong>specialized form of VPC peering</strong> between:</p>
+<ul>
+<li><strong>Your VPC</strong></li>
+<li><strong>A Google-managed service VPC</strong> (not visible to you)</li>
+</ul>
+<p>This is how <strong>Cloud SQL, Memorystore, Filestore</strong> get <strong>private IPs</strong>.</p>
+<h3 id="key-properties-1">Key properties</h3>
+
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>PSA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Connects</td>
+<td>Customer VPC ↔ Google-managed service VPC</td>
+</tr>
+<tr>
+<td>Ownership</td>
+<td>One side is Google-owned</td>
+</tr>
+<tr>
+<td>IPs</td>
+<td>Private IP for managed services</td>
+</tr>
+<tr>
+<td>Routing</td>
+<td>Controlled by Google</td>
+</tr>
+<tr>
+<td>Firewall rules</td>
+<td>Apply on customer VPC side</td>
+</tr>
+<tr>
+<td>Typical use</td>
+<td>Cloud SQL private IP</td>
+</tr>
+</tbody>
+</table><h3 id="example-your-architecture">Example (your architecture)</h3>
+<blockquote>
+<p>Cloud Run → Cloud SQL<br>
+Traffic flows <strong>privately through Shared VPC → PSA → Google-managed Cloud SQL project</strong><br>
+No public IPs. No internet exposure.</p>
+</blockquote>
+<h3 id="why-psa-exists-critical-insight">Why PSA exists (critical insight)</h3>
+<p>Google <strong>does not place managed services inside your VPC</strong>.</p>
+<p>Instead:</p>
+<ul>
+<li>They live in <strong>Google-owned service projects</strong></li>
+<li>PSA creates a <strong>controlled private bridge</strong></li>
+<li>You never see or manage the service VPC</li>
+</ul>
+<p>👉 <strong>PSA is vertical, customer → Google service.</strong></p>
+<hr>
+<h2 id="️⃣-side-by-side-comparison-memorize-this">3️⃣ Side-by-side comparison (memorize this)</h2>
+
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>VPC Peering</th>
+<th>Private Service Access</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Connects</td>
+<td>Customer VPC ↔ Customer VPC</td>
+<td>Customer VPC ↔ Google-managed service</td>
+</tr>
+<tr>
+<td>Purpose</td>
+<td>Org-to-org or project-to-project</td>
+<td>Access managed services privately</td>
+</tr>
+<tr>
+<td>Google-managed side</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Can connect Cloud SQL</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>CIDR planning required</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Seen in enterprise</td>
+<td>Acquisitions, shared platforms</td>
+<td>Databases, caches, file services</td>
+</tr>
+</tbody>
+</table><hr>
+<h2 id="️⃣-how-this-fits-your-shared-vpc-design">4️⃣ How this fits your <strong>Shared VPC</strong> design</h2>
+<pre><code>Service Projects
+      │
+      ▼
+Host Project (Shared VPC)
+      │
+      ├── VPC Peering → Another company / legacy VPC
+      │
+      └── PSA → Google-managed Cloud SQL
+</code></pre>
+<h3 id="why-this-is-powerful">Why this is powerful</h3>
+<ul>
+<li>Central network team controls <strong>routing + security</strong></li>
+<li>App teams get <strong>private access without complexity</strong></li>
+<li>Google services stay <strong>isolated and hardened</strong></li>
+</ul>
+<hr>
+<h2 id="️⃣-interview-grade-explanation-30-seconds">5️⃣ Interview-grade explanation (30 seconds)</h2>
+<blockquote>
+<p>“VPC Peering connects two customer-owned VPCs privately and is typically used for mergers or shared platforms.<br>
+Private Service Access is a specialized peering that connects our VPC to Google-managed services like Cloud SQL, enabling private IP access.<br>
+In Shared VPC, both are anchored at the Host Project to maintain centralized control.”</p>
+</blockquote>
+<p>If you can say that confidently → <strong>you pass</strong>.</p>
+<hr>
+<h2 id="️⃣-common-mistakes-to-avoid-very-important">6️⃣ Common mistakes to avoid (very important)</h2>
+<ul>
+<li>❌ Thinking PSA is just “another VPC peering”</li>
+<li>❌ Trying to peer directly to Cloud SQL</li>
+<li>❌ Overlapping CIDRs</li>
+<li>❌ Expecting firewall rules to propagate across VPCs</li>
+</ul>
+<hr>
+<p><img src="https://miro.medium.com/v2/resize%3Afit%3A1400/1%2ACwnOrhyCL7lP_E7ZqFRNqg.jpeg" alt="Image"></p>
+<p><img src="https://docs.cloud.google.com/static/vpc/images/peering/network-peering-vpc-transit.svg?hl=es-419" alt="Image"></p>
+<p><img src="https://docs.cloud.google.com/static/architecture/images/vpc-bps-multiple-projects-multiple-shared-2.svg" alt="Image"></p>
+<p><img src="https://docs.cloud.google.com/static/architecture/images/vpc-bps-multi-nic-shared-vpc.png" alt="Image"></p>
+
+    </div>
+  </div>
+</body>
+
+</html>
